@@ -1,0 +1,23 @@
+{
+  "name": "Step Buddy",
+  "short_name": "StepBuddy",
+  "description": "A modern step calculator for your daily needs",
+  "start_url": "/stepbuddy/",
+  "display": "standalone",
+  "background_color": "#F5F5F7",
+  "theme_color": "#0A84FF",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+} 
