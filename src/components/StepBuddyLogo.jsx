@@ -3,13 +3,13 @@ import React from 'react';
 const StepBuddyLogo = () => {
   return (
     <div className="flex justify-center items-center p-8 bg-[#F8F7F4] w-full">
-      <div className="relative w-full max-w-3xl mx-auto">
+      <div className="relative w-full max-w-2xl mx-auto">
         {/* Main Container with Border */}
-        <div className="relative border-[3px] border-[#2C2C2C] p-12 mx-auto">
+        <div className="relative border-[3px] border-[#2C2C2C] p-8 mx-auto">
           {/* Content Container */}
           <div className="text-center">
             {/* Established Date with Heritage Styling */}
-            <div className="flex items-center justify-center gap-6 mb-8">
+            <div className="flex items-center justify-center gap-6 mb-6">
               <div className="h-px w-16 bg-[#2C2C2C] opacity-40" />
               <div className="text-sm tracking-[0.25em] text-[#2C2C2C]" style={{
                 fontFamily: 'Georgia, serif'
@@ -20,7 +20,7 @@ const StepBuddyLogo = () => {
             </div>
 
             {/* Main Logo Text */}
-            <div className="mb-6">
+            <div className="mb-4">
               <h1 className="mb-2" style={{
                 fontFamily: 'Georgia, serif',
                 fontWeight: '900',
@@ -46,15 +46,14 @@ const StepBuddyLogo = () => {
               </h1>
             </div>
 
-            {/* Decorative Elements */}
-            <div className="flex items-center justify-center gap-4 mb-6">
-              <div className="w-20 h-px bg-[#2C2C2C] opacity-30" />
-              <div className="text-2xl opacity-40">✦</div>
-              <div className="w-20 h-px bg-[#2C2C2C] opacity-30" />
+            {/* Decorative Lines */}
+            <div className="flex items-center justify-center gap-4 mb-4">
+              <div className="w-24 h-px bg-[#2C2C2C] opacity-30" />
+              <div className="w-24 h-px bg-[#2C2C2C] opacity-30" />
             </div>
 
             {/* Tagline with Heritage Style */}
-            <div className="text-lg italic mb-8" style={{ 
+            <div className="text-lg italic mb-6" style={{ 
               fontFamily: 'Georgia, serif',
               color: '#4A4A4A'
             }}>
