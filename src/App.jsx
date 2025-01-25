@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import './styles.css'
 import Calculator from './components/Calculator'
 import { SunIcon, MoonIcon, ExpandIcon, CompressIcon } from './components/Icons'
+import StepBuddyLogo from './components/StepBuddyLogo'
 
 function App() {
   const [start, setStart] = useState('')
@@ -149,13 +150,7 @@ function App() {
       </div>
       
       <header className="brand-header" role="banner">
-        <div className="logo-container">
-          <img src="/stepbuddy.svg" alt="Step Buddy Logo" className="logo" />
-          <div>
-            <h1>Step Buddy</h1>
-            <p className="brand-subtitle">Precise calculations made simple</p>
-          </div>
-        </div>
+        <StepBuddyLogo />
       </header>
 
       <main className="content" role="main">

@@ -3,21 +3,21 @@
     --font-display: -apple-system-headline, SF Pro Display, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
     --font-text: -apple-system-body, SF Pro Text, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
     
-    /* Modern Color Palette - Light Mode */
-    --primary: #0A84FF;
-    --primary-dark: #0051A5;
-    --secondary: #8E8E93;
-    --success: #30D158;
-    --error: #FF453A;
-    --text-primary: rgba(0, 0, 0, 0.87);
+    /* Sophisticated Color Palette - Light Mode */
+    --primary: #8B7355;
+    --primary-dark: #5C4C3A;
+    --secondary: #4A4A4A;
+    --success: #6B8E23;
+    --error: #B22222;
+    --text-primary: #2C2C2C;
     --text-secondary: rgba(60, 60, 67, 0.6);
     --text-tertiary: rgba(60, 60, 67, 0.3);
     --border-color: rgba(60, 60, 67, 0.12);
-    --background-primary: #F5F5F7;
+    --background-primary: #F8F7F4;
     --background-secondary: #FFFFFF;
-    --header-gradient: linear-gradient(135deg, #0A84FF 0%, #0051A5 100%);
-    --card-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
-    --logo-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
+    --header-gradient: linear-gradient(135deg, #8B7355 0%, #5C4C3A 100%);
+    --card-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+    --logo-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
     
     /* iOS Standard Spacing */
     --spacing-2xs: 2px;
@@ -31,18 +31,18 @@
 
 /* Dark mode styles */
 :root.dark-mode {
-    --primary: #0A84FF;
-    --primary-dark: #0051A5;
+    --primary: #8B7355;
+    --primary-dark: #5C4C3A;
     --secondary: #98989D;
-    --success: #30D158;
-    --error: #FF453A;
+    --success: #90BC4C;
+    --error: #CF4F4F;
     --text-primary: rgba(255, 255, 255, 0.92);
     --text-secondary: rgba(235, 235, 245, 0.6);
     --text-tertiary: rgba(235, 235, 245, 0.3);
     --border-color: rgba(84, 84, 88, 0.48);
-    --background-primary: #000000;
-    --background-secondary: #1C1C1E;
-    --header-gradient: linear-gradient(135deg, #0A84FF 0%, #0051A5 100%);
+    --background-primary: #1C1C1E;
+    --background-secondary: #2C2C2E;
+    --header-gradient: linear-gradient(135deg, #8B7355 0%, #5C4C3A 100%);
     --card-shadow: 0 12px 32px rgba(0, 0, 0, 0.32);
     --logo-shadow: 0 8px 24px rgba(0, 0, 0, 0.32);
 }
@@ -112,15 +112,12 @@ body {
 }
 
 .brand-header {
-    padding: var(--spacing-2xl) var(--spacing-xl);
+    padding: 0;
     background: var(--header-gradient);
     position: relative;
     overflow: hidden;
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    display: flex;
-    justify-content: center;
-    align-items: center;
 }
 
 .brand-header::after {
@@ -687,4 +684,13 @@ h2, h3 {
 .graph-container,
 .results {
     animation: fadeScale 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Dark mode adjustments for the logo */
+:root.dark-mode .brand-header {
+    background: var(--background-secondary);
+}
+
+:root.dark-mode .brand-header::after {
+    opacity: 0.1;
 } 
