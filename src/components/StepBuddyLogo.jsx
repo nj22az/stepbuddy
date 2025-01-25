@@ -2,10 +2,10 @@ import React from 'react';
 
 const StepBuddyLogo = () => {
   return (
-    <div className="flex justify-center items-center p-8 bg-[#F8F7F4]">
-      <div className="relative w-full max-w-4xl">
+    <div className="flex justify-center items-center p-8 bg-[#F8F7F4] w-full">
+      <div className="relative w-full max-w-3xl mx-auto">
         {/* Main Container with Border */}
-        <div className="relative border-[3px] border-[#2C2C2C] p-12">
+        <div className="relative border-[3px] border-[#2C2C2C] p-12 mx-auto">
           {/* Content Container */}
           <div className="text-center">
             {/* Established Date with Heritage Styling */}
