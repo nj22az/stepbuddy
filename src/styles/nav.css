@@ -33,25 +33,32 @@
 .header-text {
     display: flex;
     flex-direction: column;
+    justify-content: center;
     flex: 1;
     min-width: 0;
+    align-self: stretch;
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 16px 20px;
+    box-shadow: 0 0.5px 2px rgba(0, 0, 0, 0.06);
 }
 
 .header-title {
-    font-family: var(--font-sans);
-    font-size: 30px;
-    font-weight: 700;
+    font-family: 'M PLUS Rounded 1c', var(--font-sans);
+    font-size: 28px;
+    font-weight: 800;
     color: var(--text);
     line-height: 1.15;
-    letter-spacing: 0.35px;
+    letter-spacing: 0.3px;
 }
 
 .header-subtitle {
-    font-size: 15px;
+    font-size: 14px;
     color: var(--text-tertiary);
-    letter-spacing: 0;
+    font-family: 'M PLUS Rounded 1c', var(--font-sans);
     font-weight: 400;
-    margin-top: 3px;
+    letter-spacing: 0;
+    margin-top: 4px;
 }
 
 /* Theme toggle — right side */
