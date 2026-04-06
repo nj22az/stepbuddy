@@ -182,13 +182,13 @@ function App() {
       <div className="app-content">
         {/* How to Use — collapsible */}
         <section className="section">
-          <button className="section-toggle" onClick={() => setShowHowTo(v => !v)}
+          <button className="section-toggle section-toggle--red" onClick={() => setShowHowTo(v => !v)}
             aria-expanded={showHowTo} aria-label="Toggle how to use section">
             <ChevronIcon expanded={showHowTo} />
             <span className="section-header">How to Use</span>
           </button>
           {showHowTo && (
-            <div className="card">
+            <div className="card card--howto">
               {howTo.map((text, i) => (
                 <div key={i} className="step-row">
                   <span className="step-num">{i + 1}</span>

@@ -40,7 +40,37 @@
     flex-shrink: 0;
 }
 
-/* Steps list (how-to) */
+/* Steps list (how-to) — bright red bento */
+.card--howto {
+    background: #FFFFFF;
+    border-color: #D32F2F;
+}
+
+:root.dark-mode .card--howto {
+    background: #2A1515;
+    border-color: #E53935;
+}
+
+:root.dark-mode .card--howto .step-row + .step-row {
+    border-top-color: #3D2020;
+}
+
+:root.dark-mode .card--howto .step-num {
+    background: #E53935;
+}
+
+:root.dark-mode .card--howto .step-text {
+    color: #EF9A9A;
+}
+
+:root.dark-mode .section-toggle--red .section-header {
+    color: #E53935;
+}
+
+:root.dark-mode .section-toggle--red svg {
+    color: #E53935;
+}
+
 .step-row {
     display: flex;
     align-items: flex-start;
@@ -50,18 +80,19 @@
 }
 
 .step-row + .step-row {
-    border-top: 1px solid var(--border-light);
+    border-top: 1px solid #F5C6C6;
 }
 
 .step-num {
     width: 20px;
     height: 20px;
-    border: 1.5px solid var(--red);
+    background: #D32F2F;
+    border: none;
     border-radius: 50%;
     font-family: var(--font-mono);
     font-size: 10px;
     font-weight: 700;
-    color: var(--red);
+    color: #FFFFFF;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -70,7 +101,8 @@
 
 .step-text {
     font-size: 12px;
-    color: var(--text);
+    color: #D32F2F;
+    font-weight: 500;
     line-height: 1.5;
     padding-top: 1px;
 }
@@ -102,6 +134,14 @@
 .section-toggle .section-header {
     padding: 0;
     cursor: pointer;
+}
+
+.section-toggle--red .section-header {
+    color: #D32F2F;
+}
+
+.section-toggle--red svg {
+    color: #D32F2F;
 }
 
 /* About card */
