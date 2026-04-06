@@ -1,51 +1,64 @@
 export function SunIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-      <path 
-        d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" 
-        strokeWidth="2" 
-        strokeLinecap="round" 
-        strokeLinejoin="round"
-      />
+    <svg viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 1.5a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 0112 1.5zm0 15a4.5 4.5 0 100-9 4.5 4.5 0 000 9zm7.794-6.75H21a.75.75 0 010 1.5h-1.206a.75.75 0 010-1.5zM3 11.25a.75.75 0 000 1.5h1.206a.75.75 0 000-1.5H3zm14.303-5.053a.75.75 0 011.06 0 .75.75 0 010 1.06l-.852.853a.75.75 0 01-1.061-1.06l.853-.853zM6.55 16.397a.75.75 0 00-1.06 1.06l.852.853a.75.75 0 001.06-1.06l-.852-.853zm10.9 0l.852.853a.75.75 0 001.061-1.06l-.853-.853a.75.75 0 00-1.06 1.06zM6.55 7.603l-.852-.853a.75.75 0 011.06-1.06l.853.852a.75.75 0 01-1.061 1.06zM12 19.5a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5a.75.75 0 01.75-.75z" />
     </svg>
   );
 }
 
 export function MoonIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-      <path 
-        d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" 
-        strokeWidth="2" 
-        strokeLinecap="round" 
-        strokeLinejoin="round"
-      />
+    <svg viewBox="0 0 24 24" fill="currentColor">
+      <path d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
     </svg>
   );
 }
 
 export function ExpandIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-      <path 
-        d="M4 8V4m0 0h4M4 4l5 5m11-5v4m0-4h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5" 
-        strokeWidth="2" 
-        strokeLinecap="round" 
-        strokeLinejoin="round"
-      />
+    <svg viewBox="0 0 24 24" fill="currentColor">
+      <path d="M3 3h6a1 1 0 010 2H5v4a1 1 0 01-2 0V3zm12 0h6v7a1 1 0 01-2 0V5h-4a1 1 0 010-2zM4 14a1 1 0 011 1v4h4a1 1 0 010 2H3v-6a1 1 0 011-1zm16 0a1 1 0 011 1v6h-6a1 1 0 010-2h4v-4a1 1 0 011-1z" />
     </svg>
   );
 }
 
 export function CompressIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-      <path 
-        d="M8 3v4m0 0h4M8 7l5-5m3 17v-4m0 0h-4m4 0l-5 5M3 8h4m0 0v4M7 8l-5 5m17 3h-4m0 0v-4m0 4l5-5" 
-        strokeWidth="2" 
-        strokeLinecap="round" 
-        strokeLinejoin="round"
-      />
+    <svg viewBox="0 0 24 24" fill="currentColor">
+      <path d="M9 4a1 1 0 011 1v3h3a1 1 0 010 2H9a1 1 0 01-1-1V5a1 1 0 011-1zm6 0a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 010-2h3V5a1 1 0 011-1zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-2 0v-3H5a1 1 0 01-1-1zm11-1a1 1 0 00-1 1v4a1 1 0 002 0v-3h3a1 1 0 000-2h-4z" />
     </svg>
   );
-} 
+}
+
+export function CalcIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor">
+      <path fillRule="evenodd" clipRule="evenodd" d="M4 2a2 2 0 00-2 2v16a2 2 0 002 2h16a2 2 0 002-2V4a2 2 0 00-2-2H4zm2 4a1 1 0 011-1h10a1 1 0 011 1v2a1 1 0 01-1 1H7a1 1 0 01-1-1V6zm0 6a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zm6 0a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zm-6 5a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zm6 0a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zm4.5-6.5a1.5 1.5 0 100 6 1.5 1.5 0 000-6z" />
+    </svg>
+  );
+}
+
+export function ExportIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor">
+      <path d="M11.25 2.5a.75.75 0 011.5 0v10.19l2.72-2.72a.75.75 0 011.06 1.06l-4 4a.75.75 0 01-1.06 0l-4-4a.75.75 0 011.06-1.06l2.72 2.72V2.5z" />
+      <path d="M3 15.75a.75.75 0 01.75.75v2.25c0 .414.336.75.75.75h14.5a.75.75 0 00.75-.75V16.5a.75.75 0 011.5 0v2.25A2.25 2.25 0 0119 21H5a2.25 2.25 0 01-2.25-2.25V16.5a.75.75 0 01.75-.75z" />
+    </svg>
+  );
+}
+
+export function TrashIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor">
+      <path fillRule="evenodd" clipRule="evenodd" d="M9 1.5a1.5 1.5 0 00-1.5 1.5v1H3a.75.75 0 000 1.5h1.058l.862 12.927A2.25 2.25 0 007.166 20.5h9.668a2.25 2.25 0 002.246-2.073L19.942 5.5H21a.75.75 0 000-1.5h-4.5V3A1.5 1.5 0 0015 1.5H9zm1.5 3V3h3v1.5h-3zM9.75 8a.75.75 0 01.75.75v7.5a.75.75 0 01-1.5 0v-7.5A.75.75 0 019.75 8zm4.5 0a.75.75 0 01.75.75v7.5a.75.75 0 01-1.5 0v-7.5a.75.75 0 01.75-.75z" />
+    </svg>
+  );
+}
+
+export function ErrorIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor">
+      <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0112 7zm0 8.25a.9.9 0 100 1.8.9.9 0 000-1.8z" />
+    </svg>
+  );
+}

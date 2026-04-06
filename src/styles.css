@@ -4,19 +4,18 @@
     --font-text: -apple-system, SF Pro Text, BlinkMacSystemFont, system-ui, sans-serif;
     --font-rounded: -apple-system, SF Pro Rounded, BlinkMacSystemFont, system-ui, sans-serif;
 
-    /* iOS System Colors - Light */
-    --system-blue: #007AFF;
+    /* Accent Color — Indigo */
+    --accent: #6366F1;
+    --accent-light: #818CF8;
+    --accent-glow: rgba(99, 102, 241, 0.3);
+
+    /* iOS System Colors */
     --system-green: #34C759;
     --system-red: #FF3B30;
     --system-orange: #FF9500;
     --system-gray: #8E8E93;
-    --system-gray2: #AEAEB2;
-    --system-gray3: #C7C7CC;
-    --system-gray4: #D1D1D6;
-    --system-gray5: #E5E5EA;
-    --system-gray6: #F2F2F7;
 
-    /* Semantic Colors - Light */
+    /* Semantic Colors — Light */
     --label: #000000;
     --label-secondary: rgba(60, 60, 67, 0.6);
     --label-tertiary: rgba(60, 60, 67, 0.3);
@@ -25,29 +24,32 @@
     --fill-secondary: rgba(120, 120, 128, 0.16);
     --fill-tertiary: rgba(120, 120, 128, 0.12);
     --fill-quaternary: rgba(120, 120, 128, 0.08);
-    --bg-primary: #F2F2F7;
-    --bg-secondary: #FFFFFF;
-    --bg-tertiary: #F2F2F7;
-    --bg-grouped: #F2F2F7;
-    --bg-grouped-secondary: #FFFFFF;
-    --separator: rgba(60, 60, 67, 0.29);
-    --separator-opaque: #C6C6C8;
-    --nav-bar-bg: rgba(249, 249, 249, 0.94);
-    --nav-bar-border: rgba(0, 0, 0, 0.3);
-    --toolbar-bg: rgba(249, 249, 249, 0.94);
+    --separator: rgba(60, 60, 67, 0.12);
+
+    /* Glass Surfaces — Light */
+    --glass-bg: rgba(255, 255, 255, 0.55);
+    --glass-border: rgba(255, 255, 255, 0.6);
+    --glass-highlight: rgba(255, 255, 255, 0.7);
+    --glass-shadow: rgba(0, 0, 0, 0.06);
+    --nav-bg: rgba(255, 255, 255, 0.65);
+    --nav-border-shadow: rgba(255, 255, 255, 0.15);
+    --nav-depth-shadow: rgba(0, 0, 0, 0.05);
+
+    /* Background gradient colors — Light */
+    --bg-base: #EDE9FE;
+    --bg-blob-warm: rgba(255, 182, 185, 0.4);
+    --bg-blob-cool: rgba(165, 180, 252, 0.4);
 }
 
 :root.dark-mode {
-    --system-blue: #0A84FF;
+    --accent: #818CF8;
+    --accent-light: #A5B4FC;
+    --accent-glow: rgba(129, 140, 248, 0.3);
+
     --system-green: #30D158;
     --system-red: #FF453A;
     --system-orange: #FF9F0A;
     --system-gray: #8E8E93;
-    --system-gray2: #636366;
-    --system-gray3: #48484A;
-    --system-gray4: #3A3A3C;
-    --system-gray5: #2C2C2E;
-    --system-gray6: #1C1C1E;
 
     --label: #FFFFFF;
     --label-secondary: rgba(235, 235, 245, 0.6);
@@ -57,16 +59,19 @@
     --fill-secondary: rgba(120, 120, 128, 0.32);
     --fill-tertiary: rgba(120, 120, 128, 0.24);
     --fill-quaternary: rgba(120, 120, 128, 0.18);
-    --bg-primary: #000000;
-    --bg-secondary: #1C1C1E;
-    --bg-tertiary: #2C2C2E;
-    --bg-grouped: #000000;
-    --bg-grouped-secondary: #1C1C1E;
-    --separator: rgba(84, 84, 88, 0.6);
-    --separator-opaque: #38383A;
-    --nav-bar-bg: rgba(29, 29, 31, 0.94);
-    --nav-bar-border: rgba(255, 255, 255, 0.15);
-    --toolbar-bg: rgba(29, 29, 31, 0.94);
+    --separator: rgba(255, 255, 255, 0.06);
+
+    --glass-bg: rgba(30, 28, 40, 0.55);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-highlight: rgba(255, 255, 255, 0.05);
+    --glass-shadow: rgba(0, 0, 0, 0.3);
+    --nav-bg: rgba(20, 18, 30, 0.65);
+    --nav-border-shadow: rgba(255, 255, 255, 0.06);
+    --nav-depth-shadow: rgba(0, 0, 0, 0.2);
+
+    --bg-base: #0C0A14;
+    --bg-blob-warm: rgba(99, 60, 180, 0.25);
+    --bg-blob-cool: rgba(30, 80, 160, 0.2);
 }
 
 * {
@@ -79,14 +84,10 @@
     -webkit-tap-highlight-color: transparent;
 }
 
-html {
-    background: var(--bg-grouped);
-}
-
-body {
+html, body {
     min-height: 100vh;
     min-height: -webkit-fill-available;
-    background: var(--bg-grouped);
+    background: var(--bg-base);
     color: var(--label);
     font-size: 17px;
     line-height: 22px;
@@ -96,20 +97,70 @@ body {
     overflow-x: hidden;
 }
 
-/* ===== iOS Navigation Bar ===== */
+/* ===== Fixed Background Gradient ===== */
+.glass-bg-gradient {
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    background:
+        radial-gradient(ellipse at 20% 10%, var(--bg-blob-warm) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 90%, var(--bg-blob-cool) 0%, transparent 50%),
+        var(--bg-base);
+    animation: gradientDrift 20s ease-in-out infinite alternate;
+}
+
+@keyframes gradientDrift {
+    0% { background-position: 0% 0%, 100% 100%, center; }
+    100% { background-position: 5% 5%, 95% 95%, center; }
+}
+
+/* ===== Noise Texture Overlay ===== */
+.glass-noise-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0.025;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 256px 256px;
+}
+
+/* ===== App Container ===== */
+.ios-app {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.ios-scroll-content {
+    flex: 1;
+    padding-bottom: env(safe-area-inset-bottom, 20px);
+}
+
+/* ===== iOS Navigation Bar — Enhanced Glass ===== */
 .nav-bar {
     position: sticky;
     top: 0;
     z-index: 100;
-    background: var(--nav-bar-bg);
-    backdrop-filter: saturate(180%) blur(20px);
-    -webkit-backdrop-filter: saturate(180%) blur(20px);
-    border-bottom: 0.5px solid var(--nav-bar-border);
+    background: var(--nav-bg);
+    backdrop-filter: saturate(180%) blur(28px);
+    -webkit-backdrop-filter: saturate(180%) blur(28px);
+    border-bottom: none;
+    box-shadow:
+        0 0.5px 0 var(--nav-border-shadow),
+        0 4px 16px var(--nav-depth-shadow);
     padding: 0 16px;
     min-height: 44px;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .nav-bar-title {
@@ -131,7 +182,7 @@ body {
 .nav-bar-button {
     background: none;
     border: none;
-    color: var(--system-blue);
+    color: var(--accent);
     font-size: 17px;
     font-weight: 400;
     cursor: pointer;
@@ -151,17 +202,16 @@ body {
 .nav-bar-button svg {
     width: 22px;
     height: 22px;
-    stroke: var(--system-blue);
-    stroke-width: 1.8;
-    fill: none;
+    fill: var(--accent);
 }
 
-/* ===== Large Title ===== */
+/* ===== Large Title Area — Glass ===== */
 .large-title-area {
     padding: 0 16px 8px;
-    background: var(--nav-bar-bg);
-    backdrop-filter: saturate(180%) blur(20px);
-    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    background: var(--nav-bg);
+    backdrop-filter: saturate(180%) blur(28px);
+    -webkit-backdrop-filter: saturate(180%) blur(28px);
+    transition: background-color 0.3s ease;
 }
 
 .large-title {
@@ -171,6 +221,11 @@ body {
     letter-spacing: 0.37px;
     line-height: 41px;
     color: var(--label);
+    text-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.08);
+}
+
+:root.dark-mode .large-title {
+    text-shadow: 0 0.5px 2px rgba(0, 0, 0, 0.4);
 }
 
 .large-title-subtitle {
@@ -178,23 +233,6 @@ body {
     color: var(--label-secondary);
     letter-spacing: -0.24px;
     margin-top: 2px;
-}
-
-/* ===== App Container ===== */
-.ios-app {
-    width: 100%;
-    max-width: 600px;
-    margin: 0 auto;
-    min-height: 100vh;
-    min-height: -webkit-fill-available;
-    background: var(--bg-grouped);
-    display: flex;
-    flex-direction: column;
-}
-
-.ios-scroll-content {
-    flex: 1;
-    padding-bottom: env(safe-area-inset-bottom, 20px);
 }
 
 /* ===== iOS Grouped Section ===== */
@@ -214,6 +252,11 @@ body {
     text-transform: uppercase;
     padding: 0 20px 6px;
     line-height: 18px;
+    text-shadow: 0 0.5px 0 rgba(255, 255, 255, 0.5);
+}
+
+:root.dark-mode .ios-section-header {
+    text-shadow: 0 0.5px 2px rgba(0, 0, 0, 0.5);
 }
 
 .ios-section-footer {
@@ -225,12 +268,19 @@ body {
     line-height: 18px;
 }
 
-/* ===== iOS Grouped Inset Card ===== */
+/* ===== Glass Card ===== */
 .ios-card {
-    background: var(--bg-grouped-secondary);
+    background: var(--glass-bg);
+    backdrop-filter: saturate(120%) blur(24px);
+    -webkit-backdrop-filter: saturate(120%) blur(24px);
+    border: 0.5px solid var(--glass-border);
+    box-shadow:
+        0 2px 16px var(--glass-shadow),
+        inset 0 0.5px 0 var(--glass-highlight);
     margin: 0 16px;
-    border-radius: 10px;
+    border-radius: 16px;
     overflow: hidden;
+    transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 /* ===== iOS List Row ===== */
@@ -244,26 +294,6 @@ body {
 
 .ios-row + .ios-row {
     border-top: 0.5px solid var(--separator);
-    margin-left: 0;
-}
-
-.ios-row + .ios-row::before {
-    content: none;
-}
-
-/* Row with left-aligned separator (iOS standard) */
-.ios-row-separated + .ios-row-separated {
-    border-top: none;
-}
-
-.ios-row-separated + .ios-row-separated::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 16px;
-    right: 0;
-    height: 0.5px;
-    background: var(--separator);
 }
 
 .ios-row-label {
@@ -297,61 +327,94 @@ body {
     color: var(--label-tertiary);
 }
 
-/* Remove number input spinners */
-.ios-input[type="number"]::-webkit-inner-spin-button,
-.ios-input[type="number"]::-webkit-outer-spin-button {
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
     -webkit-appearance: none;
     margin: 0;
 }
 
-.ios-input[type="number"] {
+input[type="number"] {
     -moz-appearance: textfield;
 }
 
-/* ===== iOS Buttons ===== */
+/* ===== Glass Buttons ===== */
 .ios-button-filled {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    width: 100%;
     height: 50px;
-    border: none;
-    border-radius: 12px;
-    background: var(--system-blue);
+    border: 0.5px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    background: rgba(99, 102, 241, 0.75);
+    backdrop-filter: saturate(140%) blur(16px);
+    -webkit-backdrop-filter: saturate(140%) blur(16px);
     color: #FFFFFF;
     font-family: var(--font-text);
     font-size: 17px;
     font-weight: 600;
     letter-spacing: -0.41px;
     cursor: pointer;
-    transition: filter 0.15s ease;
+    box-shadow:
+        0 2px 12px var(--accent-glow),
+        inset 0 0.5px 0 rgba(255, 255, 255, 0.15);
     margin: 0 16px;
     width: calc(100% - 32px);
+    transition: background-color 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
 }
 
 .ios-button-filled:active {
-    filter: brightness(0.85);
+    background: rgba(99, 102, 241, 0.9);
+    box-shadow:
+        0 1px 6px var(--accent-glow),
+        inset 0 0.5px 0 rgba(255, 255, 255, 0.1);
 }
 
 .ios-button-filled svg {
     width: 20px;
     height: 20px;
-    stroke: #FFFFFF;
-    stroke-width: 2;
-    fill: none;
+    fill: #FFFFFF;
 }
 
 .ios-button-filled.green {
-    background: var(--system-green);
+    background: rgba(52, 199, 89, 0.7);
+    box-shadow:
+        0 2px 12px rgba(52, 199, 89, 0.25),
+        inset 0 0.5px 0 rgba(255, 255, 255, 0.15);
+}
+
+.ios-button-filled.green:active {
+    background: rgba(52, 199, 89, 0.9);
 }
 
 .ios-button-filled.red {
-    background: var(--system-red);
+    background: rgba(255, 59, 48, 0.7);
+    box-shadow:
+        0 2px 12px rgba(255, 59, 48, 0.25),
+        inset 0 0.5px 0 rgba(255, 255, 255, 0.15);
+}
+
+.ios-button-filled.red:active {
+    background: rgba(255, 59, 48, 0.9);
 }
 
 .ios-button-filled.gray {
-    background: var(--system-gray);
+    background: rgba(142, 142, 147, 0.6);
+    box-shadow:
+        0 2px 12px rgba(142, 142, 147, 0.2),
+        inset 0 0.5px 0 rgba(255, 255, 255, 0.15);
+}
+
+.ios-button-filled.gray:active {
+    background: rgba(142, 142, 147, 0.85);
+}
+
+:root.dark-mode .ios-button-filled {
+    background: rgba(129, 140, 248, 0.65);
+}
+
+:root.dark-mode .ios-button-filled:active {
+    background: rgba(129, 140, 248, 0.85);
 }
 
 .ios-button-row {
@@ -366,11 +429,11 @@ body {
     flex: 1;
 }
 
-/* Text-style button (like in a list row) */
+/* Text-style button */
 .ios-button-text {
     background: none;
     border: none;
-    color: var(--system-blue);
+    color: var(--accent);
     font-family: var(--font-text);
     font-size: 17px;
     font-weight: 400;
@@ -388,15 +451,18 @@ body {
     color: var(--system-red);
 }
 
-/* ===== iOS Error Banner ===== */
+/* ===== iOS Error Banner — Glass ===== */
 .ios-error {
     display: flex;
     align-items: center;
     gap: 10px;
     margin: 12px 16px 0;
     padding: 12px 16px;
-    background: rgba(255, 59, 48, 0.12);
-    border-radius: 10px;
+    background: rgba(255, 59, 48, 0.1);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 0.5px solid rgba(255, 59, 48, 0.2);
+    border-radius: 14px;
     color: var(--system-red);
     font-size: 15px;
     letter-spacing: -0.24px;
@@ -407,9 +473,7 @@ body {
 .ios-error svg {
     width: 20px;
     height: 20px;
-    stroke: var(--system-red);
-    stroke-width: 2;
-    fill: none;
+    fill: var(--system-red);
     flex-shrink: 0;
 }
 
@@ -421,12 +485,59 @@ body {
     80% { transform: translateX(2px); }
 }
 
-/* ===== iOS Results Table ===== */
+/* ===== iOS How-to Steps ===== */
+.ios-steps-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    min-height: 44px;
+    padding: 12px 16px;
+    position: relative;
+}
+
+.ios-steps-row + .ios-steps-row::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 48px;
+    right: 0;
+    height: 0.5px;
+    background: var(--separator);
+}
+
+.ios-step-number {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: rgba(99, 102, 241, 0.8);
+    box-shadow: 0 1px 4px var(--accent-glow);
+    color: #FFFFFF;
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+:root.dark-mode .ios-step-number {
+    background: rgba(129, 140, 248, 0.8);
+}
+
+.ios-step-text {
+    font-size: 15px;
+    color: var(--label);
+    line-height: 22px;
+    letter-spacing: -0.24px;
+}
+
+/* ===== Results Table — Glass ===== */
 .ios-results-header {
     display: grid;
     grid-template-columns: 72px 1fr 1fr;
     padding: 6px 16px;
-    background: var(--bg-grouped-secondary);
+    background: rgba(120, 120, 128, 0.06);
     border-bottom: 0.5px solid var(--separator);
 }
 
@@ -455,6 +566,10 @@ body {
     transition: background-color 0.2s ease;
 }
 
+.ios-result-row:nth-child(even) {
+    background: rgba(120, 120, 128, 0.04);
+}
+
 .ios-result-row:active {
     background: var(--fill-quaternary);
 }
@@ -472,7 +587,7 @@ body {
 .ios-result-step {
     font-size: 15px;
     font-weight: 500;
-    color: var(--system-blue);
+    color: var(--accent);
     font-variant-numeric: tabular-nums;
 }
 
@@ -492,13 +607,17 @@ body {
     outline: none;
     font-variant-numeric: tabular-nums;
     letter-spacing: -0.41px;
-    border-radius: 6px;
+    border-radius: 8px;
     transition: background-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .ios-result-value-input:focus {
     background: var(--fill-tertiary);
-    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.3);
+    box-shadow: 0 0 0 3px var(--accent-glow), inset 0 0 8px rgba(99, 102, 241, 0.05);
+}
+
+:root.dark-mode .ios-result-value-input:focus {
+    box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.35), inset 0 0 8px rgba(129, 140, 248, 0.05);
 }
 
 .ios-result-delta {
@@ -517,48 +636,6 @@ body {
         opacity: 1;
         transform: translateY(0);
     }
-}
-
-/* ===== iOS How-to Steps ===== */
-.ios-steps-row {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    min-height: 44px;
-    padding: 12px 16px;
-    position: relative;
-}
-
-.ios-steps-row + .ios-steps-row::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 48px;
-    right: 0;
-    height: 0.5px;
-    background: var(--separator);
-}
-
-.ios-step-number {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    background: var(--system-blue);
-    color: #FFFFFF;
-    font-size: 13px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    margin-top: 1px;
-}
-
-.ios-step-text {
-    font-size: 15px;
-    color: var(--label);
-    line-height: 22px;
-    letter-spacing: -0.24px;
 }
 
 /* ===== Footer ===== */
@@ -589,31 +666,6 @@ body {
     .ios-app {
         max-width: 100%;
     }
-
-    .ios-card {
-        margin: 0 16px;
-    }
-}
-
-@media (min-width: 601px) {
-    body {
-        background: var(--bg-primary);
-    }
-
-    .ios-app {
-        margin-top: 0;
-    }
-}
-
-/* ===== Remove number input arrows globally ===== */
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-}
-
-input[type="number"] {
-    -moz-appearance: textfield;
 }
 
 /* ===== Fullscreen ===== */
@@ -625,15 +677,9 @@ input[type="number"] {
     max-width: none;
 }
 
-/* ===== Dark mode specific ===== */
-:root.dark-mode .ios-result-value-input:focus {
-    box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.4);
-}
-
-/* ===== Transitions for theme switch ===== */
+/* ===== Transitions ===== */
 .ios-app,
-.nav-bar,
 .ios-card,
 .ios-button-filled {
-    transition: background-color 0.3s ease, border-color 0.3s ease;
+    transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
