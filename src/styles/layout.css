@@ -96,6 +96,13 @@ html, body {
     height: 12px;
 }
 
+/* Action stack — Add Range + Calculate grouped tighter */
+.action-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
 .section-footer {
     font-size: 12px;
     color: var(--text-tertiary);

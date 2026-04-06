@@ -20,6 +20,7 @@ function App() {
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [focusedInput, setFocusedInput] = useState(null)
   const [calcSuccess, setCalcSuccess] = useState(null)
+  const [showLogoModal, setShowLogoModal] = useState(false)
 
   const [isDarkMode, toggleTheme] = useSystemTheme()
   const resultsRef = useRef(null)
@@ -129,6 +130,7 @@ function App() {
   }, [])
 
   const hasAnyResults = ranges.some(r => r.results.length > 0)
+  const multiRange = ranges.length > 1
 
   const howTo = [
     'Enter a start value for your range',
@@ -140,10 +142,24 @@ function App() {
 
   return (
     <div className="app">
-      {/* Header with JDS branding */}
+      {/* Logo zoom modal */}
+      {showLogoModal && (
+        <div className="logo-modal" onClick={() => setShowLogoModal(false)}>
+          <div className="logo-modal-content">
+            <img src={logoImg} alt="Johansson Engineering" />
+            <div className="logo-modal-title">Johansson Engineering</div>
+            <div className="logo-modal-subtitle">Est. 1983</div>
+          </div>
+        </div>
+      )}
+
+      {/* Header */}
       <header className="header">
         <div className="header-left">
-          <img src={logoImg} alt="Johansson Engineering" className="header-logo" />
+          <button className="header-logo-btn" onClick={() => setShowLogoModal(true)}
+            aria-label="View logo">
+            <img src={logoImg} alt="Johansson Engineering" className="header-logo" />
+          </button>
           <div className="header-text">
             <div className="header-title">Step Buddy</div>
             <div className="header-subtitle">Johansson Engineering</div>
@@ -180,9 +196,9 @@ function App() {
           <section className="section" key={range.id}>
             <div className="section-header-row">
               <h2 className="section-header">
-                {ranges.length > 1 ? `Range ${ri + 1}` : 'Values'}
+                {multiRange ? `Range ${ri + 1}` : 'Values'}
               </h2>
-              {ranges.length > 1 && (
+              {multiRange && (
                 <button className="range-remove-btn" onClick={() => removeRange(range.id)}
                   aria-label={`Remove range ${ri + 1}`}>
                   <CloseIcon />
@@ -229,19 +245,17 @@ function App() {
           </section>
         ))}
 
-        {/* Add Range */}
+        {/* Add Range + Calculate row */}
         <section className="section">
-          <button className="btn btn--outline btn--add-range" onClick={addRange}>
-            <PlusIcon /> Add Range
-          </button>
-        </section>
-
-        {/* Calculate */}
-        <section className="section">
-          <button className={`btn${calcSuccess ? ' btn--success' : ''}`}
-            onClick={calculateAll}>
-            <CalcIcon /> Calculate{ranges.length > 1 ? ' All' : ''}
-          </button>
+          <div className="action-stack">
+            <button className="btn btn--outline btn--add-range" onClick={addRange}>
+              <PlusIcon /> Add Range
+            </button>
+            <button className={`btn${calcSuccess ? ' btn--success' : ''}`}
+              onClick={calculateAll}>
+              <CalcIcon /> Calculate{multiRange ? ' All' : ''}
+            </button>
+          </div>
         </section>
 
         {/* Actions */}
@@ -272,7 +286,7 @@ function App() {
             <section className="section" key={`results-${range.id}`}
               ref={ri === 0 ? resultsRef : null}>
               <h2 className="section-header">
-                {ranges.length > 1
+                {multiRange
                   ? `Range ${ri + 1} — ${range.results.length} steps`
                   : `Results — ${range.results.length} steps`}
               </h2>
@@ -342,24 +356,25 @@ function App() {
           <h2 className="section-header">About</h2>
           <div className="card">
             <div className="about-content">
-              <div className="about-logo">
+              <button className="about-logo" onClick={() => setShowLogoModal(true)}>
                 <img src={logoImg} alt="Johansson Engineering stamp" />
                 <div className="about-logo-text">
                   <div className="about-logo-title">Johansson Engineering</div>
                   <div className="about-logo-subtitle">Est. 1983</div>
                 </div>
-              </div>
+              </button>
               <div className="about-text">
                 <p>
-                  Step Buddy is a step sequence calculator for generating evenly spaced
-                  values between defined start and end points. Built for engineers,
-                  technicians, and anyone who needs precise incremental sequences.
+                  Step Buddy is a precision step sequence calculator for generating
+                  evenly spaced values between defined start and end points. Built
+                  for engineers, technicians, and anyone who needs accurate
+                  incremental sequences.
                 </p>
                 <p>
                   Create multiple ranges with different, overlapping, or identical
-                  start and end values. Edit any calculated value and watch subsequent
-                  steps recalculate automatically. Export results as CSV for use
-                  in spreadsheets and control systems.
+                  parameters. Edit any calculated value and subsequent steps
+                  recalculate automatically. Export results as CSV for use in
+                  spreadsheets and control systems.
                 </p>
               </div>
               <div className="about-separator" />
