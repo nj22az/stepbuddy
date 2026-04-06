@@ -4,7 +4,7 @@ import {
   SunIcon, MoonIcon, ExpandIcon, CompressIcon,
   CalcIcon, ExportIcon, TrashIcon, ErrorIcon,
   RulerIcon, FlagIcon, HashIcon, FinalFlagIcon,
-  PlusIcon, CloseIcon
+  PlusIcon, CloseIcon, ChevronIcon
 } from './components/Icons'
 import { useSystemTheme } from './hooks/useSystemTheme'
 import logoImg from '/logo.png'
@@ -21,6 +21,8 @@ function App() {
   const [focusedInput, setFocusedInput] = useState(null)
   const [calcSuccess, setCalcSuccess] = useState(null)
   const [showLogoModal, setShowLogoModal] = useState(false)
+  const [showHowTo, setShowHowTo] = useState(false)
+  const [showAbout, setShowAbout] = useState(false)
 
   const [isDarkMode, toggleTheme] = useSystemTheme()
   const resultsRef = useRef(null)
@@ -178,17 +180,22 @@ function App() {
       </header>
 
       <div className="app-content">
-        {/* How to Use */}
+        {/* How to Use — collapsible */}
         <section className="section">
-          <h2 className="section-header">How to Use</h2>
-          <div className="card">
-            {howTo.map((text, i) => (
-              <div key={i} className="step-row">
-                <span className="step-num">{i + 1}</span>
-                <span className="step-text">{text}</span>
-              </div>
-            ))}
-          </div>
+          <button className="section-toggle" onClick={() => setShowHowTo(v => !v)}>
+            <ChevronIcon expanded={showHowTo} />
+            <h2 className="section-header">How to Use</h2>
+          </button>
+          {showHowTo && (
+            <div className="card">
+              {howTo.map((text, i) => (
+                <div key={i} className="step-row">
+                  <span className="step-num">{i + 1}</span>
+                  <span className="step-text">{text}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </section>
 
         {/* Range Inputs */}
@@ -356,45 +363,50 @@ function App() {
           )
         })}
 
-        {/* About */}
-        <section className="section">
-          <h2 className="section-header">About</h2>
-          <div className="card">
-            <div className="about-content">
-              <button className="about-logo" onClick={() => setShowLogoModal(true)}>
-                <img src={logoImg} alt="Johansson Engineering stamp" />
-                <div className="about-logo-text">
-                  <div className="about-logo-title">Johansson Engineering</div>
-                  <div className="about-logo-subtitle">Est. 1983</div>
-                </div>
-              </button>
-              <div className="about-text">
-                <p>
-                  StepWise is a precision step sequence calculator for generating
-                  evenly spaced values between defined start and end points. Built
-                  for engineers, technicians, and anyone who needs accurate
-                  incremental sequences.
-                </p>
-                <p>
-                  Create multiple ranges with different, overlapping, or identical
-                  parameters. Edit any calculated value and subsequent steps
-                  recalculate automatically. Export results as CSV for use in
-                  spreadsheets and control systems.
-                </p>
-              </div>
-              <div className="about-separator" />
-              <div className="about-meta">
-                <span className="about-meta-item">JDS-SFW-001</span>
-                <span className="about-meta-item">Rev A</span>
-                <span className="about-meta-item">Nils Johansson</span>
-              </div>
-            </div>
-          </div>
-        </section>
-
         <footer className="footer">
           <p>&copy; {new Date().getFullYear()} Johansson Engineering</p>
         </footer>
+
+        {/* About — collapsible, below footer */}
+        <section className="section">
+          <button className="section-toggle" onClick={() => setShowAbout(v => !v)}>
+            <ChevronIcon expanded={showAbout} />
+            <h2 className="section-header">About</h2>
+          </button>
+          {showAbout && (
+            <div className="card">
+              <div className="about-content">
+                <button className="about-logo" onClick={() => setShowLogoModal(true)}>
+                  <img src={logoImg} alt="Johansson Engineering stamp" />
+                  <div className="about-logo-text">
+                    <div className="about-logo-title">Johansson Engineering</div>
+                    <div className="about-logo-subtitle">Est. 1983</div>
+                  </div>
+                </button>
+                <div className="about-text">
+                  <p>
+                    StepWise is a precision step sequence calculator for generating
+                    evenly spaced values between defined start and end points. Built
+                    for engineers, technicians, and anyone who needs accurate
+                    incremental sequences.
+                  </p>
+                  <p>
+                    Create multiple ranges with different, overlapping, or identical
+                    parameters. Edit any calculated value and subsequent steps
+                    recalculate automatically. Export results as CSV for use in
+                    spreadsheets and control systems.
+                  </p>
+                </div>
+                <div className="about-separator" />
+                <div className="about-meta">
+                  <span className="about-meta-item">JDS-SFW-001</span>
+                  <span className="about-meta-item">Rev A</span>
+                  <span className="about-meta-item">Nils Johansson</span>
+                </div>
+              </div>
+            </div>
+          )}
+        </section>
       </div>
     </div>
   )

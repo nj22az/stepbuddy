@@ -1,7 +1,7 @@
 /* JDS Inputs — iOS requires 16px to prevent zoom */
 .input {
     width: 100%;
-    height: 40px;
+    height: 38px;
     padding: 0;
     border: none;
     border-bottom: 1px solid var(--border-light);

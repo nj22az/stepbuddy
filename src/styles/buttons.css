@@ -4,7 +4,7 @@
     align-items: center;
     justify-content: center;
     gap: 6px;
-    height: 40px;
+    height: 38px;
     border: var(--border-w) solid var(--navy);
     border-radius: var(--radius);
     background: var(--navy);
@@ -49,7 +49,7 @@
 }
 
 .btn--add-range {
-    height: 32px;
+    height: 30px;
     font-size: 12px;
     border-style: dashed;
     border-color: var(--border-light);
