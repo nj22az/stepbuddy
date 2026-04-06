@@ -1,4 +1,4 @@
-/* JDS Cards — compartment design, clean borders */
+/* JDS Cards — mobile-first compartment design */
 .card {
     background: var(--surface);
     border: var(--border-w) solid var(--border-light);
@@ -11,7 +11,7 @@
 .card-row {
     display: flex;
     align-items: center;
-    min-height: 42px;
+    min-height: 40px;
     padding: 0 12px;
     position: relative;
 }
@@ -23,7 +23,7 @@
 .card-row-label {
     font-size: 13px;
     color: var(--text);
-    min-width: 80px;
+    width: 75px;
     flex-shrink: 0;
     display: flex;
     align-items: center;
@@ -95,8 +95,8 @@
 .about-logo {
     display: flex;
     align-items: center;
-    gap: 12px;
-    margin-bottom: 12px;
+    gap: 10px;
+    margin-bottom: 10px;
     background: none;
     border: none;
     padding: 0;
@@ -105,14 +105,16 @@
 }
 
 .about-logo img {
-    width: 44px;
-    height: 44px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
+    flex-shrink: 0;
 }
 
 .about-logo-text {
     display: flex;
     flex-direction: column;
+    min-width: 0;
 }
 
 .about-logo-title {

@@ -1,13 +1,13 @@
-/* JDS Inputs — clean, bottom-border style */
+/* JDS Inputs — iOS requires 16px to prevent zoom */
 .input {
     width: 100%;
-    height: 42px;
+    height: 40px;
     padding: 0;
     border: none;
     border-bottom: 1px solid var(--border-light);
     background: transparent;
     font-family: var(--font-mono);
-    font-size: 14px;
+    font-size: 16px;
     color: var(--text);
     text-align: right;
     outline: none;
@@ -21,6 +21,7 @@
 .input::placeholder {
     color: var(--text-tertiary);
     font-family: var(--font-sans);
+    font-size: 14px;
 }
 
 input[type="number"]::-webkit-inner-spin-button,
@@ -32,13 +33,13 @@ input[type="number"] {
     -moz-appearance: textfield;
 }
 
-/* Error — JDS signal red */
+/* Error */
 .error {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-top: 8px;
-    padding: 8px 12px;
+    margin-top: 6px;
+    padding: 8px 10px;
     background: var(--surface);
     border: var(--border-w) solid var(--error);
     border-radius: var(--radius);
@@ -50,8 +51,8 @@ input[type="number"] {
 }
 
 .error svg {
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
     fill: var(--error);
     flex-shrink: 0;
 }

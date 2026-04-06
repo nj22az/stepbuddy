@@ -1,10 +1,10 @@
-/* JDS Buttons — solid fills, meaningful colour */
+/* JDS Buttons — mobile-first */
 .btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 7px;
-    height: 42px;
+    gap: 6px;
+    height: 40px;
     border: var(--border-w) solid var(--navy);
     border-radius: var(--radius);
     background: var(--navy);
@@ -23,9 +23,10 @@
 }
 
 .btn svg {
-    width: 16px;
-    height: 16px;
+    width: 15px;
+    height: 15px;
     fill: #FFFFFF;
+    flex-shrink: 0;
 }
 
 .btn--green {
@@ -48,7 +49,7 @@
 }
 
 .btn--add-range {
-    height: 34px;
+    height: 32px;
     font-size: 12px;
     border-style: dashed;
     border-color: var(--border-light);
@@ -57,8 +58,8 @@
 }
 
 .btn--add-range svg {
-    width: 14px;
-    height: 14px;
+    width: 13px;
+    height: 13px;
     fill: none;
     stroke: var(--text-secondary);
     stroke-width: 2;
@@ -66,14 +67,14 @@
 
 .btn-row {
     display: flex;
-    gap: var(--gap);
+    gap: 8px;
 }
 
 .btn-row .btn {
     flex: 1;
 }
 
-/* Success flash — green confirmation */
+/* Success flash */
 .btn--success {
     animation: successPulse 0.4s ease;
 }

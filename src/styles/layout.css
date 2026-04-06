@@ -1,37 +1,51 @@
-/* JDS Layout — Active Space philosophy, compartment design */
+/* JDS Layout — mobile-first, Active Space philosophy */
 *, *::before, *::after {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-html, body {
+html {
+    width: 100%;
+    overflow-x: hidden;
+}
+
+body {
     min-height: 100vh;
+    min-height: 100dvh;
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
     background: var(--bg-page);
     color: var(--text);
     font-family: var(--font-sans);
-    font-size: 16px;
+    font-size: 15px;
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
     -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
     transition: background-color 0.3s ease, color 0.3s ease;
-    overflow-x: hidden;
+}
+
+#root {
     width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
 }
 
 .app {
     width: 100%;
-    max-width: 480px;
+    max-width: 460px;
     margin: 0 auto;
     min-height: 100vh;
+    min-height: 100dvh;
     display: flex;
     flex-direction: column;
     background: var(--bg);
     transition: background-color 0.3s ease;
-    overflow-x: hidden;
 }
 
-/* Navy accent bar — authority stripe */
+/* Navy accent bar */
 .app::before {
     content: '';
     display: block;
@@ -42,19 +56,18 @@ html, body {
 
 .app-content {
     flex: 1;
-    padding: 0 12px 32px;
-    overflow-x: hidden;
+    padding: 0 14px 32px;
 }
 
 .section {
-    margin-top: 20px;
+    margin-top: 18px;
 }
 
 .section:first-child {
-    margin-top: 14px;
+    margin-top: 12px;
 }
 
-/* Section header — uppercase tracking per JDS micro-typography */
+/* Section header */
 .section-header {
     font-family: var(--font-sans);
     font-size: 10px;
@@ -65,12 +78,11 @@ html, body {
     padding: 0 2px 5px;
 }
 
-/* Section header with inline action (range remove) */
+/* Section header with remove button */
 .section-header-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding-right: 2px;
 }
 
 .section-header-row .section-header {
@@ -103,7 +115,7 @@ html, body {
     height: 11px;
 }
 
-/* Action stack — Add Range + Calculate grouped tighter */
+/* Action stack */
 .action-stack {
     display: flex;
     flex-direction: column;
@@ -114,31 +126,25 @@ html, body {
     font-size: 11px;
     color: var(--text-tertiary);
     padding: 5px 2px 0;
-    line-height: 1.5;
+    line-height: 1.4;
 }
 
 /* Section fade-in */
 .section {
-    animation: fadeUp 0.35s ease backwards;
+    animation: fadeUp 0.3s ease backwards;
 }
-.section:nth-child(1) { animation-delay: 0s; }
-.section:nth-child(2) { animation-delay: 0.04s; }
-.section:nth-child(3) { animation-delay: 0.08s; }
-.section:nth-child(4) { animation-delay: 0.08s; }
-.section:nth-child(5) { animation-delay: 0.12s; }
-.section:nth-child(6) { animation-delay: 0.16s; }
 
 @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(6px); }
+    from { opacity: 0; transform: translateY(4px); }
     to   { opacity: 1; transform: translateY(0); }
 }
 
 /* Footer */
 .footer {
-    padding: 20px 12px 28px;
+    padding: 18px 14px 24px;
     text-align: center;
     border-top: 1px solid var(--border-light);
-    margin-top: 20px;
+    margin-top: 18px;
 }
 
 .footer p {
@@ -152,13 +158,7 @@ html, body {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 2px; }
 
-/* Responsive — small screens */
-@media (max-width: 480px) {
-    .app { max-width: 100%; }
-    .app-content { padding: 0 10px 28px; }
-}
-
-@media (min-width: 481px) {
+@media (min-width: 461px) {
     .app {
         box-shadow: 0 0 0 1px var(--border-light);
     }
@@ -166,7 +166,6 @@ html, body {
 
 :fullscreen .app { max-width: none; }
 
-/* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
         animation-duration: 0.01ms !important;

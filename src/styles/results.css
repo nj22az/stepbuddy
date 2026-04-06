@@ -1,16 +1,17 @@
-/* JDS Results — clean data table per PRO-007 */
+/* JDS Results — mobile-first data table */
 
-/* Summary strip — from→to, step size, count */
+/* Summary strip */
 .results-summary {
     display: grid;
-    grid-template-columns: 1fr 1fr 60px;
+    grid-template-columns: 1fr 1fr 50px;
     border-bottom: var(--border-w) solid var(--border-light);
     background: var(--bg-page);
 }
 
 .results-summary-item {
-    padding: 10px 8px;
+    padding: 8px 6px;
     text-align: center;
+    overflow: hidden;
 }
 
 .results-summary-item + .results-summary-item {
@@ -20,26 +21,28 @@
 .results-summary-label {
     font-size: 8px;
     font-weight: 700;
-    letter-spacing: 1.2px;
+    letter-spacing: 1px;
     text-transform: uppercase;
     color: var(--text-tertiary);
 }
 
 .results-summary-value {
     font-family: var(--font-mono);
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 700;
     color: var(--navy);
     margin-top: 2px;
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-/* Table header — JDS: uppercase, small, warm gray */
+/* Table header */
 .results-header {
     display: grid;
-    grid-template-columns: 38px 1fr 80px;
-    padding: 6px 12px;
+    grid-template-columns: 36px 1fr 72px;
+    padding: 5px 10px;
     border-bottom: 1.5px solid var(--border-light);
     background: var(--bg-page);
 }
@@ -47,7 +50,7 @@
 .results-header-cell {
     font-size: 8px;
     font-weight: 700;
-    letter-spacing: 1.2px;
+    letter-spacing: 1px;
     text-transform: uppercase;
     color: var(--text-tertiary);
 }
@@ -56,16 +59,16 @@
     text-align: right;
 }
 
-/* Result rows — alternating subtle shading per JDS table standards */
+/* Result rows */
 .result-row {
     display: grid;
-    grid-template-columns: 38px 1fr 80px;
-    min-height: 40px;
-    padding: 0 12px;
+    grid-template-columns: 36px 1fr 72px;
+    min-height: 38px;
+    padding: 0 10px;
     align-items: center;
     position: relative;
     animation: rowFade 0.3s ease backwards;
-    animation-delay: calc(var(--i) * 0.025s);
+    animation-delay: calc(var(--i) * 0.02s);
 }
 
 .result-row:nth-child(even) {
@@ -91,24 +94,26 @@
     opacity: 0.25;
 }
 
-/* Step badge — heritage red circle */
+/* Step badge — heritage red */
 .result-step {
     font-family: var(--font-mono);
     font-size: 10px;
     font-weight: 700;
     color: var(--red);
-    width: 24px;
-    height: 24px;
+    width: 22px;
+    height: 22px;
     border: 1.5px solid var(--red);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
 }
 
 .result-value {
     text-align: right;
+    overflow: hidden;
 }
 
 .result-value-input {
@@ -131,13 +136,14 @@
     border-bottom-color: var(--navy);
 }
 
-/* Colour-coded deltas — JDS colour is language */
+/* Colour-coded deltas */
 .result-delta {
     font-family: var(--font-mono);
     font-size: 11px;
     text-align: right;
     font-variant-numeric: tabular-nums;
     font-weight: 500;
+    white-space: nowrap;
 }
 
 .result-delta--positive { color: var(--green); }
