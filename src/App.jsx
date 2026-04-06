@@ -276,9 +276,12 @@ function App() {
         {ranges.map((range, ri) => {
           if (range.results.length === 0) return null
 
+          const first = range.results[0].value
+          const last = range.results[range.results.length - 1].value
           const summary = {
-            range: Math.abs(range.results[range.results.length - 1].value - range.results[0].value),
-            avg: Math.abs((parseFloat(range.end) - parseFloat(range.start)) / (range.results.length - 1)),
+            from: first,
+            to: last,
+            avg: Math.abs((last - first) / (range.results.length - 1)),
             count: range.results.length
           }
 
@@ -293,15 +296,17 @@ function App() {
               <div className="card">
                 <div className="results-summary">
                   <div className="results-summary-item">
-                    <div className="results-summary-label">Range</div>
-                    <div className="results-summary-value">{summary.range.toFixed(2)}</div>
+                    <div className="results-summary-label">From → To</div>
+                    <div className="results-summary-value">
+                      {summary.from.toFixed(1)} → {summary.to.toFixed(1)}
+                    </div>
                   </div>
                   <div className="results-summary-item">
-                    <div className="results-summary-label">Avg Step</div>
+                    <div className="results-summary-label">Step Size</div>
                     <div className="results-summary-value">{summary.avg.toFixed(3)}</div>
                   </div>
                   <div className="results-summary-item">
-                    <div className="results-summary-label">Count</div>
+                    <div className="results-summary-label">Steps</div>
                     <div className="results-summary-value">{summary.count}</div>
                   </div>
                 </div>

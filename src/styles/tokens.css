@@ -1,7 +1,7 @@
 /* JDS Design Tokens — Johansson Documentation System PRO-007 */
 :root {
-    /* Typography — sans-serif headings, monospace for data */
-    --font-sans: Inter, 'Source Sans Pro', Calibri, -apple-system, system-ui, sans-serif;
+    /* Typography — M PLUS Rounded 1c (JDS bundled font), monospace for data */
+    --font-sans: 'M PLUS Rounded 1c', Inter, 'Source Sans Pro', -apple-system, system-ui, sans-serif;
     --font-mono: ui-monospace, 'SF Mono', Monaco, 'Cascadia Mono', monospace;
 
     /* JDS Colour Palette — every colour carries meaning */

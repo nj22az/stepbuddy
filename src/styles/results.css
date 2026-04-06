@@ -1,12 +1,15 @@
-/* JDS Results — clean data table, tabular presentation */
+/* JDS Results — clean data table per PRO-007 */
+
+/* Summary strip — start→end, step size, count */
 .results-summary {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     border-bottom: var(--border-w) solid var(--border-light);
+    background: var(--bg-page);
 }
 
 .results-summary-item {
-    padding: 10px var(--card-pad);
+    padding: 12px var(--card-pad);
     text-align: center;
 }
 
@@ -16,7 +19,7 @@
 
 .results-summary-label {
     font-size: 9px;
-    font-weight: 600;
+    font-weight: 700;
     letter-spacing: 1.5px;
     text-transform: uppercase;
     color: var(--text-tertiary);
@@ -24,24 +27,25 @@
 
 .results-summary-value {
     font-family: var(--font-mono);
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--text);
-    margin-top: 2px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-top: 3px;
     font-variant-numeric: tabular-nums;
 }
 
-/* Table header */
+/* Table header — JDS: uppercase, small, warm gray */
 .results-header {
     display: grid;
-    grid-template-columns: 48px 1fr 1fr;
-    padding: 6px var(--card-pad);
-    border-bottom: 1px solid var(--border-light);
+    grid-template-columns: 44px 1fr 100px;
+    padding: 8px var(--card-pad);
+    border-bottom: 1.5px solid var(--border-light);
+    background: var(--bg-page);
 }
 
 .results-header-cell {
     font-size: 9px;
-    font-weight: 600;
+    font-weight: 700;
     letter-spacing: 1.5px;
     text-transform: uppercase;
     color: var(--text-tertiary);
@@ -51,16 +55,20 @@
     text-align: right;
 }
 
-/* Result rows */
+/* Result rows — alternating subtle shading per JDS table standards */
 .result-row {
     display: grid;
-    grid-template-columns: 48px 1fr 1fr;
-    min-height: 40px;
+    grid-template-columns: 44px 1fr 100px;
+    min-height: 44px;
     padding: 0 var(--card-pad);
     align-items: center;
     position: relative;
     animation: rowFade 0.3s ease backwards;
     animation-delay: calc(var(--i) * 0.025s);
+}
+
+.result-row:nth-child(even) {
+    background: var(--bg-page);
 }
 
 .result-row + .result-row {
@@ -79,18 +87,18 @@
     left: 0;
     height: 2px;
     background: var(--steel);
-    opacity: 0.3;
+    opacity: 0.25;
 }
 
-/* Step badge — monospace, circle outline */
+/* Step badge — heritage red circle (attention/sequence marker) */
 .result-step {
     font-family: var(--font-mono);
     font-size: 11px;
-    font-weight: 600;
-    color: var(--text-secondary);
-    width: 26px;
-    height: 26px;
-    border: 1.5px solid var(--border-light);
+    font-weight: 700;
+    color: var(--red);
+    width: 28px;
+    height: 28px;
+    border: 1.5px solid var(--red);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -109,9 +117,10 @@
     border-bottom: 1px solid transparent;
     color: var(--text);
     font-family: var(--font-mono);
-    font-size: 14px;
+    font-size: 15px;
+    font-weight: 500;
     text-align: right;
-    padding: 4px 0;
+    padding: 6px 0;
     outline: none;
     font-variant-numeric: tabular-nums;
     transition: border-color 0.2s ease, color 0.3s ease;
@@ -127,6 +136,7 @@
     font-size: 12px;
     text-align: right;
     font-variant-numeric: tabular-nums;
+    font-weight: 500;
 }
 
 .result-delta--positive { color: var(--green); }
@@ -140,7 +150,7 @@
     gap: 3px;
     font-family: var(--font-sans);
     font-size: 9px;
-    font-weight: 600;
+    font-weight: 700;
     letter-spacing: 1px;
     text-transform: uppercase;
     color: var(--navy);
