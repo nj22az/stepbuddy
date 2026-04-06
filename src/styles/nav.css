@@ -23,7 +23,7 @@
 .header-logo {
     width: 150px;
     height: 150px;
-    border-radius: 30px;
+    border-radius: 50%;
     object-fit: contain;
     display: block;
     background: #FFFFFF;
