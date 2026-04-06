@@ -1,12 +1,12 @@
 {
-  "name": "Step Buddy",
+  "name": "Step Buddy — Johansson Engineering",
   "short_name": "StepBuddy",
-  "description": "Step sequence calculator",
+  "description": "Step sequence calculator by Johansson Engineering",
   "start_url": "/stepbuddy/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#F6EEE3",
-  "theme_color": "#C84B31",
+  "background_color": "#FFFFFF",
+  "theme_color": "#1B3A5C",
   "icons": [
     {
       "src": "icon-192.png",
