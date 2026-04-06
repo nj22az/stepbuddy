@@ -1,13 +1,8 @@
-/* JDS Layout — mobile-first, Active Space philosophy */
+/* JDS Layout — simple, clean, mobile-first */
 *, *::before, *::after {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-}
-
-html, body {
-    height: 100%;
-    overflow: hidden;
 }
 
 body {
@@ -22,19 +17,14 @@ body {
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-#root {
-    height: 100%;
-}
-
 .app {
-    width: 100%;
     max-width: 460px;
-    height: 100%;
     margin: 0 auto;
+    min-height: 100vh;
+    min-height: 100dvh;
     display: flex;
     flex-direction: column;
     background: var(--bg);
-    overflow: hidden;
     transition: background-color 0.3s ease;
 }
 
@@ -49,10 +39,7 @@ body {
 
 .app-content {
     flex: 1;
-    padding: 0 14px 24px;
-    overflow-y: auto;
-    overflow-x: hidden;
-    -webkit-overflow-scrolling: touch;
+    padding: 0 16px 24px;
 }
 
 .section {
@@ -137,7 +124,7 @@ body {
 
 /* Footer */
 .footer {
-    padding: 14px 14px 20px;
+    padding: 14px 16px 20px;
     text-align: center;
     border-top: 1px solid var(--border-light);
     margin-top: 14px;
@@ -148,11 +135,6 @@ body {
     color: var(--text-tertiary);
     letter-spacing: 0.3px;
 }
-
-/* Scrollbar */
-::-webkit-scrollbar { width: 3px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 2px; }
 
 @media (min-width: 461px) {
     .app {
