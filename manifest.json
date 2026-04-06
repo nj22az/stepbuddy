@@ -1,11 +1,12 @@
 {
   "name": "Step Buddy",
   "short_name": "StepBuddy",
-  "description": "A modern step calculator for your daily needs",
+  "description": "Professional step sequence calculator with Apple Glass design",
   "start_url": "/stepbuddy/",
   "display": "standalone",
-  "background_color": "#F5F5F7",
-  "theme_color": "#0A84FF",
+  "orientation": "portrait",
+  "background_color": "#F5F0EB",
+  "theme_color": "#8B5CF6",
   "icons": [
     {
       "src": "icon-192.png",
@@ -20,4 +21,4 @@
       "purpose": "any maskable"
     }
   ]
-} 
+}
