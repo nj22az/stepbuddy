@@ -182,9 +182,10 @@ function App() {
       <div className="app-content">
         {/* How to Use — collapsible */}
         <section className="section">
-          <button className="section-toggle" onClick={() => setShowHowTo(v => !v)}>
+          <button className="section-toggle" onClick={() => setShowHowTo(v => !v)}
+            aria-expanded={showHowTo} aria-label="Toggle how to use section">
             <ChevronIcon expanded={showHowTo} />
-            <h2 className="section-header">How to Use</h2>
+            <span className="section-header">How to Use</span>
           </button>
           {showHowTo && (
             <div className="card">
@@ -369,9 +370,10 @@ function App() {
 
         {/* About — collapsible, below footer */}
         <section className="section">
-          <button className="section-toggle" onClick={() => setShowAbout(v => !v)}>
+          <button className="section-toggle" onClick={() => setShowAbout(v => !v)}
+            aria-expanded={showAbout} aria-label="Toggle about section">
             <ChevronIcon expanded={showAbout} />
-            <h2 className="section-header">About</h2>
+            <span className="section-header">About</span>
           </button>
           {showAbout && (
             <div className="card">
