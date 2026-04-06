@@ -1,39 +1,42 @@
-/* Flat solid buttons — thick borders, no shadows, no gradients */
+/* iOS Native Buttons */
 .btn {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    height: 48px;
-    border: var(--border-w) solid var(--border);
-    border-radius: var(--radius);
+    height: 50px;
+    border: none;
+    border-radius: 12px;
     background: var(--accent);
     color: #FFFFFF;
     font-family: var(--font-sans);
-    font-size: 15px;
+    font-size: 17px;
     font-weight: 600;
     cursor: pointer;
     width: 100%;
-    transition: opacity 0.15s ease, background-color 0.3s ease, border-color 0.3s ease;
+    letter-spacing: -0.2px;
+    transition: opacity 0.15s ease, background-color 0.3s ease;
 }
 
 .btn:active {
-    opacity: 0.8;
+    opacity: 0.7;
 }
 
 .btn svg {
-    width: 18px;
-    height: 18px;
+    width: 17px;
+    height: 17px;
     fill: #FFFFFF;
+    flex-shrink: 0;
 }
 
 .btn--green {
-    background: var(--accent-green);
+    background: var(--success);
 }
 
 .btn--outline {
     background: var(--surface);
     color: var(--text);
+    border: none;
 }
 
 .btn--outline svg {
@@ -41,12 +44,29 @@
 }
 
 .btn--outline:active {
-    background: var(--border-light);
+    opacity: 0.5;
+}
+
+.btn--add-range {
+    height: 36px;
+    font-size: 15px;
+    font-weight: 500;
+    border: none;
+    background: transparent;
+    color: var(--accent);
+}
+
+.btn--add-range svg {
+    width: 15px;
+    height: 15px;
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 2;
 }
 
 .btn-row {
     display: flex;
-    gap: var(--gap);
+    gap: 8px;
 }
 
 .btn-row .btn {
@@ -60,6 +80,6 @@
 
 @keyframes successPulse {
     0%   { background: var(--accent); }
-    40%  { background: var(--accent-green); }
+    40%  { background: var(--success); }
     100% { background: var(--accent); }
 }

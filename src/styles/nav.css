@@ -1,58 +1,151 @@
-/* Flat header — no blur, no glass */
+/* iOS Native Header */
 .header {
-    padding: 16px 16px 12px;
-    border-bottom: 1px solid var(--border-light);
+    padding: 16px 16px 8px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: var(--bg);
+    background: var(--bg-page);
     transition: background-color 0.3s ease;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+}
+
+.header-logo-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.header-logo-btn:active {
+    opacity: 0.6;
+}
+
+.header-logo {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    object-fit: contain;
+    display: block;
+}
+
+.header-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow: hidden;
 }
 
 .header-title {
     font-family: var(--font-sans);
-    font-size: 22px;
-    font-weight: 800;
-    letter-spacing: -0.5px;
+    font-size: 28px;
+    font-weight: 700;
     color: var(--text);
+    line-height: 1.15;
+    letter-spacing: 0.35px;
 }
 
 .header-subtitle {
     font-size: 13px;
-    color: var(--text-secondary);
-    margin-top: 2px;
-}
-
-.header-left {
-    flex: 1;
+    color: var(--text-tertiary);
+    letter-spacing: 0;
+    font-weight: 400;
+    margin-top: 1px;
 }
 
 .header-buttons {
     display: flex;
     gap: 8px;
+    flex-shrink: 0;
 }
 
 .header-btn {
-    width: 36px;
-    height: 36px;
-    border: var(--border-w) solid var(--border);
+    width: 32px;
+    height: 32px;
+    border: none;
     border-radius: 50%;
-    background: var(--surface);
-    color: var(--text);
+    background: rgba(120, 120, 128, 0.12);
+    color: var(--accent);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background-color 0.15s ease, border-color 0.3s ease;
+    flex-shrink: 0;
+    transition: background-color 0.15s ease;
 }
 
 .header-btn:active {
-    background: var(--border-light);
+    background: rgba(120, 120, 128, 0.24);
 }
 
 .header-btn svg {
-    width: 16px;
-    height: 16px;
-    fill: var(--text);
-    transition: fill 0.3s ease;
+    width: 14px;
+    height: 14px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+}
+
+/* Logo zoom modal */
+.logo-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    animation: modalFadeIn 0.2s ease;
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+}
+
+.logo-modal-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    padding: 20px;
+    animation: modalZoomIn 0.25s ease;
+}
+
+.logo-modal-content img {
+    width: 120px;
+    height: 120px;
+    border-radius: 24px;
+    background: #FFFFFF;
+    padding: 4px;
+}
+
+.logo-modal-title {
+    font-family: var(--font-sans);
+    font-size: 20px;
+    font-weight: 600;
+    color: #FFFFFF;
+    letter-spacing: -0.2px;
+}
+
+.logo-modal-subtitle {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.5);
+    letter-spacing: 0;
+    margin-top: -6px;
+}
+
+@keyframes modalFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@keyframes modalZoomIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to   { opacity: 1; transform: scale(1); }
 }
