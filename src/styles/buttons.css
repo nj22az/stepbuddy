@@ -53,6 +53,20 @@
     flex: 1;
 }
 
+.btn--add-range {
+    height: 40px;
+    font-size: 13px;
+    border-style: dashed;
+}
+
+.btn--add-range svg {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: var(--text);
+    stroke-width: 2;
+}
+
 /* Success flash */
 .btn--success {
     animation: successPulse 0.4s ease;
