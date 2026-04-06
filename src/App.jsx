@@ -154,6 +154,13 @@ function App() {
       </header>
 
       <div className="app-content">
+        {/* App title bento */}
+        <section className="section">
+          <div className="card title-card">
+            <div className="title-card-text">Step Sequence Calculator</div>
+          </div>
+        </section>
+
         {/* Range Inputs */}
         {ranges.map((range, ri) => (
           <section className="section" key={range.id}>
@@ -211,15 +218,15 @@ function App() {
           </section>
         ))}
 
-        {/* Add Range + Calculate */}
+        {/* Add Range + Calculate — inline row */}
         <section className="section">
-          <div className="action-stack">
-            <button className="btn btn--add-range" onClick={addRange}>
+          <div className="action-row">
+            <button className="action-pill" onClick={addRange}>
               <PlusIcon /> Add Range
             </button>
-            <button className={`btn${calcSuccess ? ' btn--success' : ''}`}
+            <button className={`action-pill action-pill--primary${calcSuccess ? ' btn--success' : ''}`}
               onClick={calculateAll}>
-              <CalcIcon /> Calculate{multiRange ? ' All' : ''}
+              <CalcIcon /> Calculate
             </button>
           </div>
         </section>
