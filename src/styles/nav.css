@@ -1,6 +1,6 @@
 /* JDS Header — mobile-first */
 .header {
-    padding: 8px 10px;
+    padding: 8px 3vw;
     border-bottom: 1px solid var(--border-light);
     display: flex;
     align-items: center;
