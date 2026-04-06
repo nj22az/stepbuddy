@@ -135,7 +135,7 @@ function App() {
         </div>
       )}
 
-      {/* Header — hero style */}
+      {/* Header — portrait left, text right */}
       <header className="header">
         <button className="header-logo-btn" onClick={() => setShowLogoModal(true)}
           aria-label="View logo">
