@@ -130,20 +130,23 @@ function App() {
   const hasAnyResults = ranges.some(r => r.results.length > 0)
 
   const howTo = [
-    'Enter your starting value',
+    'Enter a start value for your range',
     'Enter your target end value',
-    'Choose how many steps (min. 2)',
+    'Choose the number of steps (min. 2)',
     'Add more ranges if needed',
-    'Export your sequences as CSV'
+    'Calculate and export as CSV'
   ]
 
   return (
     <div className="app">
-      {/* Header */}
+      {/* Header with JDS branding */}
       <header className="header">
         <div className="header-left">
-          <div className="header-title">Step Buddy</div>
-          <div className="header-subtitle">Step sequence calculator</div>
+          <img src="/logo.png" alt="Johansson Engineering" className="header-logo" />
+          <div className="header-text">
+            <div className="header-title">Step Buddy</div>
+            <div className="header-subtitle">Johansson Engineering</div>
+          </div>
         </div>
         <div className="header-buttons">
           <button className="header-btn" onClick={toggleFullscreen}
@@ -333,8 +336,43 @@ function App() {
           )
         })}
 
+        {/* About */}
+        <section className="section">
+          <h2 className="section-header">About</h2>
+          <div className="card">
+            <div className="about-content">
+              <div className="about-logo">
+                <img src="/logo.png" alt="Johansson Engineering stamp" />
+                <div className="about-logo-text">
+                  <div className="about-logo-title">Johansson Engineering</div>
+                  <div className="about-logo-subtitle">Est. 1983</div>
+                </div>
+              </div>
+              <div className="about-text">
+                <p>
+                  Step Buddy is a step sequence calculator for generating evenly spaced
+                  values between defined start and end points. Built for engineers,
+                  technicians, and anyone who needs precise incremental sequences.
+                </p>
+                <p>
+                  Create multiple ranges with different, overlapping, or identical
+                  start and end values. Edit any calculated value and watch subsequent
+                  steps recalculate automatically. Export results as CSV for use
+                  in spreadsheets and control systems.
+                </p>
+              </div>
+              <div className="about-separator" />
+              <div className="about-meta">
+                <span className="about-meta-item">JDS-SFW-001</span>
+                <span className="about-meta-item">Rev A</span>
+                <span className="about-meta-item">Nils Johansson</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <footer className="footer">
-          <p>&copy; {new Date().getFullYear()} Nils Johansson</p>
+          <p>&copy; {new Date().getFullYear()} Johansson Engineering</p>
         </footer>
       </div>
     </div>

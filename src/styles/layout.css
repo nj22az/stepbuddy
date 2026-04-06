@@ -1,3 +1,4 @@
+/* JDS Layout — Active Space philosophy, compartment design */
 *, *::before, *::after {
     margin: 0;
     padding: 0;
@@ -6,30 +7,32 @@
 
 html, body {
     min-height: 100vh;
-    background: var(--bg);
+    background: var(--bg-page);
     color: var(--text);
     font-family: var(--font-sans);
     font-size: 16px;
-    line-height: 1.6;
+    line-height: 1.5;
     -webkit-font-smoothing: antialiased;
     -webkit-tap-highlight-color: transparent;
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .app {
-    max-width: 480px;
+    max-width: 520px;
     margin: 0 auto;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    background: var(--bg);
+    transition: background-color 0.3s ease;
 }
 
-/* Accent bar at top */
+/* Navy accent bar — authority stripe */
 .app::before {
     content: '';
     display: block;
-    height: 4px;
-    background: var(--accent);
+    height: 3px;
+    background: var(--navy);
 }
 
 .app-content {
@@ -42,38 +45,39 @@ html, body {
 }
 
 .section:first-child {
-    margin-top: 24px;
+    margin-top: 18px;
 }
 
+/* Section header — uppercase tracking per JDS micro-typography */
 .section-header {
     font-family: var(--font-sans);
     font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 2px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
     text-transform: uppercase;
     color: var(--text-secondary);
-    padding: 0 4px 8px;
+    padding: 0 2px 6px;
 }
 
-/* Section header with inline action */
+/* Section header with inline action (range remove) */
 .section-header-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding-right: 4px;
+    padding-right: 2px;
 }
 
 .section-header-row .section-header {
-    padding-bottom: 8px;
+    padding-bottom: 6px;
 }
 
 .range-remove-btn {
-    width: 28px;
-    height: 28px;
+    width: 26px;
+    height: 26px;
     border: 1.5px solid var(--border-light);
     border-radius: 50%;
     background: var(--surface);
-    color: var(--text-secondary);
+    color: var(--text-tertiary);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -88,30 +92,30 @@ html, body {
 }
 
 .range-remove-btn svg {
-    width: 14px;
-    height: 14px;
+    width: 12px;
+    height: 12px;
 }
 
 .section-footer {
-    font-size: 13px;
-    color: var(--text-secondary);
-    padding: 8px 4px 0;
+    font-size: 12px;
+    color: var(--text-tertiary);
+    padding: 6px 2px 0;
     line-height: 1.5;
 }
 
 /* Section fade-in */
 .section {
-    animation: fadeUp 0.4s ease backwards;
+    animation: fadeUp 0.35s ease backwards;
 }
 .section:nth-child(1) { animation-delay: 0s; }
-.section:nth-child(2) { animation-delay: 0.06s; }
-.section:nth-child(3) { animation-delay: 0.12s; }
-.section:nth-child(4) { animation-delay: 0.18s; }
-.section:nth-child(5) { animation-delay: 0.24s; }
-.section:nth-child(6) { animation-delay: 0.3s; }
+.section:nth-child(2) { animation-delay: 0.04s; }
+.section:nth-child(3) { animation-delay: 0.08s; }
+.section:nth-child(4) { animation-delay: 0.12s; }
+.section:nth-child(5) { animation-delay: 0.16s; }
+.section:nth-child(6) { animation-delay: 0.2s; }
 
 @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(8px); }
+    from { opacity: 0; transform: translateY(6px); }
     to   { opacity: 1; transform: translateY(0); }
 }
 
@@ -124,19 +128,25 @@ html, body {
 }
 
 .footer p {
-    font-size: 12px;
+    font-size: 11px;
     color: var(--text-tertiary);
-    letter-spacing: 0.5px;
+    letter-spacing: 0.3px;
 }
 
 /* Scrollbar */
-::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar { width: 3px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 2px; }
 
 /* Responsive */
-@media (max-width: 480px) {
+@media (max-width: 520px) {
     .app { max-width: 100%; }
+}
+
+@media (min-width: 521px) {
+    .app {
+        box-shadow: 0 0 0 1px var(--border-light);
+    }
 }
 
 :fullscreen .app { max-width: none; }

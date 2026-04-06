@@ -1,36 +1,57 @@
+/* JDS Design Tokens — Johansson Documentation System PRO-007 */
 :root {
-    --font-sans: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', system-ui, sans-serif;
+    /* Typography — sans-serif headings, monospace for data */
+    --font-sans: Inter, 'Source Sans Pro', Calibri, -apple-system, system-ui, sans-serif;
     --font-mono: ui-monospace, 'SF Mono', Monaco, 'Cascadia Mono', monospace;
 
-    --bg: #F6EEE3;
-    --surface: #FFFFFF;
-    --border: #2C2C2C;
-    --border-light: #E5DECF;
-    --text: #1A1A1A;
-    --text-secondary: #6B6B6B;
-    --text-tertiary: #9B9B9B;
-    --accent: #C84B31;
-    --accent-green: #2D6A4F;
-    --error: #C84B31;
-    --success: #2D6A4F;
+    /* JDS Colour Palette — every colour carries meaning */
+    --navy: #1B3A5C;          /* Authority, primary headings */
+    --steel: #4A90A4;         /* Secondary, supporting info */
+    --green: #3D8B6E;         /* Success, approved, current */
+    --red: #8B2D2D;           /* Heritage red, attention */
+    --bronze: #6B5B3E;        /* Administrative, warm */
+    --warm-gray: #8C8C8C;     /* Metadata, non-critical */
 
-    --radius: 12px;
-    --border-w: 2px;
-    --card-pad: 20px;
+    /* Semantic mapping */
+    --bg: #FFFFFF;
+    --bg-page: #F5F7FA;
+    --surface: #FFFFFF;
+    --border: #1B3A5C;
+    --border-light: #E0E4EA;
+    --text: #222222;
+    --text-secondary: #5A6570;
+    --text-tertiary: #8C8C8C;
+    --accent: #1B3A5C;
+    --accent-secondary: #4A90A4;
+    --success: #3D8B6E;
+    --error: #8B2D2D;
+
+    /* Spacing — 6pt base unit (JDS grid) */
+    --unit: 6px;
+    --radius: 8px;
+    --border-w: 1.5px;
+    --card-pad: 16px;
     --gap: 12px;
-    --section-gap: 32px;
+    --section-gap: 24px;
 }
 
 :root.dark-mode {
-    --bg: #1A1A1A;
-    --surface: #2C2C2C;
-    --border: #555555;
-    --border-light: #3A3A3A;
-    --text: #E8E0D4;
-    --text-secondary: #A09888;
-    --text-tertiary: #706860;
-    --accent: #E07B5F;
-    --accent-green: #52B788;
-    --error: #E07B5F;
-    --success: #52B788;
+    --bg: #0F1419;
+    --bg-page: #0F1419;
+    --surface: #1A2028;
+    --border: #4A90A4;
+    --border-light: #2A3340;
+    --text: #E0E4EA;
+    --text-secondary: #8899AA;
+    --text-tertiary: #5A6878;
+    --accent: #4A90A4;
+    --accent-secondary: #6BB8CC;
+    --success: #5AC095;
+    --error: #C85A5A;
+    --navy: #4A90A4;
+    --steel: #6BB8CC;
+    --green: #5AC095;
+    --red: #C85A5A;
+    --bronze: #A89470;
+    --warm-gray: #6A7580;
 }

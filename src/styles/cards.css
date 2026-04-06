@@ -1,7 +1,7 @@
-/* Flat cards — thick borders, no shadows */
+/* JDS Cards — compartment design, clean borders */
 .card {
     background: var(--surface);
-    border: var(--border-w) solid var(--border);
+    border: var(--border-w) solid var(--border-light);
     border-radius: var(--radius);
     overflow: hidden;
     transition: background-color 0.3s ease, border-color 0.3s ease;
@@ -11,7 +11,7 @@
 .card-row {
     display: flex;
     align-items: center;
-    min-height: 48px;
+    min-height: 44px;
     padding: 0 var(--card-pad);
     position: relative;
 }
@@ -21,9 +21,9 @@
 }
 
 .card-row-label {
-    font-size: 15px;
+    font-size: 14px;
     color: var(--text);
-    min-width: 100px;
+    min-width: 90px;
     flex-shrink: 0;
     display: flex;
     align-items: center;
@@ -32,20 +32,20 @@
 }
 
 .card-row-label-icon {
-    width: 16px;
-    height: 16px;
-    stroke: var(--accent);
+    width: 15px;
+    height: 15px;
+    stroke: var(--navy);
     stroke-width: 2;
     fill: none;
     flex-shrink: 0;
 }
 
-/* Steps list */
+/* Steps list (how-to) */
 .step-row {
     display: flex;
     align-items: flex-start;
     gap: 12px;
-    padding: 12px var(--card-pad);
+    padding: 10px var(--card-pad);
     position: relative;
 }
 
@@ -54,14 +54,14 @@
 }
 
 .step-num {
-    width: 24px;
-    height: 24px;
-    border: var(--border-w) solid var(--accent);
+    width: 22px;
+    height: 22px;
+    border: 1.5px solid var(--navy);
     border-radius: 50%;
     font-family: var(--font-mono);
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
-    color: var(--accent);
+    color: var(--navy);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -69,9 +69,9 @@
 }
 
 .step-text {
-    font-size: 14px;
+    font-size: 13px;
     color: var(--text);
-    line-height: 1.6;
+    line-height: 1.5;
     padding-top: 2px;
 }
 
@@ -80,9 +80,75 @@
     content: '';
     position: absolute;
     left: 0;
-    top: 25%;
-    bottom: 25%;
-    width: 3px;
-    background: var(--accent);
+    top: 20%;
+    bottom: 20%;
+    width: 2.5px;
+    background: var(--navy);
     border-radius: 0 2px 2px 0;
+}
+
+/* About card */
+.about-content {
+    padding: var(--card-pad);
+}
+
+.about-logo {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 14px;
+}
+
+.about-logo img {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+}
+
+.about-logo-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.about-logo-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--navy);
+    letter-spacing: -0.2px;
+}
+
+.about-logo-subtitle {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    letter-spacing: 0.3px;
+    margin-top: 1px;
+}
+
+.about-text {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.about-text p + p {
+    margin-top: 8px;
+}
+
+.about-separator {
+    height: 1px;
+    background: var(--border-light);
+    margin: 12px 0;
+}
+
+.about-meta {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.about-meta-item {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    font-family: var(--font-mono);
+    letter-spacing: 0.3px;
 }

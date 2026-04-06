@@ -1,12 +1,12 @@
-/* Clean data table */
+/* JDS Results — clean data table, tabular presentation */
 .results-summary {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    border-bottom: var(--border-w) solid var(--border);
+    border-bottom: var(--border-w) solid var(--border-light);
 }
 
 .results-summary-item {
-    padding: 12px var(--card-pad);
+    padding: 10px var(--card-pad);
     text-align: center;
 }
 
@@ -15,8 +15,8 @@
 }
 
 .results-summary-label {
-    font-size: 10px;
-    font-weight: 500;
+    font-size: 9px;
+    font-weight: 600;
     letter-spacing: 1.5px;
     text-transform: uppercase;
     color: var(--text-tertiary);
@@ -24,7 +24,7 @@
 
 .results-summary-value {
     font-family: var(--font-mono);
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 600;
     color: var(--text);
     margin-top: 2px;
@@ -34,13 +34,13 @@
 /* Table header */
 .results-header {
     display: grid;
-    grid-template-columns: 56px 1fr 1fr;
-    padding: 8px var(--card-pad);
+    grid-template-columns: 48px 1fr 1fr;
+    padding: 6px var(--card-pad);
     border-bottom: 1px solid var(--border-light);
 }
 
 .results-header-cell {
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 600;
     letter-spacing: 1.5px;
     text-transform: uppercase;
@@ -54,13 +54,13 @@
 /* Result rows */
 .result-row {
     display: grid;
-    grid-template-columns: 56px 1fr 1fr;
-    min-height: 44px;
+    grid-template-columns: 48px 1fr 1fr;
+    min-height: 40px;
     padding: 0 var(--card-pad);
     align-items: center;
     position: relative;
     animation: rowFade 0.3s ease backwards;
-    animation-delay: calc(var(--i) * 0.03s);
+    animation-delay: calc(var(--i) * 0.025s);
 }
 
 .result-row + .result-row {
@@ -78,18 +78,18 @@
     bottom: 0;
     left: 0;
     height: 2px;
-    background: var(--accent);
-    opacity: 0.25;
+    background: var(--steel);
+    opacity: 0.3;
 }
 
-/* Step badge — monospace circle outline */
+/* Step badge — monospace, circle outline */
 .result-step {
     font-family: var(--font-mono);
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
     color: var(--text-secondary);
-    width: 28px;
-    height: 28px;
+    width: 26px;
+    height: 26px;
     border: 1.5px solid var(--border-light);
     border-radius: 50%;
     display: flex;
@@ -109,45 +109,45 @@
     border-bottom: 1px solid transparent;
     color: var(--text);
     font-family: var(--font-mono);
-    font-size: 15px;
+    font-size: 14px;
     text-align: right;
-    padding: 6px 0;
+    padding: 4px 0;
     outline: none;
     font-variant-numeric: tabular-nums;
     transition: border-color 0.2s ease, color 0.3s ease;
 }
 
 .result-value-input:focus {
-    border-bottom-color: var(--accent);
+    border-bottom-color: var(--navy);
 }
 
-/* Color-coded deltas */
+/* Colour-coded deltas — JDS colour is language */
 .result-delta {
     font-family: var(--font-mono);
-    font-size: 13px;
+    font-size: 12px;
     text-align: right;
     font-variant-numeric: tabular-nums;
 }
 
-.result-delta--positive { color: var(--success); }
-.result-delta--negative { color: var(--error); }
+.result-delta--positive { color: var(--green); }
+.result-delta--negative { color: var(--red); }
 .result-delta--neutral  { color: var(--text-tertiary); }
 
 /* Final badge */
 .result-final {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: 3px;
     font-family: var(--font-sans);
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 600;
     letter-spacing: 1px;
     text-transform: uppercase;
-    color: var(--accent);
+    color: var(--navy);
 }
 
 .result-final svg {
-    width: 10px;
-    height: 10px;
-    fill: var(--accent);
+    width: 9px;
+    height: 9px;
+    fill: var(--navy);
 }

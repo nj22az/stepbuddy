@@ -1,6 +1,6 @@
-/* Flat header — no blur, no glass */
+/* JDS Header — logo + title + utility buttons */
 .header {
-    padding: 16px 16px 12px;
+    padding: 12px 16px;
     border-bottom: 1px solid var(--border-light);
     display: flex;
     align-items: center;
@@ -9,41 +9,58 @@
     transition: background-color 0.3s ease;
 }
 
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+}
+
+.header-logo {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    object-fit: contain;
+}
+
+.header-text {
+    display: flex;
+    flex-direction: column;
+}
+
 .header-title {
     font-family: var(--font-sans);
-    font-size: 22px;
-    font-weight: 800;
-    letter-spacing: -0.5px;
-    color: var(--text);
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    color: var(--navy);
+    line-height: 1.2;
 }
 
 .header-subtitle {
-    font-size: 13px;
-    color: var(--text-secondary);
-    margin-top: 2px;
-}
-
-.header-left {
-    flex: 1;
+    font-size: 11px;
+    color: var(--text-tertiary);
+    letter-spacing: 0.3px;
 }
 
 .header-buttons {
     display: flex;
-    gap: 8px;
+    gap: 6px;
 }
 
 .header-btn {
-    width: 36px;
-    height: 36px;
-    border: var(--border-w) solid var(--border);
+    width: 32px;
+    height: 32px;
+    border: 1.5px solid var(--border-light);
     border-radius: 50%;
     background: var(--surface);
-    color: var(--text);
+    color: var(--text-secondary);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background-color 0.15s ease, border-color 0.3s ease;
+    transition: border-color 0.15s ease, color 0.15s ease, background-color 0.3s ease;
 }
 
 .header-btn:active {
@@ -51,8 +68,9 @@
 }
 
 .header-btn svg {
-    width: 16px;
-    height: 16px;
-    fill: var(--text);
-    transition: fill 0.3s ease;
+    width: 14px;
+    height: 14px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
 }
