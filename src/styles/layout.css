@@ -5,17 +5,12 @@
     box-sizing: border-box;
 }
 
-html {
-    width: 100%;
-    overflow-x: hidden;
+html, body {
+    height: 100%;
+    overflow: hidden;
 }
 
 body {
-    min-height: 100vh;
-    min-height: 100dvh;
-    width: 100%;
-    max-width: 100%;
-    overflow-x: hidden;
     background: var(--bg-page);
     color: var(--text);
     font-family: var(--font-sans);
@@ -28,20 +23,18 @@ body {
 }
 
 #root {
-    width: 100%;
-    max-width: 100%;
-    overflow-x: hidden;
+    height: 100%;
 }
 
 .app {
     width: 100%;
     max-width: 460px;
+    height: 100%;
     margin: 0 auto;
-    min-height: 100vh;
-    min-height: 100dvh;
     display: flex;
     flex-direction: column;
     background: var(--bg);
+    overflow: hidden;
     transition: background-color 0.3s ease;
 }
 
@@ -57,6 +50,9 @@ body {
 .app-content {
     flex: 1;
     padding: 0 14px 24px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
 }
 
 .section {
@@ -164,7 +160,7 @@ body {
     }
 }
 
-:fullscreen .app { max-width: none; }
+:fullscreen .app { max-width: 100%; }
 
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
