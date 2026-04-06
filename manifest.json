@@ -1,7 +1,7 @@
 {
-  "name": "Step Buddy — Johansson Engineering",
-  "short_name": "StepBuddy",
-  "description": "Step sequence calculator by Johansson Engineering",
+  "name": "StepWise — Johansson Engineering",
+  "short_name": "StepWise",
+  "description": "Precision step sequence calculator by Johansson Engineering",
   "start_url": "/stepbuddy/",
   "display": "standalone",
   "orientation": "portrait",
