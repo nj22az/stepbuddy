@@ -1,0 +1,88 @@
+/* Flat cards — thick borders, no shadows */
+.card {
+    background: var(--surface);
+    border: var(--border-w) solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Row inside card */
+.card-row {
+    display: flex;
+    align-items: center;
+    min-height: 48px;
+    padding: 0 var(--card-pad);
+    position: relative;
+}
+
+.card-row + .card-row {
+    border-top: 1px solid var(--border-light);
+}
+
+.card-row-label {
+    font-size: 15px;
+    color: var(--text);
+    min-width: 100px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+}
+
+.card-row-label-icon {
+    width: 16px;
+    height: 16px;
+    stroke: var(--accent);
+    stroke-width: 2;
+    fill: none;
+    flex-shrink: 0;
+}
+
+/* Steps list */
+.step-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px var(--card-pad);
+    position: relative;
+}
+
+.step-row + .step-row {
+    border-top: 1px solid var(--border-light);
+}
+
+.step-num {
+    width: 24px;
+    height: 24px;
+    border: var(--border-w) solid var(--accent);
+    border-radius: 50%;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.step-text {
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.6;
+    padding-top: 2px;
+}
+
+/* Focus indicator bar */
+.card-row--focused::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 25%;
+    bottom: 25%;
+    width: 3px;
+    background: var(--accent);
+    border-radius: 0 2px 2px 0;
+}

@@ -1,11 +1,7 @@
-/* Step Buddy — Apple Liquid Glass Design System
-   Modular CSS imports */
-
 @import './styles/tokens.css';
 @import './styles/layout.css';
-@import './styles/background.css';
 @import './styles/nav.css';
-@import './styles/glass.css';
+@import './styles/cards.css';
 @import './styles/form.css';
 @import './styles/buttons.css';
 @import './styles/results.css';

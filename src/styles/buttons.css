@@ -1,197 +1,65 @@
-/* ============================================
-   Buttons & Interactive Elements
-   Items: 36-50
-   ============================================ */
-
-/* #36,37,43,47,50 — Liquid glass button */
-.ios-button-filled {
-    position: relative;
+/* Flat solid buttons — thick borders, no shadows, no gradients */
+.btn {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    /* #43 — Larger calculate button */
-    height: 54px;
-    border: 0.5px solid rgba(255, 255, 255, 0.2);
-    border-radius: 16px;
-    /* #47 — Gradient background */
-    background: linear-gradient(
-        180deg,
-        rgba(139, 92, 246, 0.8) 0%,
-        rgba(124, 58, 237, 0.85) 100%
-    );
-    backdrop-filter: saturate(140%) blur(16px);
-    -webkit-backdrop-filter: saturate(140%) blur(16px);
-    color: #FFFFFF;
-    font-family: var(--font-text);
-    font-size: 17px;
-    font-weight: 600;
-    letter-spacing: -0.41px;
-    cursor: pointer;
-    /* #50 — Colored ambient shadow */
-    box-shadow:
-        0 2px 8px var(--accent-glow),
-        0 8px 24px rgba(139, 92, 246, 0.2),
-        inset 0 0.5px 0 rgba(255, 255, 255, 0.2);
-    margin: 0 16px;
-    width: calc(100% - 32px);
-    overflow: hidden;
-    /* #37 — Spring press animation */
-    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
-                box-shadow 0.2s ease;
-}
-
-/* #36 — Specular highlight streak on button */
-.ios-button-filled::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-        105deg,
-        transparent 35%,
-        rgba(255, 255, 255, 0.15) 45%,
-        rgba(255, 255, 255, 0.05) 55%,
-        transparent 65%
-    );
-    transition: transform 0.4s ease;
-    pointer-events: none;
-}
-
-.ios-button-filled:hover::before {
-    transform: translateX(20%);
-}
-
-/* #37 — Spring physics press */
-.ios-button-filled:active {
-    transform: scale(0.95);
-    box-shadow:
-        0 1px 4px var(--accent-glow),
-        0 4px 12px rgba(139, 92, 246, 0.15),
-        inset 0 0.5px 0 rgba(255, 255, 255, 0.1);
-}
-
-.ios-button-filled svg {
-    width: 20px;
-    height: 20px;
-    fill: #FFFFFF;
-    position: relative;
-    z-index: 1;
-}
-
-/* Green variant */
-.ios-button-filled.green {
-    background: linear-gradient(
-        180deg,
-        rgba(52, 199, 89, 0.75) 0%,
-        rgba(40, 167, 69, 0.8) 100%
-    );
-    box-shadow:
-        0 2px 8px rgba(52, 199, 89, 0.25),
-        0 8px 24px rgba(52, 199, 89, 0.15),
-        inset 0 0.5px 0 rgba(255, 255, 255, 0.2);
-}
-
-.ios-button-filled.green:active {
-    box-shadow:
-        0 1px 4px rgba(52, 199, 89, 0.2),
-        inset 0 0.5px 0 rgba(255, 255, 255, 0.1);
-}
-
-/* Red variant */
-.ios-button-filled.red {
-    background: linear-gradient(
-        180deg,
-        rgba(255, 59, 48, 0.75) 0%,
-        rgba(220, 40, 35, 0.8) 100%
-    );
-    box-shadow:
-        0 2px 8px rgba(255, 59, 48, 0.25),
-        0 8px 24px rgba(255, 59, 48, 0.15),
-        inset 0 0.5px 0 rgba(255, 255, 255, 0.2);
-}
-
-.ios-button-filled.red:active {
-    box-shadow:
-        0 1px 4px rgba(255, 59, 48, 0.2),
-        inset 0 0.5px 0 rgba(255, 255, 255, 0.1);
-}
-
-/* Dark mode buttons */
-:root.dark-mode .ios-button-filled {
-    background: linear-gradient(
-        180deg,
-        rgba(167, 139, 250, 0.7) 0%,
-        rgba(139, 92, 246, 0.75) 100%
-    );
-}
-
-/* #41 — Button group as glass container */
-.ios-button-row {
-    display: flex;
-    gap: 8px;
-    padding: 0 16px;
-}
-
-.ios-button-row .ios-button-filled {
-    margin: 0;
-    width: auto;
-    flex: 1;
     height: 48px;
-}
-
-/* Text-style button */
-.ios-button-text {
-    background: none;
-    border: none;
-    color: var(--accent);
-    font-family: var(--font-text);
-    font-size: 17px;
-    font-weight: 400;
-    letter-spacing: -0.41px;
+    border: var(--border-w) solid var(--border);
+    border-radius: var(--radius);
+    background: var(--accent);
+    color: #FFFFFF;
+    font-family: var(--font-sans);
+    font-size: 15px;
+    font-weight: 600;
     cursor: pointer;
-    padding: 0;
-    transition: opacity 0.15s ease;
+    width: 100%;
+    transition: opacity 0.15s ease, background-color 0.3s ease, border-color 0.3s ease;
 }
 
-.ios-button-text:active {
-    opacity: 0.3;
+.btn:active {
+    opacity: 0.8;
 }
 
-.ios-button-text.destructive {
-    color: var(--system-red);
+.btn svg {
+    width: 18px;
+    height: 18px;
+    fill: #FFFFFF;
 }
 
-/* #38 — Button icon micro-animations */
-@keyframes iconBounceDown {
-    0%, 100% { transform: translateY(0); }
-    25%      { transform: translateY(3px); }
-    50%      { transform: translateY(-1px); }
-    75%      { transform: translateY(1px); }
+.btn--green {
+    background: var(--accent-green);
 }
 
-@keyframes iconShake {
-    0%, 100% { transform: rotate(0deg); }
-    20%      { transform: rotate(-8deg); }
-    40%      { transform: rotate(6deg); }
-    60%      { transform: rotate(-4deg); }
-    80%      { transform: rotate(2deg); }
+.btn--outline {
+    background: var(--surface);
+    color: var(--text);
 }
 
-.ios-button-filled.green svg {
-    animation: iconBounceDown 0.6s ease 0.3s;
+.btn--outline svg {
+    fill: var(--text);
 }
 
-.ios-button-filled.red svg {
-    animation: iconShake 0.4s ease 0.3s;
+.btn--outline:active {
+    background: var(--border-light);
 }
 
-/* #46 — Success flash animation class (toggled by JS) */
-.ios-button-filled--success {
-    animation: successFlash 0.6s ease;
+.btn-row {
+    display: flex;
+    gap: var(--gap);
 }
 
-@keyframes successFlash {
-    0%   { box-shadow: 0 0 0 0 rgba(52, 199, 89, 0); }
-    30%  { box-shadow: 0 0 0 8px rgba(52, 199, 89, 0.3); }
-    100% { box-shadow: 0 0 0 0 rgba(52, 199, 89, 0); }
+.btn-row .btn {
+    flex: 1;
+}
+
+/* Success flash */
+.btn--success {
+    animation: successPulse 0.4s ease;
+}
+
+@keyframes successPulse {
+    0%   { background: var(--accent); }
+    40%  { background: var(--accent-green); }
+    100% { background: var(--accent); }
 }

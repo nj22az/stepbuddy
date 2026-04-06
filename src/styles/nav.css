@@ -1,156 +1,58 @@
-/* ============================================
-   Navigation Bar & Header
-   Items: 26-35
-   ============================================ */
-
-/* #26,27,30,31 — Dynamic nav bar */
-.nav-bar {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    background: var(--nav-bg);
-    backdrop-filter: saturate(180%) blur(16px);
-    -webkit-backdrop-filter: saturate(180%) blur(16px);
-    border-bottom: none;
-    box-shadow: 0 0.5px 0 transparent, 0 4px 16px transparent;
-    padding: 0 16px;
-    min-height: 44px;
+/* Flat header — no blur, no glass */
+.header {
+    padding: 16px 16px 12px;
+    border-bottom: 1px solid var(--border-light);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    transition: background-color 0.35s ease,
-                box-shadow 0.35s ease,
-                backdrop-filter 0.35s ease;
+    background: var(--bg);
+    transition: background-color 0.3s ease;
 }
 
-/* #27,30,31 — Scrolled state (toggled by JS) */
-.nav-bar--scrolled {
-    background: var(--nav-bg-scrolled);
-    backdrop-filter: saturate(180%) blur(28px);
-    -webkit-backdrop-filter: saturate(180%) blur(28px);
-    box-shadow:
-        0 0.5px 0 var(--nav-border-shadow),
-        0 4px 16px var(--nav-depth-shadow);
+.header-title {
+    font-family: var(--font-sans);
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: var(--text);
 }
 
-.nav-bar-title {
-    font-family: var(--font-text);
-    font-size: 17px;
-    font-weight: 600;
-    letter-spacing: -0.41px;
-    color: var(--label);
-    text-align: center;
+.header-subtitle {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+}
+
+.header-left {
     flex: 1;
-    opacity: 0;
-    transform: translateY(6px);
-    transition: opacity 0.25s ease, transform 0.25s ease;
 }
 
-/* #26 — Title appears when large title scrolls out */
-.nav-bar--scrolled .nav-bar-title {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-.nav-bar-buttons {
+.header-buttons {
     display: flex;
-    gap: 4px;
-    align-items: center;
+    gap: 8px;
 }
 
-/* #28 — Glass pill nav buttons */
-.nav-bar-button {
-    background: var(--fill-quaternary);
-    border: 0.5px solid var(--glass-border);
+.header-btn {
+    width: 36px;
+    height: 36px;
+    border: var(--border-w) solid var(--border);
     border-radius: 50%;
-    color: var(--accent);
+    background: var(--surface);
+    color: var(--text);
     cursor: pointer;
-    padding: 0;
-    width: 34px;
-    height: 34px;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: opacity 0.15s ease,
-                background-color 0.15s ease,
-                transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    transition: background-color 0.15s ease, border-color 0.3s ease;
 }
 
-.nav-bar-button:hover {
-    background: var(--fill-tertiary);
+.header-btn:active {
+    background: var(--border-light);
 }
 
-.nav-bar-button:active {
-    opacity: 0.4;
-    transform: scale(0.9);
-}
-
-.nav-bar-button svg {
-    width: 18px;
-    height: 18px;
-    fill: var(--accent);
-}
-
-/* ===== Large Title ===== */
-/* #29,33,34 — Large title with gradient and animation */
-.large-title-area {
-    padding: 4px 16px 10px;
-    transition: background-color 0.4s ease;
-}
-
-.large-title {
-    font-family: var(--font-display);
-    /* #87 — Bolder weight, tighter spacing */
-    font-size: 34px;
-    font-weight: 800;
-    letter-spacing: -0.5px;
-    line-height: 41px;
-    /* #29 — Gradient text */
-    background: linear-gradient(
-        135deg,
-        var(--label) 0%,
-        var(--label) 60%,
-        var(--accent) 100%
-    );
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    /* #33 — Letter spacing animation on load */
-    animation: titleAppear 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.05s backwards;
-}
-
-/* #34 — Subtitle delayed fade-in */
-.large-title-subtitle {
-    font-size: 15px;
-    color: var(--label-secondary);
-    letter-spacing: -0.24px;
-    margin-top: 2px;
-    animation: subtitleFade 0.5s ease 0.3s backwards;
-}
-
-@keyframes titleAppear {
-    from {
-        opacity: 0;
-        letter-spacing: 2px;
-        transform: translateY(8px);
-    }
-    to {
-        opacity: 1;
-        letter-spacing: -0.5px;
-        transform: translateY(0);
-    }
-}
-
-@keyframes subtitleFade {
-    from { opacity: 0; transform: translateY(4px); }
-    to   { opacity: 1; transform: translateY(0); }
-}
-
-/* #32 — Safe area */
-@supports (padding: env(safe-area-inset-top)) {
-    .nav-bar {
-        padding-top: env(safe-area-inset-top);
-    }
+.header-btn svg {
+    width: 16px;
+    height: 16px;
+    fill: var(--text);
+    transition: fill 0.3s ease;
 }

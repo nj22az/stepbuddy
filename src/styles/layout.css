@@ -1,264 +1,113 @@
-/* ============================================
-   Layout, Sections, Typography, Footer
-   Items: 76-92, 97, 99
-   ============================================ */
-
-/* === Global Reset === */
-* {
+*, *::before, *::after {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: var(--font-text);
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    -webkit-tap-highlight-color: transparent;
-    /* #91 — Text rendering */
-    text-rendering: optimizeLegibility;
 }
 
 html, body {
     min-height: 100vh;
-    min-height: -webkit-fill-available;
-    background: var(--bg-base);
-    color: var(--label);
-    font-size: 17px;
-    line-height: 22px;
-    letter-spacing: -0.41px;
-    padding: 0;
-    margin: 0;
-    overflow-x: hidden;
-    /* #99 — iOS rubber-band scroll */
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior-y: auto;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* #86 — Tabular nums globally */
-input, .ios-result-step, .ios-result-delta,
-.ios-result-value-input, .ios-results-summary-value {
-    font-variant-numeric: tabular-nums;
-}
-
-/* === App Container === */
-.ios-app {
-    width: 100%;
-    max-width: 600px;
+.app {
+    max-width: 480px;
     margin: 0 auto;
     min-height: 100vh;
-    min-height: -webkit-fill-available;
     display: flex;
     flex-direction: column;
-    position: relative;
 }
 
-.ios-scroll-content {
+/* Accent bar at top */
+.app::before {
+    content: '';
+    display: block;
+    height: 4px;
+    background: var(--accent);
+}
+
+.app-content {
     flex: 1;
-    padding-bottom: env(safe-area-inset-bottom, 20px);
+    padding: 0 16px 40px;
 }
 
-/* === Sections === */
-.ios-section {
-    margin: 28px 0 0;
-    /* #76,81 — Staggered load + scroll reveal */
-    animation: sectionReveal 0.5s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+.section {
+    margin-top: var(--section-gap);
 }
 
-.ios-section:nth-child(1) { animation-delay: 0.1s; }
-.ios-section:nth-child(2) { animation-delay: 0.2s; }
-.ios-section:nth-child(3) { animation-delay: 0.3s; }
-.ios-section:nth-child(4) { animation-delay: 0.4s; }
-.ios-section:nth-child(5) { animation-delay: 0.5s; }
-.ios-section:nth-child(6) { animation-delay: 0.6s; }
-
-.ios-section:first-child {
-    margin-top: 16px;
+.section:first-child {
+    margin-top: 24px;
 }
 
-@keyframes sectionReveal {
-    from {
-        opacity: 0;
-        transform: translateY(16px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.ios-section-header {
-    font-size: 13px;
+.section-header {
+    font-family: var(--font-sans);
+    font-size: 11px;
     font-weight: 500;
-    /* #88 — Better letter spacing */
-    letter-spacing: 0.5px;
-    color: var(--label-secondary);
+    letter-spacing: 2px;
     text-transform: uppercase;
-    padding: 0 20px 6px;
-    line-height: 18px;
-    text-shadow: 0 0.5px 0 rgba(255, 255, 255, 0.4);
+    color: var(--text-secondary);
+    padding: 0 4px 8px;
 }
 
-:root.dark-mode .ios-section-header {
-    text-shadow: 0 0.5px 2px rgba(0, 0, 0, 0.5);
-}
-
-.ios-section-footer {
+.section-footer {
     font-size: 13px;
-    font-weight: 400;
-    letter-spacing: -0.08px;
-    color: var(--label-secondary);
-    padding: 6px 20px 0;
-    line-height: 18px;
+    color: var(--text-secondary);
+    padding: 8px 4px 0;
+    line-height: 1.5;
 }
 
-/* === How-to Steps === */
-.ios-steps-row {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    min-height: 44px;
-    /* #92 — Better padding */
-    padding: 12px 16px;
-    position: relative;
-    z-index: 2;
+/* Section fade-in */
+.section {
+    animation: fadeUp 0.4s ease backwards;
+}
+.section:nth-child(1) { animation-delay: 0s; }
+.section:nth-child(2) { animation-delay: 0.06s; }
+.section:nth-child(3) { animation-delay: 0.12s; }
+.section:nth-child(4) { animation-delay: 0.18s; }
+.section:nth-child(5) { animation-delay: 0.24s; }
+.section:nth-child(6) { animation-delay: 0.3s; }
+
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 
-.ios-steps-row + .ios-steps-row::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 48px;
-    right: 0;
-    height: 0.5px;
-    background: linear-gradient(
-        to right,
-        var(--separator),
-        var(--separator) 90%,
-        transparent
-    );
-}
-
-.ios-step-number {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
-    box-shadow: 0 2px 6px var(--accent-glow);
-    color: #FFFFFF;
-    font-size: 13px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    margin-top: 1px;
-}
-
-.ios-step-text {
-    font-size: 15px;
-    color: var(--label);
-    /* #92 — Better line height */
-    line-height: 24px;
-    letter-spacing: -0.24px;
-}
-
-/* === Footer === */
-/* #89 — Glass divider above footer */
-.ios-footer {
-    padding: 20px 16px 40px;
+/* Footer */
+.footer {
+    padding: 24px 16px 32px;
     text-align: center;
-    position: relative;
+    border-top: 1px solid var(--border-light);
+    margin-top: var(--section-gap);
 }
 
-.ios-footer::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 32px;
-    right: 32px;
-    height: 0.5px;
-    background: linear-gradient(
-        to right,
-        transparent,
-        var(--separator) 30%,
-        var(--separator) 70%,
-        transparent
-    );
+.footer p {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    letter-spacing: 0.5px;
 }
 
-.ios-footer p {
-    font-size: 13px;
-    color: var(--label-tertiary);
-    letter-spacing: -0.08px;
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 2px; }
+
+/* Responsive */
+@media (max-width: 480px) {
+    .app { max-width: 100%; }
 }
 
-/* #97 — Tinted scrollbar */
-::-webkit-scrollbar {
-    width: 6px;
-}
+:fullscreen .app { max-width: none; }
 
-::-webkit-scrollbar-track {
-    background: var(--scrollbar-track);
-}
-
-::-webkit-scrollbar-thumb {
-    background: var(--scrollbar-thumb);
-    border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: var(--accent-glow);
-}
-
-/* === Responsive === */
-@media (max-width: 600px) {
-    .ios-app {
-        max-width: 100%;
-    }
-}
-
-/* === Fullscreen === */
-:fullscreen .ios-app {
-    max-width: none;
-}
-
-:-webkit-full-screen .ios-app {
-    max-width: none;
-}
-
-/* #79 — Reduced motion */
+/* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
         animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
-    }
-
-    .glass-bg-orb {
-        animation: none !important;
-    }
-
-    .glass-aurora, .glass-ambient-light {
-        animation: none !important;
-    }
-}
-
-/* #82 — Smooth theme transitions on all elements */
-.ios-app *,
-.ios-app *::before,
-.ios-app *::after {
-    transition-property: background-color, color, border-color, box-shadow, fill, stroke;
-    transition-duration: 0.4s;
-    transition-timing-function: ease;
-}
-
-/* Override for elements that need different transitions */
-.ios-button-filled,
-.ios-card,
-.nav-bar-button {
-    transition-property: background-color, color, border-color, box-shadow, fill, stroke, transform;
-}
-
-@supports (padding: env(safe-area-inset-bottom)) {
-    .ios-footer {
-        padding-bottom: calc(20px + env(safe-area-inset-bottom));
     }
 }

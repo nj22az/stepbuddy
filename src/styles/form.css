@@ -1,150 +1,62 @@
-/* ============================================
-   Form Inputs & Controls
-   Items: 51-60
-   ============================================ */
-
-/* #55 — Proper input mode handled in JSX */
-.ios-input {
+/* Clean inputs — bottom-border only */
+.input {
     width: 100%;
-    height: 44px;
+    height: 48px;
     padding: 0;
     border: none;
+    border-bottom: 1px solid var(--border-light);
     background: transparent;
-    font-size: 17px;
-    color: var(--label);
+    font-family: var(--font-mono);
+    font-size: 16px;
+    color: var(--text);
     text-align: right;
     outline: none;
-    font-family: var(--font-text);
-    letter-spacing: -0.41px;
-    font-variant-numeric: tabular-nums;
-    position: relative;
-    z-index: 2;
-    transition: color 0.2s ease;
+    transition: border-color 0.2s ease, color 0.3s ease;
 }
 
-.ios-input::placeholder {
-    color: var(--label-tertiary);
+.input:focus {
+    border-bottom-color: var(--accent);
 }
 
-/* Remove native spinners */
+.input::placeholder {
+    color: var(--text-tertiary);
+    font-family: var(--font-sans);
+}
+
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
     -webkit-appearance: none;
     margin: 0;
 }
-
 input[type="number"] {
     -moz-appearance: textfield;
 }
 
-/* #51,58 — Input focus: left accent bar */
-.ios-row--focused {
-    position: relative;
-}
-
-.ios-row--focused::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 3px;
-    height: 24px;
-    background: var(--accent);
-    border-radius: 0 3px 3px 0;
-    animation: accentBarSlide 0.25s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-@keyframes accentBarSlide {
-    from { height: 0; opacity: 0; }
-    to   { height: 24px; opacity: 1; }
-}
-
-/* #56 — Input label with icon */
-.ios-row-label {
-    font-size: 17px;
-    color: var(--label);
-    min-width: 110px;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.ios-row-label-icon {
-    width: 18px;
-    height: 18px;
-    fill: var(--accent);
-    opacity: 0.7;
-    flex-shrink: 0;
-}
-
-/* #59 — Validation indicator */
-.ios-input-status {
-    width: 16px;
-    height: 16px;
-    flex-shrink: 0;
-    opacity: 0;
-    transform: scale(0.5);
-    transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.ios-input-status--valid {
-    opacity: 1;
-    transform: scale(1);
-    fill: var(--system-green);
-}
-
-.ios-input-status--invalid {
-    opacity: 1;
-    transform: scale(1);
-    fill: var(--system-red);
-}
-
-/* #52 — Input value flash on change */
-@keyframes inputFlash {
-    0%   { color: var(--accent); }
-    100% { color: var(--label); }
-}
-
-.ios-input--changed {
-    animation: inputFlash 0.4s ease;
-}
-
-/* Error banner */
-.ios-error {
+/* Error */
+.error {
     display: flex;
     align-items: center;
     gap: 10px;
-    margin: 12px 16px 0;
+    margin-top: 12px;
     padding: 12px 16px;
-    background: rgba(255, 59, 48, 0.08);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 0.5px solid rgba(255, 59, 48, 0.15);
-    border-radius: 16px;
-    color: var(--system-red);
-    font-size: 15px;
-    letter-spacing: -0.24px;
-    line-height: 20px;
-    /* #80 — Slide in from above */
-    animation: errorSlideIn 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    background: var(--surface);
+    border: var(--border-w) solid var(--error);
+    border-radius: var(--radius);
+    color: var(--error);
+    font-size: 14px;
+    line-height: 1.4;
+    animation: errorIn 0.3s ease;
+    transition: background-color 0.3s ease;
 }
 
-.ios-error svg {
-    width: 20px;
-    height: 20px;
-    fill: var(--system-red);
+.error svg {
+    width: 18px;
+    height: 18px;
+    fill: var(--error);
     flex-shrink: 0;
 }
 
-@keyframes errorSlideIn {
-    from {
-        opacity: 0;
-        transform: translateY(-12px) scale(0.96);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
+@keyframes errorIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
