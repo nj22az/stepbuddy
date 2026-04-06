@@ -1,3 +1,17 @@
+/* Title bento card */
+.title-card {
+    padding: 14px 16px;
+}
+
+.title-card-text {
+    font-family: 'Zen Maru Gothic', var(--font-sans);
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-tertiary);
+    text-align: center;
+    letter-spacing: 0.2px;
+}
+
 /* iOS Native Cards / Grouped List */
 .card {
     background: var(--surface);
