@@ -3,15 +3,15 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    height: 44px;
+    gap: 7px;
+    height: 42px;
     border: var(--border-w) solid var(--navy);
     border-radius: var(--radius);
     background: var(--navy);
     color: #FFFFFF;
     font-family: var(--font-sans);
-    font-size: 14px;
-    font-weight: 600;
+    font-size: 13px;
+    font-weight: 700;
     cursor: pointer;
     width: 100%;
     letter-spacing: 0.2px;
@@ -48,8 +48,8 @@
 }
 
 .btn--add-range {
-    height: 38px;
-    font-size: 13px;
+    height: 34px;
+    font-size: 12px;
     border-style: dashed;
     border-color: var(--border-light);
     background: transparent;

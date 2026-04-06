@@ -15,16 +15,20 @@ html, body {
     -webkit-font-smoothing: antialiased;
     -webkit-tap-highlight-color: transparent;
     transition: background-color 0.3s ease, color 0.3s ease;
+    overflow-x: hidden;
+    width: 100%;
 }
 
 .app {
-    max-width: 520px;
+    width: 100%;
+    max-width: 480px;
     margin: 0 auto;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
     background: var(--bg);
     transition: background-color 0.3s ease;
+    overflow-x: hidden;
 }
 
 /* Navy accent bar — authority stripe */
@@ -33,30 +37,32 @@ html, body {
     display: block;
     height: 3px;
     background: var(--navy);
+    flex-shrink: 0;
 }
 
 .app-content {
     flex: 1;
-    padding: 0 16px 40px;
+    padding: 0 12px 32px;
+    overflow-x: hidden;
 }
 
 .section {
-    margin-top: var(--section-gap);
+    margin-top: 20px;
 }
 
 .section:first-child {
-    margin-top: 18px;
+    margin-top: 14px;
 }
 
 /* Section header — uppercase tracking per JDS micro-typography */
 .section-header {
     font-family: var(--font-sans);
-    font-size: 11px;
-    font-weight: 600;
+    font-size: 10px;
+    font-weight: 700;
     letter-spacing: 1.5px;
     text-transform: uppercase;
     color: var(--text-secondary);
-    padding: 0 2px 6px;
+    padding: 0 2px 5px;
 }
 
 /* Section header with inline action (range remove) */
@@ -68,12 +74,12 @@ html, body {
 }
 
 .section-header-row .section-header {
-    padding-bottom: 6px;
+    padding-bottom: 5px;
 }
 
 .range-remove-btn {
-    width: 26px;
-    height: 26px;
+    width: 24px;
+    height: 24px;
     border: 1.5px solid var(--border-light);
     border-radius: 50%;
     background: var(--surface);
@@ -83,6 +89,7 @@ html, body {
     align-items: center;
     justify-content: center;
     padding: 0;
+    flex-shrink: 0;
     transition: border-color 0.15s ease, color 0.15s ease;
 }
 
@@ -92,21 +99,21 @@ html, body {
 }
 
 .range-remove-btn svg {
-    width: 12px;
-    height: 12px;
+    width: 11px;
+    height: 11px;
 }
 
 /* Action stack — Add Range + Calculate grouped tighter */
 .action-stack {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
 }
 
 .section-footer {
-    font-size: 12px;
+    font-size: 11px;
     color: var(--text-tertiary);
-    padding: 6px 2px 0;
+    padding: 5px 2px 0;
     line-height: 1.5;
 }
 
@@ -117,9 +124,9 @@ html, body {
 .section:nth-child(1) { animation-delay: 0s; }
 .section:nth-child(2) { animation-delay: 0.04s; }
 .section:nth-child(3) { animation-delay: 0.08s; }
-.section:nth-child(4) { animation-delay: 0.12s; }
-.section:nth-child(5) { animation-delay: 0.16s; }
-.section:nth-child(6) { animation-delay: 0.2s; }
+.section:nth-child(4) { animation-delay: 0.08s; }
+.section:nth-child(5) { animation-delay: 0.12s; }
+.section:nth-child(6) { animation-delay: 0.16s; }
 
 @keyframes fadeUp {
     from { opacity: 0; transform: translateY(6px); }
@@ -128,14 +135,14 @@ html, body {
 
 /* Footer */
 .footer {
-    padding: 24px 16px 32px;
+    padding: 20px 12px 28px;
     text-align: center;
     border-top: 1px solid var(--border-light);
-    margin-top: var(--section-gap);
+    margin-top: 20px;
 }
 
 .footer p {
-    font-size: 11px;
+    font-size: 10px;
     color: var(--text-tertiary);
     letter-spacing: 0.3px;
 }
@@ -145,12 +152,13 @@ html, body {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 2px; }
 
-/* Responsive */
-@media (max-width: 520px) {
+/* Responsive — small screens */
+@media (max-width: 480px) {
     .app { max-width: 100%; }
+    .app-content { padding: 0 10px 28px; }
 }
 
-@media (min-width: 521px) {
+@media (min-width: 481px) {
     .app {
         box-shadow: 0 0 0 1px var(--border-light);
     }

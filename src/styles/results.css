@@ -1,15 +1,15 @@
 /* JDS Results — clean data table per PRO-007 */
 
-/* Summary strip — start→end, step size, count */
+/* Summary strip — from→to, step size, count */
 .results-summary {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: 1fr 1fr 60px;
     border-bottom: var(--border-w) solid var(--border-light);
     background: var(--bg-page);
 }
 
 .results-summary-item {
-    padding: 12px var(--card-pad);
+    padding: 10px 8px;
     text-align: center;
 }
 
@@ -18,35 +18,36 @@
 }
 
 .results-summary-label {
-    font-size: 9px;
+    font-size: 8px;
     font-weight: 700;
-    letter-spacing: 1.5px;
+    letter-spacing: 1.2px;
     text-transform: uppercase;
     color: var(--text-tertiary);
 }
 
 .results-summary-value {
     font-family: var(--font-mono);
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 700;
     color: var(--navy);
-    margin-top: 3px;
+    margin-top: 2px;
     font-variant-numeric: tabular-nums;
+    white-space: nowrap;
 }
 
 /* Table header — JDS: uppercase, small, warm gray */
 .results-header {
     display: grid;
-    grid-template-columns: 44px 1fr 100px;
-    padding: 8px var(--card-pad);
+    grid-template-columns: 38px 1fr 80px;
+    padding: 6px 12px;
     border-bottom: 1.5px solid var(--border-light);
     background: var(--bg-page);
 }
 
 .results-header-cell {
-    font-size: 9px;
+    font-size: 8px;
     font-weight: 700;
-    letter-spacing: 1.5px;
+    letter-spacing: 1.2px;
     text-transform: uppercase;
     color: var(--text-tertiary);
 }
@@ -58,9 +59,9 @@
 /* Result rows — alternating subtle shading per JDS table standards */
 .result-row {
     display: grid;
-    grid-template-columns: 44px 1fr 100px;
-    min-height: 44px;
-    padding: 0 var(--card-pad);
+    grid-template-columns: 38px 1fr 80px;
+    min-height: 40px;
+    padding: 0 12px;
     align-items: center;
     position: relative;
     animation: rowFade 0.3s ease backwards;
@@ -90,14 +91,14 @@
     opacity: 0.25;
 }
 
-/* Step badge — heritage red circle (attention/sequence marker) */
+/* Step badge — heritage red circle */
 .result-step {
     font-family: var(--font-mono);
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 700;
     color: var(--red);
-    width: 28px;
-    height: 28px;
+    width: 24px;
+    height: 24px;
     border: 1.5px solid var(--red);
     border-radius: 50%;
     display: flex;
@@ -117,10 +118,10 @@
     border-bottom: 1px solid transparent;
     color: var(--text);
     font-family: var(--font-mono);
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 500;
     text-align: right;
-    padding: 6px 0;
+    padding: 4px 0;
     outline: none;
     font-variant-numeric: tabular-nums;
     transition: border-color 0.2s ease, color 0.3s ease;
@@ -133,7 +134,7 @@
 /* Colour-coded deltas — JDS colour is language */
 .result-delta {
     font-family: var(--font-mono);
-    font-size: 12px;
+    font-size: 11px;
     text-align: right;
     font-variant-numeric: tabular-nums;
     font-weight: 500;
@@ -149,7 +150,7 @@
     align-items: center;
     gap: 3px;
     font-family: var(--font-sans);
-    font-size: 9px;
+    font-size: 8px;
     font-weight: 700;
     letter-spacing: 1px;
     text-transform: uppercase;
@@ -157,7 +158,7 @@
 }
 
 .result-final svg {
-    width: 9px;
-    height: 9px;
+    width: 8px;
+    height: 8px;
     fill: var(--navy);
 }
