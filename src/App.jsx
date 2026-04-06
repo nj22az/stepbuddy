@@ -139,8 +139,21 @@ function App() {
     'Enter your target end value',
     'Choose the number of steps (min. 2)',
     'Add more ranges if needed',
-    'Calculate and export as CSV'
+    'Tap Calculate to see results'
   ]
+
+  // Detect completed steps based on current state
+  const r0 = ranges[0] || {}
+  const stepsDone = [
+    r0.start !== '',
+    r0.end !== '',
+    r0.steps !== '',
+    ranges.length > 1,
+    hasAnyResults
+  ]
+  // Current step = first incomplete (skip step 4 "add ranges" — it's optional)
+  const currentStep = stepsDone.findIndex((done, i) => !done && i !== 3)
+  const allDone = hasAnyResults
 
   return (
     <div className="app">
@@ -189,12 +202,26 @@ function App() {
           </button>
           {showHowTo && (
             <div className="card card--howto">
-              {howTo.map((text, i) => (
-                <div key={i} className="step-row">
-                  <span className="step-num">{i + 1}</span>
-                  <span className="step-text">{text}</span>
+              {howTo.map((text, i) => {
+                const done = stepsDone[i]
+                const active = i === currentStep
+                const cls = done ? 'step-row step-row--done'
+                  : active ? 'step-row step-row--active'
+                  : 'step-row step-row--future'
+                return (
+                  <div key={i} className={cls}>
+                    <span className="step-num">
+                      {done ? '✓' : i + 1}
+                    </span>
+                    <span className="step-text">{text}</span>
+                  </div>
+                )
+              })}
+              {allDone && (
+                <div className="step-row step-row--complete">
+                  <span className="step-text">All done! Scroll down to see your results.</span>
                 </div>
-              ))}
+              )}
             </div>
           )}
         </section>

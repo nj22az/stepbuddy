@@ -107,6 +107,66 @@
     padding-top: 1px;
 }
 
+/* Step states */
+.step-row--done {
+    opacity: 0.45;
+}
+
+.step-row--done .step-num {
+    background: #A5D6A7;
+    font-size: 9px;
+}
+
+.step-row--done .step-text {
+    text-decoration: line-through;
+    color: #999;
+}
+
+.step-row--active {
+    background: #FFF3F3;
+}
+
+.step-row--active .step-num {
+    animation: pulse 1.5s ease infinite;
+}
+
+.step-row--future {
+    opacity: 0.35;
+}
+
+.step-row--complete {
+    padding: 8px 12px;
+    border-top: 1px solid #F5C6C6;
+}
+
+.step-row--complete .step-text {
+    color: #2E7D32;
+    font-weight: 700;
+    font-size: 11px;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+}
+
+/* Dark mode step states */
+:root.dark-mode .step-row--done .step-num {
+    background: #388E3C;
+}
+
+:root.dark-mode .step-row--done .step-text {
+    color: #666;
+}
+
+:root.dark-mode .step-row--active {
+    background: #3D1A1A;
+}
+
+:root.dark-mode .step-row--complete .step-text {
+    color: #81C784;
+}
+
 /* Focus indicator bar */
 .card-row--focused::after {
     content: '';
