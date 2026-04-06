@@ -135,7 +135,7 @@ function App() {
         </div>
       )}
 
-      {/* Header — portrait left, text right */}
+      {/* Header — two bento cards */}
       <header className="header">
         <button className="header-logo-btn" onClick={() => setShowLogoModal(true)}
           aria-label="View logo">
@@ -144,12 +144,12 @@ function App() {
         <div className="header-text">
           <div className="header-title">StepWise</div>
           <div className="header-subtitle">Johansson Engineering</div>
-        </div>
-        <div className="header-buttons">
-          <button className="header-btn" onClick={toggleTheme}
-            aria-label={isDarkMode ? 'Light mode' : 'Dark mode'}>
-            {isDarkMode ? <SunIcon /> : <MoonIcon />}
-          </button>
+          <div className="header-buttons">
+            <button className="header-btn" onClick={toggleTheme}
+              aria-label={isDarkMode ? 'Light mode' : 'Dark mode'}>
+              {isDarkMode ? <SunIcon /> : <MoonIcon />}
+            </button>
+          </div>
         </div>
       </header>
 
