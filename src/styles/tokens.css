@@ -1,57 +1,57 @@
-/* JDS Design Tokens — Johansson Documentation System PRO-007 */
+/* iOS Native Design Tokens */
 :root {
-    /* Typography — M PLUS Rounded 1c (JDS bundled font), monospace for data */
-    --font-sans: 'M PLUS Rounded 1c', Inter, 'Source Sans Pro', -apple-system, system-ui, sans-serif;
-    --font-mono: ui-monospace, 'SF Mono', Monaco, 'Cascadia Mono', monospace;
+    /* Typography — system font stack */
+    --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+    --font-mono: 'SF Mono', ui-monospace, Monaco, 'Cascadia Mono', monospace;
 
-    /* JDS Colour Palette — every colour carries meaning */
-    --navy: #1B3A5C;          /* Authority, primary headings */
-    --steel: #4A90A4;         /* Secondary, supporting info */
-    --green: #3D8B6E;         /* Success, approved, current */
-    --red: #8B2D2D;           /* Heritage red, attention */
-    --bronze: #6B5B3E;        /* Administrative, warm */
-    --warm-gray: #8C8C8C;     /* Metadata, non-critical */
+    /* iOS System Colours */
+    --navy: #007AFF;
+    --steel: #5856D6;
+    --green: #34C759;
+    --red: #FF3B30;
+    --bronze: #FF9500;
+    --warm-gray: #8E8E93;
 
     /* Semantic mapping */
     --bg: #FFFFFF;
-    --bg-page: #F5F7FA;
+    --bg-page: #F2F2F7;
     --surface: #FFFFFF;
-    --border: #1B3A5C;
-    --border-light: #E0E4EA;
-    --text: #222222;
-    --text-secondary: #5A6570;
-    --text-tertiary: #8C8C8C;
-    --accent: #1B3A5C;
-    --accent-secondary: #4A90A4;
-    --success: #3D8B6E;
-    --error: #8B2D2D;
+    --border: transparent;
+    --border-light: rgba(60, 60, 67, 0.12);
+    --text: #000000;
+    --text-secondary: #3C3C43;
+    --text-tertiary: #8E8E93;
+    --accent: #007AFF;
+    --accent-secondary: #5856D6;
+    --success: #34C759;
+    --error: #FF3B30;
 
-    /* Spacing — 6pt base unit (JDS grid) */
-    --unit: 6px;
-    --radius: 8px;
-    --border-w: 1.5px;
+    /* Spacing */
+    --unit: 8px;
+    --radius: 10px;
+    --border-w: 0px;
     --card-pad: 16px;
     --gap: 12px;
     --section-gap: 24px;
 }
 
 :root.dark-mode {
-    --bg: #0F1419;
-    --bg-page: #0F1419;
-    --surface: #1A2028;
-    --border: #4A90A4;
-    --border-light: #2A3340;
-    --text: #E0E4EA;
-    --text-secondary: #8899AA;
-    --text-tertiary: #5A6878;
-    --accent: #4A90A4;
-    --accent-secondary: #6BB8CC;
-    --success: #5AC095;
-    --error: #C85A5A;
-    --navy: #4A90A4;
-    --steel: #6BB8CC;
-    --green: #5AC095;
-    --red: #C85A5A;
-    --bronze: #A89470;
-    --warm-gray: #6A7580;
+    --bg: #000000;
+    --bg-page: #000000;
+    --surface: #1C1C1E;
+    --border: transparent;
+    --border-light: rgba(84, 84, 88, 0.65);
+    --text: #FFFFFF;
+    --text-secondary: rgba(235, 235, 245, 0.6);
+    --text-tertiary: #8E8E93;
+    --accent: #0A84FF;
+    --accent-secondary: #5E5CE6;
+    --success: #30D158;
+    --error: #FF453A;
+    --navy: #0A84FF;
+    --steel: #5E5CE6;
+    --green: #30D158;
+    --red: #FF453A;
+    --bronze: #FF9F0A;
+    --warm-gray: #8E8E93;
 }

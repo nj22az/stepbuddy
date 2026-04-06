@@ -1,43 +1,42 @@
-/* JDS Buttons — mobile-first */
+/* iOS Native Buttons */
 .btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    height: 38px;
-    border: var(--border-w) solid var(--navy);
-    border-radius: var(--radius);
-    background: var(--navy);
+    gap: 8px;
+    height: 50px;
+    border: none;
+    border-radius: 12px;
+    background: var(--accent);
     color: #FFFFFF;
     font-family: var(--font-sans);
-    font-size: 13px;
-    font-weight: 700;
+    font-size: 17px;
+    font-weight: 600;
     cursor: pointer;
     width: 100%;
-    letter-spacing: 0.2px;
-    transition: opacity 0.15s ease, background-color 0.3s ease, border-color 0.3s ease;
+    letter-spacing: -0.2px;
+    transition: opacity 0.15s ease, background-color 0.3s ease;
 }
 
 .btn:active {
-    opacity: 0.85;
+    opacity: 0.7;
 }
 
 .btn svg {
-    width: 15px;
-    height: 15px;
+    width: 17px;
+    height: 17px;
     fill: #FFFFFF;
     flex-shrink: 0;
 }
 
 .btn--green {
-    background: var(--green);
-    border-color: var(--green);
+    background: var(--success);
 }
 
 .btn--outline {
     background: var(--surface);
     color: var(--text);
-    border-color: var(--border-light);
+    border: none;
 }
 
 .btn--outline svg {
@@ -45,23 +44,23 @@
 }
 
 .btn--outline:active {
-    background: var(--border-light);
+    opacity: 0.5;
 }
 
 .btn--add-range {
-    height: 30px;
-    font-size: 12px;
-    border-style: dashed;
-    border-color: var(--border-light);
+    height: 36px;
+    font-size: 15px;
+    font-weight: 500;
+    border: none;
     background: transparent;
-    color: var(--text-secondary);
+    color: var(--accent);
 }
 
 .btn--add-range svg {
-    width: 13px;
-    height: 13px;
+    width: 15px;
+    height: 15px;
     fill: none;
-    stroke: var(--text-secondary);
+    stroke: var(--accent);
     stroke-width: 2;
 }
 
@@ -80,7 +79,7 @@
 }
 
 @keyframes successPulse {
-    0%   { background: var(--navy); }
-    40%  { background: var(--green); }
-    100% { background: var(--navy); }
+    0%   { background: var(--accent); }
+    40%  { background: var(--success); }
+    100% { background: var(--accent); }
 }

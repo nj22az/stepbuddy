@@ -1,4 +1,4 @@
-/* JDS Layout — simple, clean, mobile-first */
+/* iOS Native Layout */
 *, *::before, *::after {
     margin: 0;
     padding: 0;
@@ -9,8 +9,8 @@ body {
     background: var(--bg-page);
     color: var(--text);
     font-family: var(--font-sans);
-    font-size: 15px;
-    line-height: 1.5;
+    font-size: 16px;
+    line-height: 1.47;
     -webkit-font-smoothing: antialiased;
     -webkit-tap-highlight-color: transparent;
     -webkit-text-size-adjust: 100%;
@@ -18,47 +18,41 @@ body {
 }
 
 .app {
-    max-width: 460px;
+    max-width: 500px;
     margin: 0 auto;
     min-height: 100vh;
     min-height: 100dvh;
     display: flex;
     flex-direction: column;
-    background: var(--bg);
+    background: var(--bg-page);
+    padding-top: env(safe-area-inset-top);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
     transition: background-color 0.3s ease;
-}
-
-/* Navy accent bar */
-.app::before {
-    content: '';
-    display: block;
-    height: 3px;
-    background: var(--navy);
-    flex-shrink: 0;
 }
 
 .app-content {
     flex: 1;
-    padding: 0 16px 24px;
+    padding: 0 16px calc(24px + env(safe-area-inset-bottom));
 }
 
 .section {
-    margin-top: 14px;
+    margin-top: 20px;
 }
 
 .section:first-child {
     margin-top: 8px;
 }
 
-/* Section header */
+/* Section header — iOS grouped style */
 .section-header {
     font-family: var(--font-sans);
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 1.5px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: -0.08px;
     text-transform: uppercase;
-    color: var(--text-secondary);
-    padding: 0 2px 5px;
+    color: var(--text-tertiary);
+    padding: 0 16px 6px;
 }
 
 /* Section header with remove button */
@@ -66,83 +60,62 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    padding-right: 8px;
 }
 
 .section-header-row .section-header {
-    padding-bottom: 5px;
+    padding-bottom: 6px;
 }
 
 .range-remove-btn {
-    width: 24px;
-    height: 24px;
-    border: 1.5px solid var(--border-light);
+    width: 28px;
+    height: 28px;
+    border: none;
     border-radius: 50%;
-    background: var(--surface);
-    color: var(--text-tertiary);
+    background: transparent;
+    color: var(--red);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 0;
     flex-shrink: 0;
-    transition: border-color 0.15s ease, color 0.15s ease;
 }
 
-.range-remove-btn:hover {
-    border-color: var(--error);
-    color: var(--error);
+.range-remove-btn:active {
+    opacity: 0.5;
 }
 
 .range-remove-btn svg {
-    width: 11px;
-    height: 11px;
+    width: 13px;
+    height: 13px;
 }
 
 /* Action stack */
 .action-stack {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 10px;
 }
 
 .section-footer {
-    font-size: 11px;
+    font-size: 13px;
     color: var(--text-tertiary);
-    padding: 5px 2px 0;
+    padding: 6px 16px 0;
     line-height: 1.4;
-}
-
-/* Section fade-in */
-.section {
-    animation: fadeUp 0.3s ease backwards;
-}
-
-@keyframes fadeUp {
-    from { opacity: 0; transform: translateY(4px); }
-    to   { opacity: 1; transform: translateY(0); }
 }
 
 /* Footer */
 .footer {
-    padding: 14px 16px 20px;
+    padding: 16px;
     text-align: center;
-    border-top: 1px solid var(--border-light);
-    margin-top: 14px;
+    margin-top: 20px;
 }
 
 .footer p {
-    font-size: 10px;
+    font-size: 12px;
     color: var(--text-tertiary);
-    letter-spacing: 0.3px;
 }
-
-@media (min-width: 461px) {
-    .app {
-        box-shadow: 0 0 0 1px var(--border-light);
-    }
-}
-
-:fullscreen .app { max-width: 100%; }
 
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {

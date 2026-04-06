@@ -1,27 +1,26 @@
-/* JDS Inputs — iOS requires 16px to prevent zoom */
+/* iOS Native Inputs */
 .input {
     width: 100%;
-    height: 38px;
-    padding: 0;
+    height: 44px;
+    padding: 0 0 0 8px;
     border: none;
-    border-bottom: 1px solid var(--border-light);
     background: transparent;
     font-family: var(--font-mono);
     font-size: 16px;
     color: var(--text);
     text-align: right;
     outline: none;
-    transition: border-color 0.2s ease, color 0.3s ease;
+    transition: color 0.3s ease;
 }
 
 .input:focus {
-    border-bottom-color: var(--navy);
+    color: var(--accent);
 }
 
 .input::placeholder {
     color: var(--text-tertiary);
     font-family: var(--font-sans);
-    font-size: 14px;
+    font-size: 16px;
 }
 
 input[type="number"]::-webkit-inner-spin-button,
@@ -38,26 +37,24 @@ input[type="number"] {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-top: 6px;
-    padding: 8px 10px;
-    background: var(--surface);
-    border: var(--border-w) solid var(--error);
+    margin-top: 8px;
+    padding: 10px 12px;
+    background: rgba(255, 59, 48, 0.08);
+    border: none;
     border-radius: var(--radius);
     color: var(--error);
-    font-size: 12px;
+    font-size: 13px;
     line-height: 1.4;
-    animation: errorIn 0.3s ease;
     transition: background-color 0.3s ease;
 }
 
-.error svg {
-    width: 14px;
-    height: 14px;
-    fill: var(--error);
-    flex-shrink: 0;
+:root.dark-mode .error {
+    background: rgba(255, 69, 58, 0.12);
 }
 
-@keyframes errorIn {
-    from { opacity: 0; transform: translateY(-4px); }
-    to   { opacity: 1; transform: translateY(0); }
+.error svg {
+    width: 16px;
+    height: 16px;
+    fill: var(--error);
+    flex-shrink: 0;
 }

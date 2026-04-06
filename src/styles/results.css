@@ -1,15 +1,15 @@
-/* JDS Results — mobile-first data table */
+/* iOS Native Results */
 
 /* Summary strip */
 .results-summary {
     display: grid;
     grid-template-columns: 1fr 1fr 50px;
-    border-bottom: var(--border-w) solid var(--border-light);
+    border-bottom: 1px solid var(--border-light);
     background: var(--bg-page);
 }
 
 .results-summary-item {
-    padding: 8px 6px;
+    padding: 10px 8px;
     text-align: center;
     overflow: hidden;
 }
@@ -19,18 +19,18 @@
 }
 
 .results-summary-label {
-    font-size: 8px;
-    font-weight: 700;
-    letter-spacing: 1px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
     text-transform: uppercase;
     color: var(--text-tertiary);
 }
 
 .results-summary-value {
     font-family: var(--font-mono);
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--navy);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
     margin-top: 2px;
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
@@ -42,15 +42,15 @@
 .results-header {
     display: grid;
     grid-template-columns: 36px 1fr 72px;
-    padding: 5px 10px;
-    border-bottom: 1.5px solid var(--border-light);
+    padding: 6px 16px;
+    border-bottom: 1px solid var(--border-light);
     background: var(--bg-page);
 }
 
 .results-header-cell {
-    font-size: 8px;
-    font-weight: 700;
-    letter-spacing: 1px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
     text-transform: uppercase;
     color: var(--text-tertiary);
 }
@@ -63,25 +63,14 @@
 .result-row {
     display: grid;
     grid-template-columns: 36px 1fr 72px;
-    min-height: 38px;
-    padding: 0 10px;
+    min-height: 44px;
+    padding: 0 16px;
     align-items: center;
     position: relative;
-    animation: rowFade 0.3s ease backwards;
-    animation-delay: calc(var(--i) * 0.02s);
-}
-
-.result-row:nth-child(even) {
-    background: var(--bg-page);
 }
 
 .result-row + .result-row {
     border-top: 1px solid var(--border-light);
-}
-
-@keyframes rowFade {
-    from { opacity: 0; }
-    to   { opacity: 1; }
 }
 
 /* Progress bar */
@@ -90,19 +79,20 @@
     bottom: 0;
     left: 0;
     height: 2px;
-    background: var(--steel);
-    opacity: 0.25;
+    background: var(--accent);
+    opacity: 0.15;
 }
 
-/* Step badge — heritage red */
+/* Step badge — filled accent circle */
 .result-step {
     font-family: var(--font-mono);
     font-size: 10px;
     font-weight: 700;
-    color: var(--red);
-    width: 22px;
-    height: 22px;
-    border: 1.5px solid var(--red);
+    color: #FFFFFF;
+    width: 24px;
+    height: 24px;
+    background: var(--accent);
+    border: none;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -120,7 +110,6 @@
     width: 100%;
     background: transparent;
     border: none;
-    border-bottom: 1px solid transparent;
     color: var(--text);
     font-family: var(--font-mono);
     font-size: 16px;
@@ -129,17 +118,17 @@
     padding: 4px 0;
     outline: none;
     font-variant-numeric: tabular-nums;
-    transition: border-color 0.2s ease, color 0.3s ease;
+    transition: color 0.2s ease;
 }
 
 .result-value-input:focus {
-    border-bottom-color: var(--navy);
+    color: var(--accent);
 }
 
 /* Colour-coded deltas */
 .result-delta {
     font-family: var(--font-mono);
-    font-size: 11px;
+    font-size: 12px;
     text-align: right;
     font-variant-numeric: tabular-nums;
     font-weight: 500;
@@ -156,15 +145,15 @@
     align-items: center;
     gap: 3px;
     font-family: var(--font-sans);
-    font-size: 8px;
-    font-weight: 700;
-    letter-spacing: 1px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
     text-transform: uppercase;
-    color: var(--navy);
+    color: var(--accent);
 }
 
 .result-final svg {
-    width: 8px;
-    height: 8px;
-    fill: var(--navy);
+    width: 10px;
+    height: 10px;
+    fill: var(--accent);
 }

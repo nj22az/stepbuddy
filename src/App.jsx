@@ -1,7 +1,7 @@
-import { useState, useCallback, useRef } from 'react'
+import { useState, useRef } from 'react'
 import './styles.css'
 import {
-  SunIcon, MoonIcon, ExpandIcon, CompressIcon,
+  SunIcon, MoonIcon,
   CalcIcon, ExportIcon, TrashIcon, ErrorIcon,
   RulerIcon, FlagIcon, HashIcon, FinalFlagIcon,
   PlusIcon, CloseIcon, ChevronIcon
@@ -17,11 +17,9 @@ function createRange() {
 
 function App() {
   const [ranges, setRanges] = useState([createRange()])
-  const [isFullscreen, setIsFullscreen] = useState(false)
   const [focusedInput, setFocusedInput] = useState(null)
   const [calcSuccess, setCalcSuccess] = useState(null)
   const [showLogoModal, setShowLogoModal] = useState(false)
-  const [showHowTo, setShowHowTo] = useState(false)
   const [showAbout, setShowAbout] = useState(false)
 
   const [isDarkMode, toggleTheme] = useSystemTheme()
@@ -121,39 +119,8 @@ function App() {
     setRanges([createRange()])
   }
 
-  const toggleFullscreen = useCallback(() => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen()
-      setIsFullscreen(true)
-    } else {
-      document.exitFullscreen()
-      setIsFullscreen(false)
-    }
-  }, [])
-
   const hasAnyResults = ranges.some(r => r.results.length > 0)
   const multiRange = ranges.length > 1
-
-  const howTo = [
-    'Enter a start value for your range',
-    'Enter your target end value',
-    'Choose the number of steps (min. 2)',
-    'Add more ranges if needed',
-    'Tap Calculate to see results'
-  ]
-
-  // Detect completed steps based on current state
-  const r0 = ranges[0] || {}
-  const stepsDone = [
-    r0.start !== '',
-    r0.end !== '',
-    r0.steps !== '',
-    ranges.length > 1,
-    hasAnyResults
-  ]
-  // Current step = first incomplete (skip step 4 "add ranges" — it's optional)
-  const currentStep = stepsDone.findIndex((done, i) => !done && i !== 3)
-  const allDone = hasAnyResults
 
   return (
     <div className="app">
@@ -168,7 +135,7 @@ function App() {
         </div>
       )}
 
-      {/* Header */}
+      {/* Header — iOS large title */}
       <header className="header">
         <div className="header-left">
           <button className="header-logo-btn" onClick={() => setShowLogoModal(true)}
@@ -181,10 +148,6 @@ function App() {
           </div>
         </div>
         <div className="header-buttons">
-          <button className="header-btn" onClick={toggleFullscreen}
-            aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}>
-            {isFullscreen ? <CompressIcon /> : <ExpandIcon />}
-          </button>
           <button className="header-btn" onClick={toggleTheme}
             aria-label={isDarkMode ? 'Light mode' : 'Dark mode'}>
             {isDarkMode ? <SunIcon /> : <MoonIcon />}
@@ -193,39 +156,6 @@ function App() {
       </header>
 
       <div className="app-content">
-        {/* How to Use — collapsible */}
-        <section className="section">
-          <button className="section-toggle section-toggle--red" onClick={() => setShowHowTo(v => !v)}
-            aria-expanded={showHowTo} aria-label="Toggle how to use section">
-            <ChevronIcon expanded={showHowTo} />
-            <span className="section-header">How to Use</span>
-          </button>
-          {showHowTo && (
-            <div className="card card--howto">
-              {howTo.map((text, i) => {
-                const done = stepsDone[i]
-                const active = i === currentStep
-                const cls = done ? 'step-row step-row--done'
-                  : active ? 'step-row step-row--active'
-                  : 'step-row step-row--future'
-                return (
-                  <div key={i} className={cls}>
-                    <span className="step-num">
-                      {done ? '✓' : i + 1}
-                    </span>
-                    <span className="step-text">{text}</span>
-                  </div>
-                )
-              })}
-              {allDone && (
-                <div className="step-row step-row--complete">
-                  <span className="step-text">All done! Scroll down to see your results.</span>
-                </div>
-              )}
-            </div>
-          )}
-        </section>
-
         {/* Range Inputs */}
         {ranges.map((range, ri) => (
           <section className="section" key={range.id}>
@@ -272,6 +202,9 @@ function App() {
                   onBlur={() => setFocusedInput(null)} />
               </div>
             </div>
+            {ri === 0 && !hasAnyResults && (
+              <p className="section-footer">Enter start, end, and number of steps to generate a sequence.</p>
+            )}
             {range.error && (
               <div className="error" role="alert">
                 <ErrorIcon /> {range.error}
@@ -280,10 +213,10 @@ function App() {
           </section>
         ))}
 
-        {/* Add Range + Calculate row */}
+        {/* Add Range + Calculate */}
         <section className="section">
           <div className="action-stack">
-            <button className="btn btn--outline btn--add-range" onClick={addRange}>
+            <button className="btn btn--add-range" onClick={addRange}>
               <PlusIcon /> Add Range
             </button>
             <button className={`btn${calcSuccess ? ' btn--success' : ''}`}
@@ -293,7 +226,7 @@ function App() {
           </div>
         </section>
 
-        {/* Actions */}
+        {/* Export / Clear */}
         {hasAnyResults && (
           <section className="section">
             <div className="btn-row">
@@ -391,11 +324,7 @@ function App() {
           )
         })}
 
-        <footer className="footer">
-          <p>&copy; {new Date().getFullYear()} Johansson Engineering</p>
-        </footer>
-
-        {/* About — collapsible, below footer */}
+        {/* About — collapsible */}
         <section className="section">
           <button className="section-toggle" onClick={() => setShowAbout(v => !v)}
             aria-expanded={showAbout} aria-label="Toggle about section">
@@ -420,10 +349,9 @@ function App() {
                     incremental sequences.
                   </p>
                   <p>
-                    Create multiple ranges with different, overlapping, or identical
-                    parameters. Edit any calculated value and subsequent steps
-                    recalculate automatically. Export results as CSV for use in
-                    spreadsheets and control systems.
+                    Create multiple ranges with different parameters. Edit any
+                    calculated value and subsequent steps recalculate automatically.
+                    Export results as CSV.
                   </p>
                 </div>
                 <div className="about-separator" />
@@ -436,6 +364,10 @@ function App() {
             </div>
           )}
         </section>
+
+        <footer className="footer">
+          <p>&copy; {new Date().getFullYear()} Johansson Engineering</p>
+        </footer>
       </div>
     </div>
   )
