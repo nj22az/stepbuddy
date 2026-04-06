@@ -1,19 +1,25 @@
-/* iOS Native Header — portrait left, text right */
+/* iOS Native Header — two bento cards side by side */
 .header {
-    padding: 20px 16px 16px;
+    padding: 20px 16px 12px;
     display: flex;
-    align-items: center;
-    gap: 16px;
+    align-items: stretch;
+    gap: 12px;
     background: var(--bg-page);
     transition: background-color 0.3s ease;
 }
 
+/* Logo bento */
 .header-logo-btn {
-    background: none;
+    background: var(--surface);
     border: none;
-    padding: 0;
+    border-radius: 16px;
+    padding: 12px;
     cursor: pointer;
     flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0.5px 2px rgba(0, 0, 0, 0.06);
 }
 
 .header-logo-btn:active {
@@ -21,58 +27,57 @@
 }
 
 .header-logo {
-    width: 150px;
-    height: 150px;
+    width: 120px;
+    height: 120px;
     border-radius: 50%;
     object-fit: contain;
     display: block;
-    background: #FFFFFF;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
 }
 
+/* Text bento */
 .header-text {
     display: flex;
     flex-direction: column;
     justify-content: center;
     flex: 1;
     min-width: 0;
-    align-self: stretch;
     background: var(--surface);
     border-radius: 16px;
     padding: 16px 20px;
     box-shadow: 0 0.5px 2px rgba(0, 0, 0, 0.06);
+    position: relative;
 }
 
 .header-title {
-    font-family: 'M PLUS Rounded 1c', var(--font-sans);
-    font-size: 28px;
-    font-weight: 800;
+    font-family: 'Zen Maru Gothic', 'M PLUS Rounded 1c', var(--font-sans);
+    font-size: 32px;
+    font-weight: 900;
     color: var(--text);
-    line-height: 1.15;
-    letter-spacing: 0.3px;
+    line-height: 1.1;
+    letter-spacing: 0.5px;
 }
 
 .header-subtitle {
-    font-size: 14px;
+    font-size: 13px;
     color: var(--text-tertiary);
-    font-family: 'M PLUS Rounded 1c', var(--font-sans);
-    font-weight: 400;
-    letter-spacing: 0;
-    margin-top: 4px;
+    font-family: 'Zen Maru Gothic', 'M PLUS Rounded 1c', var(--font-sans);
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    margin-top: 6px;
 }
 
-/* Theme toggle — right side */
+/* Theme toggle — inside text bento, top right */
 .header-buttons {
-    flex-shrink: 0;
+    position: absolute;
+    top: 12px;
+    right: 12px;
     display: flex;
     gap: 8px;
-    align-self: flex-start;
-    margin-top: 4px;
 }
 
 .header-btn {
-    width: 32px;
-    height: 32px;
+    width: 30px;
+    height: 30px;
     border: none;
     border-radius: 50%;
     background: rgba(120, 120, 128, 0.12);
@@ -124,15 +129,15 @@
 .logo-modal-content img {
     width: 160px;
     height: 160px;
-    border-radius: 32px;
+    border-radius: 50%;
     background: #FFFFFF;
     padding: 4px;
 }
 
 .logo-modal-title {
-    font-family: var(--font-sans);
+    font-family: 'Zen Maru Gothic', var(--font-sans);
     font-size: 20px;
-    font-weight: 600;
+    font-weight: 700;
     color: #FFFFFF;
     letter-spacing: -0.2px;
 }
