@@ -7,6 +7,7 @@ import {
   PlusIcon, CloseIcon
 } from './components/Icons'
 import { useSystemTheme } from './hooks/useSystemTheme'
+import logoImg from '/logo.png'
 
 let nextRangeId = 1
 
@@ -142,7 +143,7 @@ function App() {
       {/* Header with JDS branding */}
       <header className="header">
         <div className="header-left">
-          <img src="/logo.png" alt="Johansson Engineering" className="header-logo" />
+          <img src={logoImg} alt="Johansson Engineering" className="header-logo" />
           <div className="header-text">
             <div className="header-title">Step Buddy</div>
             <div className="header-subtitle">Johansson Engineering</div>
@@ -342,7 +343,7 @@ function App() {
           <div className="card">
             <div className="about-content">
               <div className="about-logo">
-                <img src="/logo.png" alt="Johansson Engineering stamp" />
+                <img src={logoImg} alt="Johansson Engineering stamp" />
                 <div className="about-logo-text">
                   <div className="about-logo-title">Johansson Engineering</div>
                   <div className="about-logo-subtitle">Est. 1983</div>
