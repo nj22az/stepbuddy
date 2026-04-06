@@ -21,9 +21,9 @@
 }
 
 .header-logo {
-    width: 100px;
-    height: 100px;
-    border-radius: 22px;
+    width: 150px;
+    height: 150px;
+    border-radius: 30px;
     object-fit: contain;
     display: block;
     background: #FFFFFF;
