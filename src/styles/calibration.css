@@ -1,0 +1,177 @@
+/* CalWise — calibration-specific styles */
+
+/* Class selector pills */
+.class-selector {
+    display: flex;
+    gap: 6px;
+    flex: 1;
+    justify-content: flex-end;
+}
+
+.class-btn {
+    padding: 4px 12px;
+    border: 1.5px solid var(--border-light);
+    border-radius: 16px;
+    background: var(--surface);
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.class-btn--active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #FFFFFF;
+}
+
+/* Classification result banner */
+.classification {
+    padding: 16px;
+    border-radius: var(--radius);
+    text-align: center;
+    border: 2px solid;
+}
+
+.classification--pass {
+    background: #E8F5E9;
+    border-color: #4CAF50;
+    color: #2E7D32;
+}
+
+.classification--fail {
+    background: #FFEBEE;
+    border-color: #F44336;
+    color: #C62828;
+}
+
+:root.dark-mode .classification--pass {
+    background: #1B3D20;
+    border-color: #4CAF50;
+    color: #81C784;
+}
+
+:root.dark-mode .classification--fail {
+    background: #3D1515;
+    border-color: #F44336;
+    color: #EF9A9A;
+}
+
+.classification-status {
+    font-family: var(--font-mono);
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: 2px;
+}
+
+.classification-detail {
+    font-size: 13px;
+    font-weight: 600;
+    margin-top: 4px;
+}
+
+.classification-limits {
+    font-size: 11px;
+    margin-top: 6px;
+    opacity: 0.7;
+    font-family: var(--font-mono);
+}
+
+/* Calibration table */
+.cal-header, .cal-row {
+    display: grid;
+    grid-template-columns: 32px 1fr 1fr 1fr;
+    align-items: center;
+    padding: 0 8px;
+    min-height: 36px;
+}
+
+/* When evaluated, use 5-column layout */
+.cal-header--eval, .cal-row--eval {
+    grid-template-columns: 32px 1fr 1fr 1fr 32px;
+}
+
+.cal-header, .cal-header--eval {
+    border-bottom: 1.5px solid var(--border-light);
+    background: var(--bg-page);
+}
+
+.cal-cell {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    text-align: right;
+}
+
+.cal-cell--num {
+    text-align: center;
+    font-family: var(--font-mono);
+    color: var(--text-secondary);
+}
+
+.cal-cell--ref {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--text);
+    font-weight: 500;
+    text-align: right;
+}
+
+.cal-cell--status {
+    text-align: center;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.cal-pass { color: #4CAF50; }
+.cal-fail { color: #F44336; }
+
+.cal-row {
+    border-top: 1px solid var(--border-light);
+    min-height: 40px;
+}
+
+.cal-row:nth-child(even) {
+    background: var(--bg-page);
+}
+
+.cal-row--fail {
+    background: #FFF5F5 !important;
+}
+
+:root.dark-mode .cal-row--fail {
+    background: #2D1A1A !important;
+}
+
+.cal-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid transparent;
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 16px;
+    text-align: right;
+    padding: 4px 0;
+    outline: none;
+    transition: border-color 0.2s ease, color 0.3s ease;
+}
+
+.cal-input:focus {
+    border-bottom-color: var(--accent);
+}
+
+.cal-input::placeholder {
+    color: var(--text-tertiary);
+    font-size: 14px;
+}
+
+input[type="number"].cal-input::-webkit-inner-spin-button,
+input[type="number"].cal-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
