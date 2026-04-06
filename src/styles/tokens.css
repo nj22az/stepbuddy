@@ -1,0 +1,103 @@
+/* ============================================
+   Design Tokens — Colors, Spacing, Typography
+   Items: 9, 93
+   ============================================ */
+
+:root {
+    /* Typography */
+    --font-display: -apple-system, SF Pro Display, BlinkMacSystemFont, system-ui, sans-serif;
+    --font-text: -apple-system, SF Pro Text, BlinkMacSystemFont, system-ui, sans-serif;
+    --font-rounded: ui-rounded, SF Pro Rounded, -apple-system, system-ui, sans-serif;
+
+    /* #93 — Warm violet-rose accent */
+    --accent: #8B5CF6;
+    --accent-light: #A78BFA;
+    --accent-dark: #7C3AED;
+    --accent-glow: rgba(139, 92, 246, 0.3);
+    --accent-glow-strong: rgba(139, 92, 246, 0.5);
+
+    /* System colors */
+    --system-green: #34C759;
+    --system-red: #FF3B30;
+    --system-orange: #FF9500;
+    --system-gray: #8E8E93;
+
+    /* Semantic labels — Light */
+    --label: #1C1C1E;
+    --label-secondary: rgba(60, 60, 67, 0.6);
+    --label-tertiary: rgba(60, 60, 67, 0.3);
+    --label-quaternary: rgba(60, 60, 67, 0.18);
+    --fill: rgba(120, 120, 128, 0.2);
+    --fill-secondary: rgba(120, 120, 128, 0.16);
+    --fill-tertiary: rgba(120, 120, 128, 0.12);
+    --fill-quaternary: rgba(120, 120, 128, 0.08);
+    --separator: rgba(60, 60, 67, 0.12);
+
+    /* Glass surfaces — Light */
+    --glass-bg: rgba(255, 255, 255, 0.5);
+    --glass-bg-tint: rgba(255, 248, 240, 0.25);
+    --glass-border: rgba(255, 255, 255, 0.55);
+    --glass-highlight: rgba(255, 255, 255, 0.65);
+    --glass-shadow-tight: rgba(0, 0, 0, 0.04);
+    --glass-shadow-medium: rgba(0, 0, 0, 0.06);
+    --glass-shadow-ambient: rgba(0, 0, 0, 0.03);
+    --nav-bg: rgba(255, 255, 255, 0.6);
+    --nav-bg-scrolled: rgba(255, 255, 255, 0.78);
+    --nav-border-shadow: rgba(255, 255, 255, 0.18);
+    --nav-depth-shadow: rgba(0, 0, 0, 0.04);
+
+    /* #9 — Warm base color (c-morinosato inspired) */
+    --bg-base: #F5F0EB;
+    --bg-blob-warm: rgba(255, 182, 160, 0.45);
+    --bg-blob-cool: rgba(165, 150, 252, 0.4);
+    --bg-blob-gold: rgba(255, 210, 130, 0.3);
+    --bg-blob-rose: rgba(240, 150, 200, 0.2);
+
+    /* Scrollbar */
+    --scrollbar-thumb: rgba(139, 92, 246, 0.25);
+    --scrollbar-track: transparent;
+}
+
+:root.dark-mode {
+    --accent: #A78BFA;
+    --accent-light: #C4B5FD;
+    --accent-dark: #8B5CF6;
+    --accent-glow: rgba(167, 139, 250, 0.35);
+    --accent-glow-strong: rgba(167, 139, 250, 0.55);
+
+    --system-green: #30D158;
+    --system-red: #FF453A;
+    --system-orange: #FF9F0A;
+    --system-gray: #8E8E93;
+
+    --label: rgba(255, 255, 255, 0.95);
+    --label-secondary: rgba(235, 235, 245, 0.6);
+    --label-tertiary: rgba(235, 235, 245, 0.3);
+    --label-quaternary: rgba(235, 235, 245, 0.18);
+    --fill: rgba(120, 120, 128, 0.36);
+    --fill-secondary: rgba(120, 120, 128, 0.32);
+    --fill-tertiary: rgba(120, 120, 128, 0.24);
+    --fill-quaternary: rgba(120, 120, 128, 0.18);
+    --separator: rgba(255, 255, 255, 0.06);
+
+    --glass-bg: rgba(30, 28, 40, 0.5);
+    --glass-bg-tint: rgba(100, 100, 200, 0.04);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-highlight: rgba(255, 255, 255, 0.05);
+    --glass-shadow-tight: rgba(0, 0, 0, 0.15);
+    --glass-shadow-medium: rgba(0, 0, 0, 0.25);
+    --glass-shadow-ambient: rgba(0, 0, 0, 0.15);
+    --nav-bg: rgba(20, 18, 30, 0.6);
+    --nav-bg-scrolled: rgba(20, 18, 30, 0.82);
+    --nav-border-shadow: rgba(255, 255, 255, 0.06);
+    --nav-depth-shadow: rgba(0, 0, 0, 0.2);
+
+    --bg-base: #0C0A14;
+    --bg-blob-warm: rgba(120, 50, 180, 0.22);
+    --bg-blob-cool: rgba(40, 80, 180, 0.18);
+    --bg-blob-gold: rgba(180, 120, 60, 0.1);
+    --bg-blob-rose: rgba(180, 60, 120, 0.1);
+
+    --scrollbar-thumb: rgba(167, 139, 250, 0.3);
+    --scrollbar-track: transparent;
+}

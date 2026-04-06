@@ -1,0 +1,193 @@
+/* ============================================
+   Background & Environment
+   Items: 1-10 (animated orbs, noise, vignette, aurora)
+   ============================================ */
+
+/* #4 — Gradient orbs as positioned divs with filter:blur */
+.glass-bg {
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    background: var(--bg-base);
+    overflow: hidden;
+    transition: background-color 0.6s ease;
+}
+
+/* #1,2,4 — Animated mesh gradient orbs */
+.glass-bg-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    will-change: transform, opacity;
+    pointer-events: none;
+}
+
+.glass-bg-orb--warm {
+    width: 50vmax;
+    height: 50vmax;
+    top: -10%;
+    left: -5%;
+    background: var(--bg-blob-warm);
+    animation: orbDrift1 18s ease-in-out infinite alternate;
+}
+
+.glass-bg-orb--cool {
+    width: 45vmax;
+    height: 45vmax;
+    bottom: -10%;
+    right: -5%;
+    background: var(--bg-blob-cool);
+    animation: orbDrift2 22s ease-in-out infinite alternate;
+}
+
+/* #2 — Third warm golden orb */
+.glass-bg-orb--gold {
+    width: 35vmax;
+    height: 35vmax;
+    top: 40%;
+    left: 10%;
+    background: var(--bg-blob-gold);
+    animation: orbDrift3 25s ease-in-out infinite alternate;
+}
+
+/* Additional rose orb for richness */
+.glass-bg-orb--rose {
+    width: 30vmax;
+    height: 30vmax;
+    top: 20%;
+    right: 15%;
+    background: var(--bg-blob-rose);
+    animation: orbDrift4 20s ease-in-out infinite alternate;
+}
+
+@keyframes orbDrift1 {
+    0%   { transform: translate(0, 0) scale(1); opacity: 0.8; }
+    33%  { transform: translate(4vw, 3vh) scale(1.05); opacity: 0.9; }
+    66%  { transform: translate(-2vw, 5vh) scale(0.95); opacity: 0.85; }
+    100% { transform: translate(3vw, -2vh) scale(1.02); opacity: 0.8; }
+}
+
+@keyframes orbDrift2 {
+    0%   { transform: translate(0, 0) scale(1); opacity: 0.75; }
+    50%  { transform: translate(-5vw, -4vh) scale(1.08); opacity: 0.85; }
+    100% { transform: translate(2vw, -6vh) scale(0.96); opacity: 0.75; }
+}
+
+@keyframes orbDrift3 {
+    0%   { transform: translate(0, 0) scale(1); opacity: 0.6; }
+    50%  { transform: translate(6vw, -3vh) scale(1.1); opacity: 0.75; }
+    100% { transform: translate(-3vw, 4vh) scale(0.92); opacity: 0.6; }
+}
+
+@keyframes orbDrift4 {
+    0%   { transform: translate(0, 0) scale(1); opacity: 0.5; }
+    50%  { transform: translate(-4vw, 5vh) scale(1.06); opacity: 0.65; }
+    100% { transform: translate(5vw, -3vh) scale(0.97); opacity: 0.5; }
+}
+
+/* #5 — Noise texture overlay (refined) */
+.glass-noise-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0.018;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 512px 512px;
+}
+
+/* #6 — Vignette overlay */
+.glass-vignette {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: radial-gradient(
+        ellipse at center,
+        transparent 50%,
+        rgba(0, 0, 0, 0.06) 100%
+    );
+}
+
+:root.dark-mode .glass-vignette {
+    background: radial-gradient(
+        ellipse at center,
+        transparent 40%,
+        rgba(0, 0, 0, 0.25) 100%
+    );
+}
+
+/* #7 — Dark mode aurora */
+.glass-aurora {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+    background: linear-gradient(
+        135deg,
+        transparent 0%,
+        rgba(120, 60, 200, 0.06) 25%,
+        rgba(60, 120, 220, 0.04) 50%,
+        rgba(100, 200, 160, 0.03) 75%,
+        transparent 100%
+    );
+    background-size: 200% 200%;
+    animation: auroraShift 15s ease-in-out infinite alternate;
+}
+
+:root.dark-mode .glass-aurora {
+    opacity: 1;
+}
+
+@keyframes auroraShift {
+    0%   { background-position: 0% 50%; }
+    100% { background-position: 100% 50%; }
+}
+
+/* #10 — Ambient light spot */
+.glass-ambient-light {
+    position: fixed;
+    top: 10%;
+    right: 20%;
+    width: 30vmax;
+    height: 30vmax;
+    border-radius: 50%;
+    background: radial-gradient(
+        circle,
+        rgba(255, 255, 255, 0.08) 0%,
+        transparent 70%
+    );
+    pointer-events: none;
+    z-index: -1;
+    animation: ambientFloat 12s ease-in-out infinite alternate;
+}
+
+:root.dark-mode .glass-ambient-light {
+    background: radial-gradient(
+        circle,
+        rgba(167, 139, 250, 0.04) 0%,
+        transparent 70%
+    );
+}
+
+@keyframes ambientFloat {
+    0%   { transform: translate(0, 0); }
+    100% { transform: translate(-5vw, 8vh); }
+}
+
+/* #3,8 — Scroll-driven background parallax */
+@supports (animation-timeline: scroll()) {
+    .glass-bg {
+        animation: bgParallax linear;
+        animation-timeline: scroll();
+    }
+
+    @keyframes bgParallax {
+        from { transform: translateY(0); }
+        to   { transform: translateY(-30px); }
+    }
+}
