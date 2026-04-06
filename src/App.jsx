@@ -135,17 +135,15 @@ function App() {
         </div>
       )}
 
-      {/* Header — iOS large title */}
+      {/* Header — hero style */}
       <header className="header">
-        <div className="header-left">
-          <button className="header-logo-btn" onClick={() => setShowLogoModal(true)}
-            aria-label="View logo">
-            <img src={logoImg} alt="Johansson Engineering" className="header-logo" />
-          </button>
-          <div className="header-text">
-            <div className="header-title">StepWise</div>
-            <div className="header-subtitle">Johansson Engineering</div>
-          </div>
+        <button className="header-logo-btn" onClick={() => setShowLogoModal(true)}
+          aria-label="View logo">
+          <img src={logoImg} alt="Johansson Engineering" className="header-logo" />
+        </button>
+        <div className="header-text">
+          <div className="header-title">StepWise</div>
+          <div className="header-subtitle">Johansson Engineering</div>
         </div>
         <div className="header-buttons">
           <button className="header-btn" onClick={toggleTheme}
