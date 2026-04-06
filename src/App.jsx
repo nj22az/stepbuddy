@@ -161,7 +161,7 @@ function App() {
             <img src={logoImg} alt="Johansson Engineering" className="header-logo" />
           </button>
           <div className="header-text">
-            <div className="header-title">Step Buddy</div>
+            <div className="header-title">StepWise</div>
             <div className="header-subtitle">Johansson Engineering</div>
           </div>
         </div>
@@ -365,7 +365,7 @@ function App() {
               </button>
               <div className="about-text">
                 <p>
-                  Step Buddy is a precision step sequence calculator for generating
+                  StepWise is a precision step sequence calculator for generating
                   evenly spaced values between defined start and end points. Built
                   for engineers, technicians, and anyone who needs accurate
                   incremental sequences.
