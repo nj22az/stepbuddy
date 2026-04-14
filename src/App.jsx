@@ -7,6 +7,10 @@ import {
   PlusIcon, CloseIcon, ChevronIcon
 } from './components/Icons'
 import { useSystemTheme } from './hooks/useSystemTheme'
+import {
+  UNIT_GROUPS, GROUP_ORDER, GRAVITY_PRESETS, STANDARD_GRAVITY,
+  convert, canConvert, needsGravity, unitLabel, secondaryOptionsFor,
+} from './units'
 import logoImg from '/logo.png'
 
 let nextRangeId = 1
@@ -36,6 +40,10 @@ function createRange() {
     mode: 'absolute',
     preset: DEFAULT_PRESET,
     percentList: presetToList(DEFAULT_PRESET),
+    unit: '',
+    secondaryUnit: '',
+    gravity: STANDARD_GRAVITY,
+    gravityPreset: 'standard',
     results: [],
     error: '',
   }
@@ -174,11 +182,27 @@ function App() {
     const rangesWithResults = ranges.filter(r => r.results.length > 0)
     if (!rangesWithResults.length) return
 
-    const rows = ['Range,Step,Value,Step Size']
+    const anySecondary = rangesWithResults.some(r => canConvert(r.unit, r.secondaryUnit))
+    const header = anySecondary
+      ? 'Range,Step,Value,Unit,Step Size,Secondary,Secondary Unit'
+      : 'Range,Step,Value,Unit,Step Size'
+    const rows = [header]
+
     rangesWithResults.forEach((range, ri) => {
       const label = rangesWithResults.length > 1 ? `R${ri + 1}` : ''
+      const unit = unitLabel(range.unit)
+      const secondaryUnit = unitLabel(range.secondaryUnit)
+      const hasSecondary = canConvert(range.unit, range.secondaryUnit)
       range.results.forEach(s => {
-        rows.push(`${label},${s.number},${s.value.toFixed(3)},${s.stepSize.toFixed(3)}`)
+        const base = `${label},${s.number},${s.value.toFixed(3)},${unit},${s.stepSize.toFixed(3)}`
+        if (!anySecondary) {
+          rows.push(base)
+        } else if (hasSecondary) {
+          const sv = convert(s.value, range.unit, range.secondaryUnit, range.gravity)
+          rows.push(`${base},${sv.toFixed(3)},${secondaryUnit}`)
+        } else {
+          rows.push(`${base},,`)
+        }
       })
     })
 
@@ -265,12 +289,88 @@ function App() {
                   Percentage
                 </button>
               </div>
+              <div className={`card-row${focusedInput === `unit-${range.id}` ? ' card-row--focused' : ''}`}>
+                <label className="card-row-label" htmlFor={`unit-${range.id}`}>
+                  <RulerIcon /> Units
+                </label>
+                <div className="unit-picker">
+                  <select className="input input--select unit-select" id={`unit-${range.id}`}
+                    value={range.unit}
+                    onChange={e => {
+                      const next = e.target.value
+                      const updates = { unit: next }
+                      // Drop an incompatible secondary when the primary changes.
+                      if (next === '' || (range.secondaryUnit && !canConvert(next, range.secondaryUnit))) {
+                        updates.secondaryUnit = ''
+                      }
+                      updateRange(range.id, updates)
+                    }}
+                    onFocus={() => setFocusedInput(`unit-${range.id}`)}
+                    onBlur={() => setFocusedInput(null)}>
+                    {GROUP_ORDER.map(gid => (
+                      <optgroup key={gid} label={UNIT_GROUPS[gid].label}>
+                        {Object.entries(UNIT_GROUPS[gid].units).map(([id, u]) => (
+                          <option key={id || 'none'} value={id}>{u.label}</option>
+                        ))}
+                      </optgroup>
+                    ))}
+                  </select>
+                  <span className="unit-arrow" aria-hidden="true">→</span>
+                  <select className="input input--select unit-select" aria-label="Secondary unit"
+                    value={range.secondaryUnit}
+                    disabled={!range.unit}
+                    onChange={e => updateRange(range.id, { secondaryUnit: e.target.value })}>
+                    <option value="">— none —</option>
+                    {secondaryOptionsFor(range.unit).map(group => (
+                      <optgroup key={group.groupId} label={group.groupLabel}>
+                        {group.units.map(u => (
+                          <option key={u.id} value={u.id}>{u.label}</option>
+                        ))}
+                      </optgroup>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              {needsGravity(range.unit, range.secondaryUnit) && (
+                <div className={`card-row${focusedInput === `gravity-${range.id}` ? ' card-row--focused' : ''}`}>
+                  <label className="card-row-label" htmlFor={`gravity-${range.id}`}>
+                    <RulerIcon /> Gravity g
+                  </label>
+                  <div className="gravity-picker">
+                    <input className="input gravity-input" type="number" inputMode="decimal"
+                      id={`gravity-${range.id}`} step="any" min="0"
+                      value={range.gravity}
+                      onChange={e => updateRange(range.id, {
+                        gravity: parseFloat(e.target.value) || 0,
+                        gravityPreset: 'custom',
+                      })}
+                      onFocus={() => setFocusedInput(`gravity-${range.id}`)}
+                      onBlur={() => setFocusedInput(null)} />
+                    <select className="input input--select gravity-preset"
+                      aria-label="Gravity preset"
+                      value={range.gravityPreset}
+                      onChange={e => {
+                        const key = e.target.value
+                        const preset = GRAVITY_PRESETS[key]
+                        updateRange(range.id, {
+                          gravityPreset: key,
+                          ...(preset && preset.value != null ? { gravity: preset.value } : {}),
+                        })
+                      }}>
+                      {Object.entries(GRAVITY_PRESETS).map(([key, { label }]) => (
+                        <option key={key} value={key}>{label}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              )}
               <div className={`card-row${focusedInput === `start-${range.id}` ? ' card-row--focused' : ''}`}>
                 <label className="card-row-label" htmlFor={`start-${range.id}`}>
                   <RulerIcon /> Start
                 </label>
                 <input className="input" type="number" inputMode="decimal" id={`start-${range.id}`}
-                  step="any" placeholder="0" value={range.start}
+                  step="any" placeholder={unitLabel(range.unit) ? `0 ${unitLabel(range.unit)}` : '0'}
+                  value={range.start}
                   onChange={e => updateRange(range.id, { start: e.target.value })}
                   onFocus={() => setFocusedInput(`start-${range.id}`)}
                   onBlur={() => setFocusedInput(null)} />
@@ -280,7 +380,8 @@ function App() {
                   <FlagIcon /> End
                 </label>
                 <input className="input" type="number" inputMode="decimal" id={`end-${range.id}`}
-                  step="any" placeholder="100" value={range.end}
+                  step="any" placeholder={unitLabel(range.unit) ? `100 ${unitLabel(range.unit)}` : '100'}
+                  value={range.end}
                   onChange={e => updateRange(range.id, { end: e.target.value })}
                   onFocus={() => setFocusedInput(`end-${range.id}`)}
                   onBlur={() => setFocusedInput(null)} />
@@ -387,6 +488,13 @@ function App() {
             count: range.results.length
           }
 
+          const primaryLabel = unitLabel(range.unit)
+          const secondaryLabel = unitLabel(range.secondaryUnit)
+          const hasSecondary = canConvert(range.unit, range.secondaryUnit)
+          const secondaryOf = (v) => hasSecondary
+            ? convert(v, range.unit, range.secondaryUnit, range.gravity)
+            : null
+
           return (
             <section className="section" key={`results-${range.id}`}
               ref={ri === 0 ? resultsRef : null}>
@@ -400,12 +508,19 @@ function App() {
                   <div className="results-summary-item">
                     <div className="results-summary-label">From → To</div>
                     <div className="results-summary-value">
-                      {summary.from.toFixed(1)} → {summary.to.toFixed(1)}
+                      {summary.from.toFixed(1)} → {summary.to.toFixed(1)}{primaryLabel ? ` ${primaryLabel}` : ''}
                     </div>
+                    {hasSecondary && (
+                      <div className="results-summary-secondary">
+                        {secondaryOf(summary.from).toFixed(1)} → {secondaryOf(summary.to).toFixed(1)} {secondaryLabel}
+                      </div>
+                    )}
                   </div>
                   <div className="results-summary-item">
                     <div className="results-summary-label">Step Size</div>
-                    <div className="results-summary-value">{summary.avg.toFixed(3)}</div>
+                    <div className="results-summary-value">
+                      {summary.avg.toFixed(3)}{primaryLabel ? ` ${primaryLabel}` : ''}
+                    </div>
                   </div>
                   <div className="results-summary-item">
                     <div className="results-summary-label">Steps</div>
@@ -426,6 +541,7 @@ function App() {
                   const e = range.results[range.results.length - 1].value
                   const rangeSpan = e - s
                   const pct = rangeSpan !== 0 ? ((step.value - s) / rangeSpan) * 100 : 0
+                  const secondaryValue = secondaryOf(step.value)
 
                   return (
                     <div key={step.number} className="result-row" style={{ '--i': i }}>
@@ -433,10 +549,20 @@ function App() {
                         style={{ width: `${Math.max(0, Math.min(100, pct))}%` }} />
                       <span className="result-step">{step.number}</span>
                       <div className="result-value">
-                        <input type="number" className="result-value-input"
-                          value={step.value.toFixed(3)}
-                          onChange={ev => handleStepEdit(range.id, i, ev.target.value)}
-                          step="any" />
+                        <div className="result-value-primary">
+                          <input type="number" className="result-value-input"
+                            value={step.value.toFixed(3)}
+                            onChange={ev => handleStepEdit(range.id, i, ev.target.value)}
+                            step="any" />
+                          {primaryLabel && (
+                            <span className="result-value-unit">{primaryLabel}</span>
+                          )}
+                        </div>
+                        {secondaryValue != null && (
+                          <div className="result-value-secondary">
+                            {secondaryValue.toFixed(3)} {secondaryLabel}
+                          </div>
+                        )}
                       </div>
                       {isLast ? (
                         <span className="result-delta result-delta--neutral">

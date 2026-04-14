@@ -83,6 +83,67 @@ input[type="number"] {
     color: #fff;
 }
 
+/* Unit picker — two selects with an arrow between */
+.unit-picker {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+    min-width: 0;
+    justify-content: flex-end;
+}
+
+.unit-select {
+    width: auto;
+    max-width: 45%;
+    height: 36px;
+    padding: 0 22px 0 8px;
+    background-position: calc(100% - 10px) 50%, calc(100% - 6px) 50%;
+    text-align: left;
+    text-align-last: left;
+    font-family: var(--font-sans);
+    font-size: 14px;
+}
+
+.unit-arrow {
+    color: var(--text-tertiary);
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.unit-select:disabled {
+    opacity: 0.5;
+}
+
+/* Gravity picker — number input + preset select */
+.gravity-picker {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+    min-width: 0;
+    justify-content: flex-end;
+}
+
+.gravity-input {
+    width: 90px;
+    height: 36px;
+    text-align: right;
+    font-family: var(--font-mono);
+    font-size: 14px;
+}
+
+.gravity-preset {
+    max-width: 55%;
+    height: 36px;
+    padding: 0 22px 0 8px;
+    background-position: calc(100% - 10px) 50%, calc(100% - 6px) 50%;
+    text-align: left;
+    text-align-last: left;
+    font-family: var(--font-sans);
+    font-size: 13px;
+}
+
 /* Error */
 .error {
     display: flex;
