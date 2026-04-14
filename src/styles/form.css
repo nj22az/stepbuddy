@@ -213,6 +213,95 @@ input[type="number"] {
     color: #fff;
 }
 
+/* Cascading Country → Region location picker (under the Gravity row) */
+.gravity-unit {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin-left: 6px;
+}
+
+.location-row {
+    min-height: 44px;
+}
+
+.location-picker {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+    min-width: 0;
+    justify-content: flex-end;
+}
+
+.location-select {
+    height: 36px;
+    padding: 0 22px 0 8px;
+    background-position: calc(100% - 10px) 50%, calc(100% - 6px) 50%;
+    text-align: left;
+    text-align-last: left;
+    font-family: var(--font-sans);
+    font-size: 12px;
+    max-width: 50%;
+}
+
+/* Suggested-value column in points editor */
+.point-suggested {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-tertiary);
+    font-variant-numeric: tabular-nums;
+    margin-left: 6px;
+    margin-right: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 40%;
+}
+
+/* Setup metadata fields */
+.meta-input {
+    flex: 1;
+    text-align: right;
+    font-family: var(--font-sans);
+    font-size: 14px;
+}
+
+.capacity-picker, .temp-picker {
+    display: flex;
+    gap: 6px;
+    flex: 1;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.capacity-input {
+    flex: 1;
+    text-align: right;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    max-width: 60%;
+}
+
+.capacity-unit-input {
+    width: 60px;
+    text-align: center;
+    font-family: var(--font-sans);
+    font-size: 14px;
+}
+
+.temp-input {
+    width: 70px;
+    text-align: right;
+    font-family: var(--font-mono);
+    font-size: 14px;
+}
+
+.temp-sep {
+    color: var(--text-tertiary);
+    font-size: 14px;
+}
+
 /* Helper note below the options disclosure rows */
 .options-note {
     padding: 6px 16px 10px;

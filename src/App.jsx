@@ -8,9 +8,12 @@ import {
 } from './components/Icons'
 import { useSystemTheme } from './hooks/useSystemTheme'
 import {
-  UNIT_GROUPS, GROUP_ORDER, GRAVITY_PRESETS, GRAVITY_PRESET_GROUPS, STANDARD_GRAVITY,
+  UNIT_GROUPS, GROUP_ORDER, STANDARD_GRAVITY,
   convert, canConvert, needsGravity, unitLabel, secondaryOptionsFor, hasGravityDependent,
 } from './units'
+import {
+  GRAVITY_DB, COUNTRY_ORDER, regionsFor, gravityFor, findLocation,
+} from './gravityDatabase'
 import logoImg from '/logo.png'
 
 let nextRangeId = 1
@@ -43,9 +46,11 @@ function createRange() {
     unit: '',
     secondaryUnit: '',
     gravity: STANDARD_GRAVITY,
-    gravityPreset: 'standard',
+    gravityCountry: 'Reference',
+    gravityRegion: 'Standard g₀ (9.80665)',
     kgfMode: 'local', // 'local' = 1 kgf = 1 kg × local g (deadweight practice)
                       // 'standard' = 1 kgf = 9.80665 N fixed (strict ISO)
+    calibrationMode: false, // results card shows Indicated + Error% columns when true
     optionsOpen: false,
     results: [],
     error: '',
@@ -83,12 +88,56 @@ function unitsSummary(range) {
   return pair
 }
 
+function MetaRow({ id, label, value, onChange, placeholder }) {
+  return (
+    <div className="card-row">
+      <label className="card-row-label" htmlFor={id}>{label}</label>
+      <input id={id} className="input meta-input" type="text"
+        value={value} placeholder={placeholder || ''}
+        onChange={e => onChange(e.target.value)} />
+    </div>
+  )
+}
+
+const META_DEFAULTS = {
+  instrumentCat: '',
+  instrumentSerial: '',
+  capacity: '',
+  capacityUnit: '',
+  stdDevice: '',
+  stdIndicator: '',
+  operator: '',
+  tempMin: '',
+  tempMax: '',
+  certNo: '',
+}
+
+const META_STORAGE_KEY = 'stepwise.metadata.v1'
+
+function loadMetadata() {
+  if (typeof localStorage === 'undefined') return META_DEFAULTS
+  try {
+    const raw = localStorage.getItem(META_STORAGE_KEY)
+    return raw ? { ...META_DEFAULTS, ...JSON.parse(raw) } : META_DEFAULTS
+  } catch { return META_DEFAULTS }
+}
+
 function App() {
   const [ranges, setRanges] = useState([createRange()])
   const [focusedInput, setFocusedInput] = useState(null)
   const [calcSuccess, setCalcSuccess] = useState(null)
   const [showLogoModal, setShowLogoModal] = useState(false)
   const [showAbout, setShowAbout] = useState(false)
+  const [showSetup, setShowSetup] = useState(false)
+  const [metadata, setMetadata] = useState(loadMetadata)
+
+  const updateMeta = (patch) => {
+    setMetadata(prev => {
+      const next = { ...prev, ...patch }
+      try { localStorage.setItem(META_STORAGE_KEY, JSON.stringify(next)) } catch (e) { void e }
+      return next
+    })
+  }
 
   const [isDarkMode, toggleTheme] = useSystemTheme()
   const resultsRef = useRef(null)
@@ -176,6 +225,15 @@ function App() {
     }, 80)
   }
 
+  const handleIndicatedEdit = (rangeId, index, newValue) => {
+    setRanges(prev => prev.map(range => {
+      if (range.id !== rangeId) return range
+      const r = [...range.results]
+      r[index] = { ...r[index], indicated: newValue }
+      return { ...range, results: r }
+    }))
+  }
+
   const handleStepEdit = (rangeId, index, newValue) => {
     const v = parseFloat(newValue)
     if (isNaN(v)) return
@@ -217,10 +275,26 @@ function App() {
     if (!rangesWithResults.length) return
 
     const anySecondary = rangesWithResults.some(r => canConvert(r.unit, r.secondaryUnit))
-    const header = anySecondary
-      ? 'Range,Step,Value,Unit,Step Size,Secondary,Secondary Unit'
-      : 'Range,Step,Value,Unit,Step Size'
-    const rows = [header]
+    const anyCal = rangesWithResults.some(r => r.calibrationMode)
+    const csvEsc = (s) => {
+      const v = String(s ?? '')
+      return /[",\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v
+    }
+
+    const rows = []
+    // Metadata header (only if any field is filled)
+    const metaPairs = Object.entries(metadata).filter(([, v]) => String(v).trim() !== '')
+    if (metaPairs.length) {
+      rows.push('# Calibration setup')
+      metaPairs.forEach(([k, v]) => rows.push(`# ${k},${csvEsc(v)}`))
+      rows.push(`# Exported,${new Date().toISOString()}`)
+      rows.push('')
+    }
+
+    const headerCols = ['Range', 'Step', 'Applied', 'Unit', 'Step Size']
+    if (anyCal) headerCols.push('Indicated', 'Error %')
+    if (anySecondary) headerCols.push('Secondary', 'Secondary Unit')
+    rows.push(headerCols.join(','))
 
     rangesWithResults.forEach((range, ri) => {
       const label = rangesWithResults.length > 1 ? `R${ri + 1}` : ''
@@ -228,15 +302,26 @@ function App() {
       const secondaryUnit = unitLabel(range.secondaryUnit)
       const hasSecondary = canConvert(range.unit, range.secondaryUnit)
       range.results.forEach(s => {
-        const base = `${label},${s.number},${s.value.toFixed(3)},${unit},${s.stepSize.toFixed(3)}`
-        if (!anySecondary) {
-          rows.push(base)
-        } else if (hasSecondary) {
-          const sv = convert(s.value, range.unit, range.secondaryUnit, range.gravity, range.kgfMode)
-          rows.push(`${base},${sv.toFixed(3)},${secondaryUnit}`)
-        } else {
-          rows.push(`${base},,`)
+        const cols = [label, s.number, s.value.toFixed(3), unit, s.stepSize.toFixed(3)]
+        if (anyCal) {
+          if (range.calibrationMode) {
+            const ind = parseFloat(s.indicated)
+            const err = (Number.isFinite(ind) && s.value !== 0) ? ((ind - s.value) / s.value) * 100 : null
+            cols.push(Number.isFinite(ind) ? ind.toFixed(3) : '')
+            cols.push(err == null ? '' : err.toFixed(3))
+          } else {
+            cols.push('', '')
+          }
         }
+        if (anySecondary) {
+          if (hasSecondary) {
+            const sv = convert(s.value, range.unit, range.secondaryUnit, range.gravity, range.kgfMode)
+            cols.push(sv.toFixed(3), secondaryUnit)
+          } else {
+            cols.push('', '')
+          }
+        }
+        rows.push(cols.map(csvEsc).join(','))
       })
     })
 
@@ -292,6 +377,58 @@ function App() {
           <div className="card title-card">
             <div className="title-card-text">Step Sequence Calculator</div>
           </div>
+        </section>
+
+        {/* Calibration setup metadata — collapsible, persisted to localStorage */}
+        <section className="section">
+          <button className="section-toggle" onClick={() => setShowSetup(v => !v)}
+            aria-expanded={showSetup}>
+            <ChevronIcon expanded={showSetup} />
+            <span className="section-header">Setup &amp; instrument</span>
+          </button>
+          {showSetup && (
+            <div className="card">
+              <MetaRow id="m-instCat" label="Instrument cat. no." value={metadata.instrumentCat}
+                onChange={v => updateMeta({ instrumentCat: v })} />
+              <MetaRow id="m-instSerial" label="Instrument serial no." value={metadata.instrumentSerial}
+                onChange={v => updateMeta({ instrumentSerial: v })} />
+              <div className="card-row">
+                <label className="card-row-label" htmlFor="m-capacity">Capacity</label>
+                <div className="capacity-picker">
+                  <input id="m-capacity" className="input capacity-input" type="text" inputMode="decimal"
+                    placeholder="10" value={metadata.capacity}
+                    onChange={e => updateMeta({ capacity: e.target.value })} />
+                  <input className="input capacity-unit-input" type="text" placeholder="N"
+                    aria-label="Capacity unit"
+                    value={metadata.capacityUnit}
+                    onChange={e => updateMeta({ capacityUnit: e.target.value })} />
+                </div>
+              </div>
+              <MetaRow id="m-stdDev" label="Std device" value={metadata.stdDevice}
+                onChange={v => updateMeta({ stdDevice: v })}
+                placeholder="e.g. Weights Ltd Mass Set" />
+              <MetaRow id="m-stdInd" label="Std indicator" value={metadata.stdIndicator}
+                onChange={v => updateMeta({ stdIndicator: v })} />
+              <MetaRow id="m-operator" label="Operator" value={metadata.operator}
+                onChange={v => updateMeta({ operator: v })} />
+              <div className="card-row">
+                <label className="card-row-label">Temperature °C</label>
+                <div className="temp-picker">
+                  <input className="input temp-input" type="text" inputMode="decimal" placeholder="Min"
+                    aria-label="Min temperature"
+                    value={metadata.tempMin}
+                    onChange={e => updateMeta({ tempMin: e.target.value })} />
+                  <span className="temp-sep">–</span>
+                  <input className="input temp-input" type="text" inputMode="decimal" placeholder="Max"
+                    aria-label="Max temperature"
+                    value={metadata.tempMax}
+                    onChange={e => updateMeta({ tempMax: e.target.value })} />
+                </div>
+              </div>
+              <MetaRow id="m-cert" label="Cert. no." value={metadata.certNo}
+                onChange={v => updateMeta({ certNo: v })} />
+            </div>
+          )}
         </section>
 
         {/* Range Inputs */}
@@ -395,41 +532,68 @@ function App() {
                     </div>
                   )}
                   {needsGravity(range.unit, range.secondaryUnit, range.kgfMode) && (
-                    <div className={`card-row${focusedInput === `gravity-${range.id}` ? ' card-row--focused' : ''}`}>
-                      <label className="card-row-label" htmlFor={`gravity-${range.id}`}>
-                        Gravity g
-                      </label>
-                      <div className="gravity-picker">
-                        <input className="input gravity-input" type="number" inputMode="decimal"
-                          id={`gravity-${range.id}`} step="any" min="0"
-                          value={range.gravity}
-                          onChange={e => updateRange(range.id, {
-                            gravity: parseFloat(e.target.value) || 0,
-                            gravityPreset: 'custom',
-                          })}
-                          onFocus={() => setFocusedInput(`gravity-${range.id}`)}
-                          onBlur={() => setFocusedInput(null)} />
-                        <select className="input input--select gravity-preset"
-                          aria-label="Gravity preset"
-                          value={range.gravityPreset}
-                          onChange={e => {
-                            const key = e.target.value
-                            const preset = GRAVITY_PRESETS[key]
-                            updateRange(range.id, {
-                              gravityPreset: key,
-                              ...(preset && preset.value != null ? { gravity: preset.value } : {}),
-                            })
-                          }}>
-                          {GRAVITY_PRESET_GROUPS.map(group => (
-                            <optgroup key={group.label} label={group.label}>
-                              {group.keys.map(key => (
-                                <option key={key} value={key}>{GRAVITY_PRESETS[key].label}</option>
-                              ))}
-                            </optgroup>
-                          ))}
-                        </select>
+                    <>
+                      <div className={`card-row${focusedInput === `gravity-${range.id}` ? ' card-row--focused' : ''}`}>
+                        <label className="card-row-label" htmlFor={`gravity-${range.id}`}>
+                          Gravity g
+                        </label>
+                        <div className="gravity-picker">
+                          <input className="input gravity-input" type="number" inputMode="decimal"
+                            id={`gravity-${range.id}`} step="any" min="0"
+                            value={range.gravity}
+                            onChange={e => {
+                              const v = parseFloat(e.target.value) || 0
+                              const loc = findLocation(v)
+                              updateRange(range.id, {
+                                gravity: v,
+                                gravityCountry: loc.country,
+                                gravityRegion: loc.region,
+                              })
+                            }}
+                            onFocus={() => setFocusedInput(`gravity-${range.id}`)}
+                            onBlur={() => setFocusedInput(null)} />
+                          <span className="gravity-unit">m/s²</span>
+                        </div>
                       </div>
-                    </div>
+                      <div className="card-row location-row">
+                        <span className="card-row-label">Location</span>
+                        <div className="location-picker">
+                          <select className="input input--select location-select"
+                            aria-label="Country"
+                            value={range.gravityCountry}
+                            onChange={e => {
+                              const country = e.target.value
+                              const regions = regionsFor(country)
+                              const region = regions[0]
+                              const g = gravityFor(country, region)
+                              updateRange(range.id, {
+                                gravityCountry: country,
+                                gravityRegion: region,
+                                ...(g != null ? { gravity: g } : {}),
+                              })
+                            }}>
+                            {COUNTRY_ORDER.map(c => (
+                              <option key={c} value={c}>{c}</option>
+                            ))}
+                          </select>
+                          <select className="input input--select location-select"
+                            aria-label="Region or city"
+                            value={range.gravityRegion}
+                            onChange={e => {
+                              const region = e.target.value
+                              const g = gravityFor(range.gravityCountry, region)
+                              updateRange(range.id, {
+                                gravityRegion: region,
+                                ...(g != null ? { gravity: g } : {}),
+                              })
+                            }}>
+                            {regionsFor(range.gravityCountry).map(r => (
+                              <option key={r} value={r}>{r}</option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                    </>
                   )}
                   {conversionHint(range) && (
                     <p className="options-note">{conversionHint(range)}</p>
@@ -497,33 +661,47 @@ function App() {
                     </span>
                     <span className="points-count">{range.percentList.length} {range.percentList.length === 1 ? 'point' : 'points'}</span>
                   </div>
-                  {range.percentList.map((val, pi) => (
-                    <div key={pi}
-                      className={`card-row point-row${focusedInput === `percent-${range.id}-${pi}` ? ' card-row--focused' : ''}`}>
-                      <span className="point-index">{pi + 1}</span>
-                      <input className="input point-input"
-                        type="number" inputMode="decimal" step="any"
-                        aria-label={`Point ${pi + 1} percentage`}
-                        value={val}
-                        onChange={e => {
-                          const next = [...range.percentList]
-                          next[pi] = e.target.value
-                          updateRange(range.id, { percentList: next, preset: 'custom' })
-                        }}
-                        onFocus={() => setFocusedInput(`percent-${range.id}-${pi}`)}
-                        onBlur={() => setFocusedInput(null)} />
-                      <span className="point-suffix">%</span>
-                      <button type="button" className="point-remove"
-                        aria-label={`Remove point ${pi + 1}`}
-                        disabled={range.percentList.length <= 2}
-                        onClick={() => {
-                          const next = range.percentList.filter((_, j) => j !== pi)
-                          updateRange(range.id, { percentList: next, preset: 'custom' })
-                        }}>
-                        <CloseIcon />
-                      </button>
-                    </div>
-                  ))}
+                  {range.percentList.map((val, pi) => {
+                    const startN = parseFloat(range.start)
+                    const endN = parseFloat(range.end)
+                    const pctN = parseFloat(val)
+                    const suggested = (Number.isFinite(startN) && Number.isFinite(endN) && Number.isFinite(pctN))
+                      ? startN + (pctN / 100) * (endN - startN)
+                      : null
+                    const unitLbl = unitLabel(range.unit)
+                    return (
+                      <div key={pi}
+                        className={`card-row point-row${focusedInput === `percent-${range.id}-${pi}` ? ' card-row--focused' : ''}`}>
+                        <span className="point-index">{pi + 1}</span>
+                        <input className="input point-input"
+                          type="number" inputMode="decimal" step="any"
+                          aria-label={`Point ${pi + 1} percentage`}
+                          value={val}
+                          onChange={e => {
+                            const next = [...range.percentList]
+                            next[pi] = e.target.value
+                            updateRange(range.id, { percentList: next, preset: 'custom' })
+                          }}
+                          onFocus={() => setFocusedInput(`percent-${range.id}-${pi}`)}
+                          onBlur={() => setFocusedInput(null)} />
+                        <span className="point-suffix">%</span>
+                        {suggested != null && (
+                          <span className="point-suggested" aria-label="Suggested value">
+                            → {suggested.toFixed(3)}{unitLbl ? ` ${unitLbl}` : ''}
+                          </span>
+                        )}
+                        <button type="button" className="point-remove"
+                          aria-label={`Remove point ${pi + 1}`}
+                          disabled={range.percentList.length <= 2}
+                          onClick={() => {
+                            const next = range.percentList.filter((_, j) => j !== pi)
+                            updateRange(range.id, { percentList: next, preset: 'custom' })
+                          }}>
+                          <CloseIcon />
+                        </button>
+                      </div>
+                    )
+                  })}
                   <button type="button" className="card-row add-point"
                     onClick={() => {
                       const nums = range.percentList.map(parseFloat).filter(Number.isFinite)
@@ -601,15 +779,24 @@ function App() {
             ? convert(v, range.unit, range.secondaryUnit, range.gravity, range.kgfMode)
             : null
 
+          const cal = range.calibrationMode
           return (
             <section className="section" key={`results-${range.id}`}
               ref={ri === 0 ? resultsRef : null}>
-              <h2 className="section-header">
-                {multiRange
-                  ? `Range ${ri + 1} — ${range.results.length} steps`
-                  : `Results — ${range.results.length} steps`}
-              </h2>
-              <div className="card">
+              <div className="section-header-row">
+                <h2 className="section-header">
+                  {multiRange
+                    ? `Range ${ri + 1} — ${range.results.length} steps`
+                    : `Results — ${range.results.length} steps`}
+                </h2>
+                <button type="button"
+                  className={`cal-toggle${cal ? ' cal-toggle--on' : ''}`}
+                  onClick={() => updateRange(range.id, { calibrationMode: !cal })}
+                  aria-pressed={cal}>
+                  {cal ? '● Calibration mode' : '○ Calibration mode'}
+                </button>
+              </div>
+              <div className={`card${cal ? ' card--calibration' : ''}`}>
                 <div className="results-summary">
                   <div className="results-summary-item">
                     <div className="results-summary-label">From → To</div>
@@ -634,10 +821,12 @@ function App() {
                   </div>
                 </div>
 
-                <div className="results-header">
+                <div className={`results-header${cal ? ' results-header--cal' : ''}`}>
                   <span className="results-header-cell">#</span>
-                  <span className="results-header-cell">Value</span>
-                  <span className="results-header-cell">Delta</span>
+                  <span className="results-header-cell">Applied</span>
+                  {cal && <span className="results-header-cell">Indicated</span>}
+                  {cal && <span className="results-header-cell">Error</span>}
+                  {!cal && <span className="results-header-cell">Delta</span>}
                 </div>
 
                 {range.results.map((step, i) => {
@@ -648,9 +837,20 @@ function App() {
                   const rangeSpan = e - s
                   const pct = rangeSpan !== 0 ? ((step.value - s) / rangeSpan) * 100 : 0
                   const secondaryValue = secondaryOf(step.value)
+                  const indicatedRaw = step.indicated ?? ''
+                  const indicatedNum = parseFloat(indicatedRaw)
+                  const errorPct = (Number.isFinite(indicatedNum) && step.value !== 0)
+                    ? ((indicatedNum - step.value) / step.value) * 100
+                    : null
+                  const errorClass = errorPct == null ? ''
+                    : Math.abs(errorPct) < 1   ? 'cal-error--ok'
+                    : Math.abs(errorPct) < 2   ? 'cal-error--warn'
+                    :                            'cal-error--bad'
 
                   return (
-                    <div key={step.number} className="result-row" style={{ '--i': i }}>
+                    <div key={step.number}
+                      className={`result-row${cal ? ' result-row--cal' : ''}`}
+                      style={{ '--i': i }}>
                       <div className="result-progress"
                         style={{ width: `${Math.max(0, Math.min(100, pct))}%` }} />
                       <span className="result-step">{step.number}</span>
@@ -670,7 +870,19 @@ function App() {
                           </div>
                         )}
                       </div>
-                      {isLast ? (
+                      {cal ? (
+                        <>
+                          <input type="number" className="cal-indicated"
+                            placeholder="—"
+                            inputMode="decimal" step="any"
+                            aria-label={`Indicated value for step ${step.number}`}
+                            value={indicatedRaw}
+                            onChange={ev => handleIndicatedEdit(range.id, i, ev.target.value)} />
+                          <span className={`cal-error ${errorClass}`}>
+                            {errorPct == null ? '—' : `${errorPct >= 0 ? '+' : ''}${errorPct.toFixed(2)}%`}
+                          </span>
+                        </>
+                      ) : isLast ? (
                         <span className="result-delta result-delta--neutral">
                           <span className="result-final">
                             <FinalFlagIcon /> End
@@ -685,7 +897,11 @@ function App() {
                   )
                 })}
               </div>
-              <p className="section-footer">Tap any value to edit. Subsequent steps recalculate.</p>
+              <p className="section-footer">
+                {cal
+                  ? 'Enter measured values; error % is computed against the applied target. Green < 1%, amber < 2%, red ≥ 2%.'
+                  : 'Tap any value to edit. Subsequent steps recalculate.'}
+              </p>
             </section>
           )
         })}
