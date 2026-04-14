@@ -44,9 +44,23 @@ function createRange() {
     secondaryUnit: '',
     gravity: STANDARD_GRAVITY,
     gravityPreset: 'standard',
+    optionsOpen: false,
     results: [],
     error: '',
   }
+}
+
+// Human-readable summary of the current unit/gravity config, shown on the
+// disclosure row so the user doesn't have to expand to see what's set.
+function unitsSummary(range) {
+  const primary = unitLabel(range.unit)
+  const secondary = unitLabel(range.secondaryUnit)
+  if (!primary) return 'None'
+  if (!secondary) return primary
+  if (needsGravity(range.unit, range.secondaryUnit)) {
+    return `${primary} → ${secondary} · g=${Number(range.gravity).toFixed(4)}`
+  }
+  return `${primary} → ${secondary}`
 }
 
 function App() {
@@ -289,80 +303,92 @@ function App() {
                   Percentage
                 </button>
               </div>
-              <div className={`card-row${focusedInput === `unit-${range.id}` ? ' card-row--focused' : ''}`}>
-                <label className="card-row-label" htmlFor={`unit-${range.id}`}>
-                  <RulerIcon /> Units
-                </label>
-                <div className="unit-picker">
-                  <select className="input input--select unit-select" id={`unit-${range.id}`}
-                    value={range.unit}
-                    onChange={e => {
-                      const next = e.target.value
-                      const updates = { unit: next }
-                      // Drop an incompatible secondary when the primary changes.
-                      if (next === '' || (range.secondaryUnit && !canConvert(next, range.secondaryUnit))) {
-                        updates.secondaryUnit = ''
-                      }
-                      updateRange(range.id, updates)
-                    }}
-                    onFocus={() => setFocusedInput(`unit-${range.id}`)}
-                    onBlur={() => setFocusedInput(null)}>
-                    {GROUP_ORDER.map(gid => (
-                      <optgroup key={gid} label={UNIT_GROUPS[gid].label}>
-                        {Object.entries(UNIT_GROUPS[gid].units).map(([id, u]) => (
-                          <option key={id || 'none'} value={id}>{u.label}</option>
+              <button type="button" className="card-row options-toggle"
+                onClick={() => updateRange(range.id, { optionsOpen: !range.optionsOpen })}
+                aria-expanded={range.optionsOpen}>
+                <span className="card-row-label">
+                  <ChevronIcon expanded={range.optionsOpen} /> Units &amp; gravity
+                </span>
+                <span className="options-summary">{unitsSummary(range)}</span>
+              </button>
+              {range.optionsOpen && (
+                <>
+                  <div className={`card-row${focusedInput === `unit-${range.id}` ? ' card-row--focused' : ''}`}>
+                    <label className="card-row-label" htmlFor={`unit-${range.id}`}>
+                      Unit
+                    </label>
+                    <div className="unit-picker">
+                      <select className="input input--select unit-select" id={`unit-${range.id}`}
+                        value={range.unit}
+                        onChange={e => {
+                          const next = e.target.value
+                          const updates = { unit: next }
+                          // Drop an incompatible secondary when the primary changes.
+                          if (next === '' || (range.secondaryUnit && !canConvert(next, range.secondaryUnit))) {
+                            updates.secondaryUnit = ''
+                          }
+                          updateRange(range.id, updates)
+                        }}
+                        onFocus={() => setFocusedInput(`unit-${range.id}`)}
+                        onBlur={() => setFocusedInput(null)}>
+                        {GROUP_ORDER.map(gid => (
+                          <optgroup key={gid} label={UNIT_GROUPS[gid].label}>
+                            {Object.entries(UNIT_GROUPS[gid].units).map(([id, u]) => (
+                              <option key={id || 'none'} value={id}>{u.label}</option>
+                            ))}
+                          </optgroup>
                         ))}
-                      </optgroup>
-                    ))}
-                  </select>
-                  <span className="unit-arrow" aria-hidden="true">→</span>
-                  <select className="input input--select unit-select" aria-label="Secondary unit"
-                    value={range.secondaryUnit}
-                    disabled={!range.unit}
-                    onChange={e => updateRange(range.id, { secondaryUnit: e.target.value })}>
-                    <option value="">— none —</option>
-                    {secondaryOptionsFor(range.unit).map(group => (
-                      <optgroup key={group.groupId} label={group.groupLabel}>
-                        {group.units.map(u => (
-                          <option key={u.id} value={u.id}>{u.label}</option>
+                      </select>
+                      <span className="unit-arrow" aria-hidden="true">→</span>
+                      <select className="input input--select unit-select" aria-label="Secondary unit"
+                        value={range.secondaryUnit}
+                        disabled={!range.unit}
+                        onChange={e => updateRange(range.id, { secondaryUnit: e.target.value })}>
+                        <option value="">— none —</option>
+                        {secondaryOptionsFor(range.unit).map(group => (
+                          <optgroup key={group.groupId} label={group.groupLabel}>
+                            {group.units.map(u => (
+                              <option key={u.id} value={u.id}>{u.label}</option>
+                            ))}
+                          </optgroup>
                         ))}
-                      </optgroup>
-                    ))}
-                  </select>
-                </div>
-              </div>
-              {needsGravity(range.unit, range.secondaryUnit) && (
-                <div className={`card-row${focusedInput === `gravity-${range.id}` ? ' card-row--focused' : ''}`}>
-                  <label className="card-row-label" htmlFor={`gravity-${range.id}`}>
-                    <RulerIcon /> Gravity g
-                  </label>
-                  <div className="gravity-picker">
-                    <input className="input gravity-input" type="number" inputMode="decimal"
-                      id={`gravity-${range.id}`} step="any" min="0"
-                      value={range.gravity}
-                      onChange={e => updateRange(range.id, {
-                        gravity: parseFloat(e.target.value) || 0,
-                        gravityPreset: 'custom',
-                      })}
-                      onFocus={() => setFocusedInput(`gravity-${range.id}`)}
-                      onBlur={() => setFocusedInput(null)} />
-                    <select className="input input--select gravity-preset"
-                      aria-label="Gravity preset"
-                      value={range.gravityPreset}
-                      onChange={e => {
-                        const key = e.target.value
-                        const preset = GRAVITY_PRESETS[key]
-                        updateRange(range.id, {
-                          gravityPreset: key,
-                          ...(preset && preset.value != null ? { gravity: preset.value } : {}),
-                        })
-                      }}>
-                      {Object.entries(GRAVITY_PRESETS).map(([key, { label }]) => (
-                        <option key={key} value={key}>{label}</option>
-                      ))}
-                    </select>
+                      </select>
+                    </div>
                   </div>
-                </div>
+                  {needsGravity(range.unit, range.secondaryUnit) && (
+                    <div className={`card-row${focusedInput === `gravity-${range.id}` ? ' card-row--focused' : ''}`}>
+                      <label className="card-row-label" htmlFor={`gravity-${range.id}`}>
+                        Gravity g
+                      </label>
+                      <div className="gravity-picker">
+                        <input className="input gravity-input" type="number" inputMode="decimal"
+                          id={`gravity-${range.id}`} step="any" min="0"
+                          value={range.gravity}
+                          onChange={e => updateRange(range.id, {
+                            gravity: parseFloat(e.target.value) || 0,
+                            gravityPreset: 'custom',
+                          })}
+                          onFocus={() => setFocusedInput(`gravity-${range.id}`)}
+                          onBlur={() => setFocusedInput(null)} />
+                        <select className="input input--select gravity-preset"
+                          aria-label="Gravity preset"
+                          value={range.gravityPreset}
+                          onChange={e => {
+                            const key = e.target.value
+                            const preset = GRAVITY_PRESETS[key]
+                            updateRange(range.id, {
+                              gravityPreset: key,
+                              ...(preset && preset.value != null ? { gravity: preset.value } : {}),
+                            })
+                          }}>
+                          {Object.entries(GRAVITY_PRESETS).map(([key, { label }]) => (
+                            <option key={key} value={key}>{label}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
               <div className={`card-row${focusedInput === `start-${range.id}` ? ' card-row--focused' : ''}`}>
                 <label className="card-row-label" htmlFor={`start-${range.id}`}>

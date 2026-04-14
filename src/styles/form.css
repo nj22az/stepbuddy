@@ -83,6 +83,41 @@ input[type="number"] {
     color: #fff;
 }
 
+/* Options disclosure row — collapses Units & Gravity when not needed */
+.options-toggle {
+    background: none;
+    border: none;
+    width: 100%;
+    min-height: 44px;
+    padding: 0 16px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: inherit;
+    color: var(--text);
+    text-align: left;
+}
+
+.options-toggle .card-row-label {
+    font-size: 15px;
+    font-weight: 400;
+}
+
+.options-summary {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-tertiary);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 60%;
+    text-align: right;
+    margin-left: 8px;
+}
+
 /* Unit picker — two selects with an arrow between */
 .unit-picker {
     display: flex;
@@ -102,7 +137,7 @@ input[type="number"] {
     text-align: left;
     text-align-last: left;
     font-family: var(--font-sans);
-    font-size: 14px;
+    font-size: 13px;
 }
 
 .unit-arrow {
@@ -141,7 +176,7 @@ input[type="number"] {
     text-align: left;
     text-align-last: left;
     font-family: var(--font-sans);
-    font-size: 13px;
+    font-size: 12px;
 }
 
 /* Error */
