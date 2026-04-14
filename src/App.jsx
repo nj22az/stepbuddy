@@ -29,7 +29,7 @@ const PERCENT_PRESETS = {
 }
 
 const DEFAULT_PRESET = 'iso-7500-low'
-const presetToList = (key) => (PERCENT_PRESETS[key]?.values ?? []).join(', ')
+const presetToList = (key) => (PERCENT_PRESETS[key]?.values ?? []).map(String)
 
 function createRange() {
   return {
@@ -48,6 +48,24 @@ function createRange() {
     results: [],
     error: '',
   }
+}
+
+// Explains which gravity — if any — applies to the chosen unit pair.
+// kgf/gf/lbf/ozf are defined against standard g₀ by ISO/convention, so
+// local gravity doesn't change the math. Mass secondaries (kg, g, lb…)
+// on a force primary do depend on local g.
+const STANDARD_G_FORCE_UNITS = new Set(['kgf', 'gf', 'lbf', 'ozf'])
+
+function conversionHint(range) {
+  const p = range.unit, s = range.secondaryUnit
+  if (!p || !s) return null
+  if (needsGravity(p, s)) {
+    return `Uses local gravity g = ${Number(range.gravity).toFixed(4)} m/s² for deadweight conversion.`
+  }
+  if (STANDARD_G_FORCE_UNITS.has(s) || STANDARD_G_FORCE_UNITS.has(p)) {
+    return `${unitLabel(p)} ↔ ${unitLabel(s)} uses standard g₀ = 9.80665 m/s² (definition). For local-g deadweight, pick 'kg' as secondary.`
+  }
+  return null
 }
 
 // Human-readable summary of the current unit/gravity config, shown on the
@@ -98,8 +116,8 @@ function App() {
       }
 
       if (range.mode === 'percentage') {
-        const parsed = (range.percentList || '')
-          .split(/[,\s]+/)
+        const parsed = (range.percentList || [])
+          .flatMap(entry => String(entry).split(/[,\s]+/))
           .map(s => s.trim())
           .filter(s => s.length > 0)
           .map(Number)
@@ -388,6 +406,9 @@ function App() {
                       </div>
                     </div>
                   )}
+                  {conversionHint(range) && (
+                    <p className="options-note">{conversionHint(range)}</p>
+                  )}
                 </>
               )}
               <div className={`card-row${focusedInput === `start-${range.id}` ? ' card-row--focused' : ''}`}>
@@ -445,17 +466,51 @@ function App() {
                       ))}
                     </select>
                   </div>
-                  <div className={`card-row${focusedInput === `percent-${range.id}` ? ' card-row--focused' : ''}`}>
-                    <label className="card-row-label" htmlFor={`percent-${range.id}`}>
+                  <div className="card-row points-header">
+                    <span className="card-row-label">
                       <HashIcon /> Points %
-                    </label>
-                    <input className="input" type="text" inputMode="decimal" id={`percent-${range.id}`}
-                      placeholder="0, 2, 5, 10, 20, 40, 60, 80, 100"
-                      value={range.percentList}
-                      onChange={e => updateRange(range.id, { percentList: e.target.value, preset: 'custom' })}
-                      onFocus={() => setFocusedInput(`percent-${range.id}`)}
-                      onBlur={() => setFocusedInput(null)} />
+                    </span>
+                    <span className="points-count">{range.percentList.length} {range.percentList.length === 1 ? 'point' : 'points'}</span>
                   </div>
+                  {range.percentList.map((val, pi) => (
+                    <div key={pi}
+                      className={`card-row point-row${focusedInput === `percent-${range.id}-${pi}` ? ' card-row--focused' : ''}`}>
+                      <span className="point-index">{pi + 1}</span>
+                      <input className="input point-input"
+                        type="number" inputMode="decimal" step="any"
+                        aria-label={`Point ${pi + 1} percentage`}
+                        value={val}
+                        onChange={e => {
+                          const next = [...range.percentList]
+                          next[pi] = e.target.value
+                          updateRange(range.id, { percentList: next, preset: 'custom' })
+                        }}
+                        onFocus={() => setFocusedInput(`percent-${range.id}-${pi}`)}
+                        onBlur={() => setFocusedInput(null)} />
+                      <span className="point-suffix">%</span>
+                      <button type="button" className="point-remove"
+                        aria-label={`Remove point ${pi + 1}`}
+                        disabled={range.percentList.length <= 2}
+                        onClick={() => {
+                          const next = range.percentList.filter((_, j) => j !== pi)
+                          updateRange(range.id, { percentList: next, preset: 'custom' })
+                        }}>
+                        <CloseIcon />
+                      </button>
+                    </div>
+                  ))}
+                  <button type="button" className="card-row add-point"
+                    onClick={() => {
+                      const nums = range.percentList.map(parseFloat).filter(Number.isFinite)
+                      const last = nums.length ? nums[nums.length - 1] : 0
+                      const nextVal = last < 100 ? Math.min(100, last + 10) : last + 10
+                      updateRange(range.id, {
+                        percentList: [...range.percentList, String(nextVal)],
+                        preset: 'custom',
+                      })
+                    }}>
+                    <PlusIcon /> Add point
+                  </button>
                 </>
               )}
             </div>

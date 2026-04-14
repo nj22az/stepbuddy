@@ -179,6 +179,133 @@ input[type="number"] {
     font-size: 12px;
 }
 
+/* Helper note below the options disclosure rows */
+.options-note {
+    padding: 6px 16px 10px;
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.4;
+    color: var(--text-tertiary);
+    background: var(--bg-page);
+    border-top: 1px solid var(--border-light);
+}
+
+/* Percentage points editor — stacked per-point rows */
+.points-header {
+    justify-content: space-between;
+    background: var(--bg-page);
+    border-bottom: 1px solid var(--border-light);
+    min-height: 32px;
+    padding: 4px 16px;
+}
+
+.points-header .card-row-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+}
+
+.points-count {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-tertiary);
+    font-variant-numeric: tabular-nums;
+}
+
+.point-row {
+    min-height: 40px;
+    padding: 0 8px 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.point-index {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-tertiary);
+    min-width: 22px;
+    font-variant-numeric: tabular-nums;
+}
+
+.point-input {
+    flex: 1;
+    height: 36px;
+    padding: 0 0 0 4px;
+    font-family: var(--font-mono);
+    text-align: right;
+    font-size: 16px;
+}
+
+.point-suffix {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    color: var(--text-tertiary);
+}
+
+.point-remove {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    -webkit-tap-highlight-color: transparent;
+    transition: background-color 0.15s ease;
+}
+
+.point-remove:hover:not(:disabled) {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+:root.dark-mode .point-remove:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.point-remove:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.point-remove svg {
+    width: 14px;
+    height: 14px;
+}
+
+.add-point {
+    width: 100%;
+    min-height: 40px;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: transparent;
+    border: none;
+    color: var(--accent);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    -webkit-tap-highlight-color: transparent;
+    transition: background-color 0.15s ease;
+}
+
+.add-point:hover {
+    background: rgba(0, 122, 255, 0.06);
+}
+
+.add-point svg {
+    width: 14px;
+    height: 14px;
+}
+
 /* Error */
 .error {
     display: flex;
