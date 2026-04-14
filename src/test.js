@@ -49,6 +49,7 @@ export function defaultTest() {
       mode: 'Tension-Compression',
       reversibility: false,
       runs: 3,
+      referenceClass: '0.5', // class of the reference standard set used
     },
     notes: {
       certNo: generateCertNo(),
@@ -78,6 +79,53 @@ export const ISO_7500_TOLERANCES = {
   '1':   { errMax: 1.0, repeatMax: 1.0, resolutionMax: 0.5,  zeroMax: 0.1  },
   '2':   { errMax: 2.0, repeatMax: 2.0, resolutionMax: 1.0,  zeroMax: 0.2  },
   '3':   { errMax: 3.0, repeatMax: 3.0, resolutionMax: 1.5,  zeroMax: 0.3  },
+}
+
+// ISO 7500-1 class ordering used for "worst-of" rollup. Lower index = better.
+export const CLASS_ORDER = ['0.5', '1', '2', '3', '>3']
+
+// Classify an error / repeat / resolution percentage into a 7500-1 class
+// (0.5 / 1 / 2 / 3 / >3) using the standard's max-error thresholds.
+export function classOf(pct, kind = 'err') {
+  if (pct == null || !Number.isFinite(pct)) return null
+  const a = Math.abs(pct)
+  // Resolution thresholds are half the err thresholds in the standard.
+  const factor = kind === 'resolution' ? 0.5 : 1
+  if (a <= 0.5 * factor) return '0.5'
+  if (a <= 1.0 * factor) return '1'
+  if (a <= 2.0 * factor) return '2'
+  if (a <= 3.0 * factor) return '3'
+  return '>3'
+}
+
+// Resolution percentage: r = (a / F) × 100, where a = indicator resolution
+// and F = applied force at this point. Uses a/2 for analog displays, a/1
+// for digital — we assume digital (a as given) since most modern machines
+// are digital.
+export function resolutionPct(resolution, appliedForce) {
+  const r = parseFloat(resolution), f = parseFloat(appliedForce)
+  if (!Number.isFinite(r) || !Number.isFinite(f) || f === 0) return null
+  return (Math.abs(r) / Math.abs(f)) * 100
+}
+
+// System class rolls up to the worst of the four contributing classes.
+export function systemClass(...classes) {
+  const filtered = classes.filter(c => c != null)
+  if (!filtered.length) return null
+  return filtered.reduce((worst, c) =>
+    CLASS_ORDER.indexOf(c) > CLASS_ORDER.indexOf(worst) ? c : worst, '0.5')
+}
+
+// Compare a class value against the requested accuracy class — returns
+// 'ok' / 'warn' / 'bad' for colour-coding.
+export function classifyClass(cls, requested) {
+  if (!cls) return ''
+  if (cls === '>3') return 'bad'
+  const i = CLASS_ORDER.indexOf(cls)
+  const r = CLASS_ORDER.indexOf(requested)
+  if (i <= r) return 'ok'
+  if (i === r + 1) return 'warn'
+  return 'bad'
 }
 
 export function tolerancesFor(test) {

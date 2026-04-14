@@ -57,6 +57,13 @@ export function StandardScreen({ test, patch }) {
             {[1, 2, 3, 4, 5].map(n => <option key={n} value={n}>{n}</option>)}
           </select>
         </div>
+        <div className="card-row">
+          <label className="card-row-label" htmlFor="ref-class">Reference standard class</label>
+          <select id="ref-class" className="input input--select meta-input"
+            value={s.referenceClass} onChange={e => setS('referenceClass', e.target.value)}>
+            {['0.5', '1', '2', '3'].map(c => <option key={c} value={c}>Class {c}</option>)}
+          </select>
+        </div>
       </div>
       <p className="section-footer">
         Class drives the tolerance bands used to colour-code Verify rows. {test.standard.runs} run{test.standard.runs > 1 ? 's' : ''} per point will be recorded.

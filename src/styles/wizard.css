@@ -164,6 +164,101 @@
     color: var(--text-tertiary);
 }
 
+/* System class chip on each Verify row */
+.class-chip {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: 8px;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    margin-top: 2px;
+    background: var(--bg-page);
+    color: var(--text-secondary);
+}
+.class-chip--ok   { background: var(--green); color: #fff; }
+.class-chip--warn { background: #d97706; color: #fff; }
+.class-chip--bad  { background: var(--red); color: #fff; }
+
+/* Resolution input row at top of results card */
+.resolution-row {
+    background: var(--bg-page);
+    border-bottom: 1px solid var(--border-light);
+}
+
+/* Lock button in header (when calibration suite unlocked) */
+.header-btn--lock {
+    font-size: 14px;
+}
+
+/* Unlock modal */
+.unlock-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    padding: 16px;
+    backdrop-filter: blur(6px);
+}
+
+.unlock-modal {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 24px;
+    width: 100%;
+    max-width: 320px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.unlock-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.unlock-subtitle {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: -8px;
+    margin-bottom: 4px;
+}
+
+.unlock-input {
+    width: 100%;
+    height: 44px;
+    padding: 0 12px;
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    background: var(--bg-page);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    outline: none;
+}
+
+.unlock-input:focus { border-color: var(--accent); }
+
+.unlock-error {
+    font-size: 12px;
+    color: var(--red);
+    padding: 4px 0;
+}
+
+.unlock-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.unlock-actions .btn { flex: 1; }
+
 /* Overall pass/fail badge in preview */
 .preview-actions {
     display: flex;

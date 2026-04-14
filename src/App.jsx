@@ -17,12 +17,15 @@ import {
 import {
   STEPS, defaultTest, loadTest, saveTest, stepStatus,
   tolerancesFor, classifyError, repeatError, meanIndicated,
+  classOf, resolutionPct, systemClass,
 } from './test'
 import { SiteScreen } from './screens/SiteScreen'
 import { EquipmentScreen } from './screens/EquipmentScreen'
 import { StandardScreen } from './screens/StandardScreen'
 import { NotesScreen } from './screens/NotesScreen'
 import { PreviewScreen } from './screens/PreviewScreen'
+import { UnlockModal } from './components/UnlockModal'
+import { isUnlocked, setUnlocked, gateActive } from './auth'
 import logoImg from '/logo.png'
 
 let nextRangeId = 1
@@ -60,6 +63,7 @@ function createRange() {
     kgfMode: 'local', // 'local' = 1 kgf = 1 kg × local g (deadweight practice)
                       // 'standard' = 1 kgf = 9.80665 N fixed (strict ISO)
     calibrationMode: false, // results card shows Indicated + Error% columns when true
+    resolution: '', // indicator resolution at this range, e.g. 0.000025 N — used for Resolution Class
     optionsOpen: false,
     results: [],
     error: '',
@@ -97,40 +101,6 @@ function unitsSummary(range) {
   return pair
 }
 
-function MetaRow({ id, label, value, onChange, placeholder }) {
-  return (
-    <div className="card-row">
-      <label className="card-row-label" htmlFor={id}>{label}</label>
-      <input id={id} className="input meta-input" type="text"
-        value={value} placeholder={placeholder || ''}
-        onChange={e => onChange(e.target.value)} />
-    </div>
-  )
-}
-
-const META_DEFAULTS = {
-  instrumentCat: '',
-  instrumentSerial: '',
-  capacity: '',
-  capacityUnit: '',
-  stdDevice: '',
-  stdIndicator: '',
-  operator: '',
-  tempMin: '',
-  tempMax: '',
-  certNo: '',
-}
-
-const META_STORAGE_KEY = 'stepwise.metadata.v1'
-
-function loadMetadata() {
-  if (typeof localStorage === 'undefined') return META_DEFAULTS
-  try {
-    const raw = localStorage.getItem(META_STORAGE_KEY)
-    return raw ? { ...META_DEFAULTS, ...JSON.parse(raw) } : META_DEFAULTS
-  } catch { return META_DEFAULTS }
-}
-
 function App() {
   // The whole calibration test document — everything except `ranges`
   // (which keeps its richer existing shape with results + edit history).
@@ -156,6 +126,52 @@ function App() {
 
   const [isDarkMode, toggleTheme] = useSystemTheme()
   const resultsRef = useRef(null)
+
+  // Calibration-suite gate. When locked, only the simple StepWise calculator
+  // (Ranges step content) is rendered. Hidden trigger: 5 quick taps on the
+  // logo within 2 s, or visit with #unlock in the URL.
+  const [unlocked, setUnlockedState] = useState(isUnlocked)
+  const [showUnlock, setShowUnlock] = useState(false)
+  const tapCount = useRef(0)
+  const tapTimer = useRef(null)
+  const triggerUnlockPrompt = () => {
+    if (unlocked) return
+    if (!gateActive()) { setUnlockedState(true); return }
+    setShowUnlock(true)
+  }
+  const onLogoTap = () => {
+    tapCount.current += 1
+    clearTimeout(tapTimer.current)
+    tapTimer.current = setTimeout(() => { tapCount.current = 0 }, 2000)
+    if (tapCount.current >= 5) {
+      tapCount.current = 0
+      triggerUnlockPrompt()
+    } else if (!unlocked) {
+      // Default behaviour for non-trigger taps: open the logo zoom modal.
+      // Only swallow once 5 taps reached.
+      setShowLogoModal(true)
+    } else {
+      setShowLogoModal(true)
+    }
+  }
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const checkHash = () => {
+      if (window.location.hash === '#unlock') {
+        history.replaceState(null, '', window.location.pathname + window.location.search)
+        triggerUnlockPrompt()
+      }
+    }
+    checkHash()
+    window.addEventListener('hashchange', checkHash)
+    return () => window.removeEventListener('hashchange', checkHash)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [unlocked])
+  const lock = () => {
+    setUnlocked(false)
+    setUnlockedState(false)
+    patchTest({ activeStep: 'ranges' })
+  }
 
   const updateRange = (id, updates) => {
     setRanges(prev => prev.map(r => r.id === id ? { ...r, ...updates } : r))
@@ -300,13 +316,26 @@ function App() {
     }
 
     const rows = []
-    // Metadata header (only if any field is filled)
-    const metaPairs = Object.entries(metadata).filter(([, v]) => String(v).trim() !== '')
-    if (metaPairs.length) {
-      rows.push('# Calibration setup')
-      metaPairs.forEach(([k, v]) => rows.push(`# ${k},${csvEsc(v)}`))
-      rows.push(`# Exported,${new Date().toISOString()}`)
-      rows.push('')
+    // Metadata header — only when unlocked (calibration suite); otherwise
+    // the simple StepWise CSV stays a clean numbers-only export.
+    if (unlocked) {
+      const metaPairs = []
+      const flat = (obj, prefix) => Object.entries(obj || {}).forEach(([k, v]) => {
+        if (typeof v === 'object' || typeof v === 'boolean' || v == null) return
+        if (String(v).trim() !== '') metaPairs.push([`${prefix}.${k}`, v])
+      })
+      flat(test.site, 'site')
+      flat(test.machine, 'machine')
+      flat(test.transducer, 'transducer')
+      flat(test.tempStandard, 'tempStandard')
+      flat(test.standard, 'standard')
+      flat(test.notes, 'notes')
+      if (metaPairs.length) {
+        rows.push('# Calibration setup')
+        metaPairs.forEach(([k, v]) => rows.push(`# ${k},${csvEsc(v)}`))
+        rows.push(`# Exported,${new Date().toISOString()}`)
+        rows.push('')
+      }
     }
 
     const headerCols = ['Range', 'Step', 'Applied', 'Unit', 'Step Size']
@@ -360,6 +389,14 @@ function App() {
 
   return (
     <div className="app">
+      {/* Unlock modal */}
+      {showUnlock && !unlocked && (
+        <UnlockModal
+          onClose={() => setShowUnlock(false)}
+          onUnlock={() => { setUnlocked(true); setUnlockedState(true); setShowUnlock(false) }}
+        />
+      )}
+
       {/* Logo zoom modal */}
       {showLogoModal && (
         <div className="logo-modal" onClick={() => setShowLogoModal(false)}>
@@ -373,7 +410,7 @@ function App() {
 
       {/* Header — two bento cards */}
       <header className="header">
-        <button className="header-logo-btn" onClick={() => setShowLogoModal(true)}
+        <button className="header-logo-btn" onClick={onLogoTap}
           aria-label="View logo">
           <img src={logoImg} alt="Johansson Engineering" className="header-logo" />
         </button>
@@ -381,6 +418,12 @@ function App() {
           <div className="header-title">StepWise</div>
           <div className="header-subtitle">Johansson Engineering</div>
           <div className="header-buttons">
+            {unlocked && gateActive() && (
+              <button className="header-btn header-btn--lock" onClick={lock}
+                aria-label="Lock calibration suite" title="Lock calibration suite">
+                🔒
+              </button>
+            )}
             <button className="header-btn" onClick={toggleTheme}
               aria-label={isDarkMode ? 'Light mode' : 'Dark mode'}>
               {isDarkMode ? <SunIcon /> : <MoonIcon />}
@@ -394,15 +437,18 @@ function App() {
         <section className="section">
           <div className="card title-card">
             <div className="title-card-text">
-              Calibration Suite
-              <span className="title-card-sub">
-                {test.standard.id.toUpperCase()} · Class {test.standard.accuracyClass} · {test.standard.mode}
-              </span>
+              {unlocked ? 'Calibration Suite' : 'Step Sequence Calculator'}
+              {unlocked && (
+                <span className="title-card-sub">
+                  {test.standard.id.toUpperCase()} · Class {test.standard.accuracyClass} · {test.standard.mode}
+                </span>
+              )}
             </div>
           </div>
         </section>
 
         {/* Wizard nav — horizontal scrollable pills */}
+        {unlocked && (
         <nav className="wizard-nav" aria-label="Calibration steps">
           {STEPS.map(step => {
             const status = stepStatus(test, ranges, step.id)
@@ -418,15 +464,16 @@ function App() {
             )
           })}
         </nav>
+        )}
 
-        {/* Step content */}
-        {activeStep === 'site'      && <SiteScreen      test={test} patch={patchTest} />}
-        {activeStep === 'equipment' && <EquipmentScreen test={test} patch={patchTest} />}
-        {activeStep === 'standard'  && <StandardScreen  test={test} patch={patchTest} />}
-        {activeStep === 'notes'     && <NotesScreen     test={test} patch={patchTest} />}
-        {activeStep === 'preview'   && <PreviewScreen   test={test} ranges={ranges} />}
+        {/* Step content (suite-only screens) */}
+        {unlocked && activeStep === 'site'      && <SiteScreen      test={test} patch={patchTest} />}
+        {unlocked && activeStep === 'equipment' && <EquipmentScreen test={test} patch={patchTest} />}
+        {unlocked && activeStep === 'standard'  && <StandardScreen  test={test} patch={patchTest} />}
+        {unlocked && activeStep === 'notes'     && <NotesScreen     test={test} patch={patchTest} />}
+        {unlocked && activeStep === 'preview'   && <PreviewScreen   test={test} ranges={ranges} />}
 
-        {activeStep === 'ranges' && (<>
+        {(!unlocked || activeStep === 'ranges') && (<>
         {/* Range Inputs */}
         {ranges.map((range, ri) => (
           <section className="section" key={range.id}>
@@ -756,8 +803,8 @@ function App() {
         )}
         </>)}
 
-        {/* Results — gated to verify step */}
-        {activeStep === 'verify' && (<>
+        {/* Results — public when locked (simple StepWise), gated to Verify step when unlocked */}
+        {(!unlocked || activeStep === 'verify') && (<>
         {!hasAnyResults && (
           <section className="section">
             <div className="card title-card">
@@ -796,14 +843,31 @@ function App() {
                     ? `Range ${ri + 1} — ${range.results.length} steps`
                     : `Results — ${range.results.length} steps`}
                 </h2>
-                <button type="button"
-                  className={`cal-toggle${cal ? ' cal-toggle--on' : ''}`}
-                  onClick={() => updateRange(range.id, { calibrationMode: !cal })}
-                  aria-pressed={cal}>
-                  {cal ? '● Calibration mode' : '○ Calibration mode'}
-                </button>
+                {unlocked && (
+                  <button type="button"
+                    className={`cal-toggle${cal ? ' cal-toggle--on' : ''}`}
+                    onClick={() => updateRange(range.id, { calibrationMode: !cal })}
+                    aria-pressed={cal}>
+                    {cal ? '● Calibration mode' : '○ Calibration mode'}
+                  </button>
+                )}
               </div>
               <div className={`card${cal ? ' card--calibration' : ''}`}>
+                {cal && (
+                  <div className="card-row resolution-row">
+                    <label className="card-row-label" htmlFor={`res-${range.id}`}>
+                      Indicator resolution
+                    </label>
+                    <div className="capacity-picker">
+                      <input id={`res-${range.id}`} className="input capacity-input"
+                        type="number" inputMode="decimal" step="any"
+                        placeholder="0.000025"
+                        value={range.resolution || ''}
+                        onChange={e => updateRange(range.id, { resolution: e.target.value })} />
+                      <span className="gravity-unit">{primaryLabel || ''}</span>
+                    </div>
+                  </div>
+                )}
                 <div className="results-summary">
                   <div className="results-summary-item">
                     <div className="results-summary-label">From → To</div>
@@ -855,6 +919,12 @@ function App() {
                   const tol = tolerancesFor(test)
                   const errClass = classifyError(errorPct, tol.errMax)
                   const errorClass = errClass ? `cal-error--${errClass}` : ''
+                  const resPct = resolutionPct(range.resolution, step.value)
+                  const resCls = classOf(resPct, 'resolution')
+                  const repCls = classOf(repeatPct)
+                  const errCls = classOf(errorPct)
+                  const sysCls = systemClass(resCls, test.standard.referenceClass, repCls, errCls)
+                  const sysClsClassName = sysCls ? `class-chip class-chip--${classOf(parseFloat(sysCls), 'err') || 'bad'}` : ''
 
                   return (
                     <div key={step.number}
@@ -897,6 +967,11 @@ function App() {
                             </span>
                             {repeatPct != null && (
                               <span className="cal-repeat">±{repeatPct.toFixed(2)}%</span>
+                            )}
+                            {sysCls && (
+                              <span className={sysClsClassName} title={`Resolution ${resCls || '—'} · Standard ${test.standard.referenceClass} · Repeat ${repCls || '—'} · Error ${errCls || '—'}`}>
+                                Class {sysCls}
+                              </span>
                             )}
                           </div>
                         </>

@@ -2,7 +2,7 @@
 // Triggers window.print(); the @media print styles in print.css strip the
 // app chrome and lay out the cert as a clean A4 document.
 
-import { STANDARDS, tolerancesFor, classifyError, repeatError, meanIndicated } from '../test'
+import { STANDARDS, tolerancesFor, classifyError, repeatError, meanIndicated, classOf, resolutionPct, systemClass } from '../test'
 import { unitLabel, canConvert, convert } from '../units'
 
 export function PreviewScreen({ test, ranges }) {
@@ -81,15 +81,23 @@ export function PreviewScreen({ test, ranges }) {
               <table className="cert-table">
                 <thead>
                   <tr>
-                    <th>#</th>
-                    <th>Applied{unit && <small> ({unit})</small>}</th>
+                    <th rowSpan="2">#</th>
+                    <th rowSpan="2">Applied{unit && <small> ({unit})</small>}</th>
+                    <th colSpan={runCount}>Indicated runs</th>
+                    <th rowSpan="2">Mean</th>
+                    <th rowSpan="2">Resolution %</th>
+                    <th colSpan="4">Class (per ISO 7500-1)</th>
+                    <th rowSpan="2">Error %</th>
+                    <th rowSpan="2">Repeat %</th>
+                  </tr>
+                  <tr>
                     {Array.from({ length: runCount }).map((_, ri2) => (
-                      <th key={ri2}>Run {ri2 + 1}</th>
+                      <th key={ri2}>R{ri2 + 1}</th>
                     ))}
-                    <th>Mean</th>
-                    <th>Error %</th>
-                    <th>Repeat %</th>
-                    <th>Class</th>
+                    <th>Res.</th>
+                    <th>Std.</th>
+                    <th>Rep.</th>
+                    <th>Sys.</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -98,20 +106,27 @@ export function PreviewScreen({ test, ranges }) {
                     const mean = meanIndicated(runs)
                     const errPct = (mean != null && s.value !== 0) ? ((mean - s.value) / s.value) * 100 : null
                     const repPct = repeatError(runs)
-                    const cls = classifyError(errPct, tol.errMax)
+                    const resPct = resolutionPct(range.resolution, s.value)
+                    const resCls = classOf(resPct, 'resolution')
+                    const repCls = classOf(repPct)
+                    const errCls = classOf(errPct)
+                    const sysCls = systemClass(resCls, test.standard.referenceClass, repCls, errCls)
+                    const rowCls = classifyError(errPct, tol.errMax)
                     return (
-                      <tr key={i} className={`cert-row cert-row--${cls}`}>
+                      <tr key={i} className={`cert-row cert-row--${rowCls}`}>
                         <td>{s.number}</td>
                         <td className="num">{s.value.toFixed(3)}</td>
                         {Array.from({ length: runCount }).map((_, ri2) => (
                           <td key={ri2} className="num">{fmt(runs[ri2])}</td>
                         ))}
                         <td className="num">{mean != null ? mean.toFixed(3) : '—'}</td>
+                        <td className="num">{resPct != null ? resPct.toFixed(3) : '—'}</td>
+                        <td className="num">{resCls || '—'}</td>
+                        <td className="num">{test.standard.referenceClass}</td>
+                        <td className="num">{repCls || '—'}</td>
+                        <td className={`num cert-cls cert-cls--${rowCls}`}>{sysCls || '—'}</td>
                         <td className="num">{errPct != null ? errPct.toFixed(3) : '—'}</td>
                         <td className="num">{repPct != null ? repPct.toFixed(3) : '—'}</td>
-                        <td className={`cert-cls cert-cls--${cls}`}>
-                          {cls === 'ok' ? '✓' : cls === 'warn' ? '!' : cls === 'bad' ? '✗' : '—'}
-                        </td>
                       </tr>
                     )
                   })}
