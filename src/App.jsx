@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import './styles.css'
 import {
   SunIcon, MoonIcon,
@@ -14,6 +14,15 @@ import {
 import {
   GRAVITY_DB, COUNTRY_ORDER, regionsFor, gravityFor, findLocation,
 } from './gravityDatabase'
+import {
+  STEPS, defaultTest, loadTest, saveTest, stepStatus,
+  tolerancesFor, classifyError, repeatError, meanIndicated,
+} from './test'
+import { SiteScreen } from './screens/SiteScreen'
+import { EquipmentScreen } from './screens/EquipmentScreen'
+import { StandardScreen } from './screens/StandardScreen'
+import { NotesScreen } from './screens/NotesScreen'
+import { PreviewScreen } from './screens/PreviewScreen'
 import logoImg from '/logo.png'
 
 let nextRangeId = 1
@@ -123,21 +132,27 @@ function loadMetadata() {
 }
 
 function App() {
-  const [ranges, setRanges] = useState([createRange()])
+  // The whole calibration test document — everything except `ranges`
+  // (which keeps its richer existing shape with results + edit history).
+  const [test, setTest] = useState(loadTest)
+  const [ranges, setRanges] = useState(() => {
+    const loaded = loadTest()
+    return loaded.__ranges?.length ? loaded.__ranges : [createRange()]
+  })
   const [focusedInput, setFocusedInput] = useState(null)
   const [calcSuccess, setCalcSuccess] = useState(null)
   const [showLogoModal, setShowLogoModal] = useState(false)
   const [showAbout, setShowAbout] = useState(false)
-  const [showSetup, setShowSetup] = useState(false)
-  const [metadata, setMetadata] = useState(loadMetadata)
 
-  const updateMeta = (patch) => {
-    setMetadata(prev => {
-      const next = { ...prev, ...patch }
-      try { localStorage.setItem(META_STORAGE_KEY, JSON.stringify(next)) } catch (e) { void e }
-      return next
-    })
-  }
+  // Auto-save the document on any change. Lightweight enough — JSON
+  // serialise of ~5 KB tops on a typical session, runs at React commit.
+  useEffect(() => {
+    saveTest({ ...test, __ranges: ranges })
+  }, [test, ranges])
+
+  const patchTest = (updates) => setTest(prev => ({ ...prev, ...updates }))
+  const setActiveStep = (id) => patchTest({ activeStep: id })
+  const activeStep = test.activeStep || 'site'
 
   const [isDarkMode, toggleTheme] = useSystemTheme()
   const resultsRef = useRef(null)
@@ -225,11 +240,14 @@ function App() {
     }, 80)
   }
 
-  const handleIndicatedEdit = (rangeId, index, newValue) => {
+  const handleRunEdit = (rangeId, index, runIdx, newValue) => {
     setRanges(prev => prev.map(range => {
       if (range.id !== rangeId) return range
       const r = [...range.results]
-      r[index] = { ...r[index], indicated: newValue }
+      const runs = (r[index].runs && [...r[index].runs]) || Array(test.standard.runs).fill('')
+      while (runs.length < test.standard.runs) runs.push('')
+      runs[runIdx] = newValue
+      r[index] = { ...r[index], runs, indicated: runs[0] }
       return { ...range, results: r }
     }))
   }
@@ -375,62 +393,40 @@ function App() {
         {/* App title bento */}
         <section className="section">
           <div className="card title-card">
-            <div className="title-card-text">Step Sequence Calculator</div>
+            <div className="title-card-text">
+              Calibration Suite
+              <span className="title-card-sub">
+                {test.standard.id.toUpperCase()} · Class {test.standard.accuracyClass} · {test.standard.mode}
+              </span>
+            </div>
           </div>
         </section>
 
-        {/* Calibration setup metadata — collapsible, persisted to localStorage */}
-        <section className="section">
-          <button className="section-toggle" onClick={() => setShowSetup(v => !v)}
-            aria-expanded={showSetup}>
-            <ChevronIcon expanded={showSetup} />
-            <span className="section-header">Setup &amp; instrument</span>
-          </button>
-          {showSetup && (
-            <div className="card">
-              <MetaRow id="m-instCat" label="Instrument cat. no." value={metadata.instrumentCat}
-                onChange={v => updateMeta({ instrumentCat: v })} />
-              <MetaRow id="m-instSerial" label="Instrument serial no." value={metadata.instrumentSerial}
-                onChange={v => updateMeta({ instrumentSerial: v })} />
-              <div className="card-row">
-                <label className="card-row-label" htmlFor="m-capacity">Capacity</label>
-                <div className="capacity-picker">
-                  <input id="m-capacity" className="input capacity-input" type="text" inputMode="decimal"
-                    placeholder="10" value={metadata.capacity}
-                    onChange={e => updateMeta({ capacity: e.target.value })} />
-                  <input className="input capacity-unit-input" type="text" placeholder="N"
-                    aria-label="Capacity unit"
-                    value={metadata.capacityUnit}
-                    onChange={e => updateMeta({ capacityUnit: e.target.value })} />
-                </div>
-              </div>
-              <MetaRow id="m-stdDev" label="Std device" value={metadata.stdDevice}
-                onChange={v => updateMeta({ stdDevice: v })}
-                placeholder="e.g. Weights Ltd Mass Set" />
-              <MetaRow id="m-stdInd" label="Std indicator" value={metadata.stdIndicator}
-                onChange={v => updateMeta({ stdIndicator: v })} />
-              <MetaRow id="m-operator" label="Operator" value={metadata.operator}
-                onChange={v => updateMeta({ operator: v })} />
-              <div className="card-row">
-                <label className="card-row-label">Temperature °C</label>
-                <div className="temp-picker">
-                  <input className="input temp-input" type="text" inputMode="decimal" placeholder="Min"
-                    aria-label="Min temperature"
-                    value={metadata.tempMin}
-                    onChange={e => updateMeta({ tempMin: e.target.value })} />
-                  <span className="temp-sep">–</span>
-                  <input className="input temp-input" type="text" inputMode="decimal" placeholder="Max"
-                    aria-label="Max temperature"
-                    value={metadata.tempMax}
-                    onChange={e => updateMeta({ tempMax: e.target.value })} />
-                </div>
-              </div>
-              <MetaRow id="m-cert" label="Cert. no." value={metadata.certNo}
-                onChange={v => updateMeta({ certNo: v })} />
-            </div>
-          )}
-        </section>
+        {/* Wizard nav — horizontal scrollable pills */}
+        <nav className="wizard-nav" aria-label="Calibration steps">
+          {STEPS.map(step => {
+            const status = stepStatus(test, ranges, step.id)
+            const isActive = activeStep === step.id
+            return (
+              <button key={step.id} type="button"
+                className={`wizard-pill${isActive ? ' wizard-pill--active' : ''}${status === 'complete' ? ' wizard-pill--done' : ''}`}
+                onClick={() => setActiveStep(step.id)}
+                aria-current={isActive ? 'step' : undefined}>
+                <span className="wizard-pill-n">{status === 'complete' ? '✓' : step.n}</span>
+                <span className="wizard-pill-label">{step.label}</span>
+              </button>
+            )
+          })}
+        </nav>
 
+        {/* Step content */}
+        {activeStep === 'site'      && <SiteScreen      test={test} patch={patchTest} />}
+        {activeStep === 'equipment' && <EquipmentScreen test={test} patch={patchTest} />}
+        {activeStep === 'standard'  && <StandardScreen  test={test} patch={patchTest} />}
+        {activeStep === 'notes'     && <NotesScreen     test={test} patch={patchTest} />}
+        {activeStep === 'preview'   && <PreviewScreen   test={test} ranges={ranges} />}
+
+        {activeStep === 'ranges' && (<>
         {/* Range Inputs */}
         {ranges.map((range, ri) => (
           <section className="section" key={range.id}>
@@ -758,8 +754,19 @@ function App() {
             </div>
           </section>
         )}
+        </>)}
 
-        {/* Results */}
+        {/* Results — gated to verify step */}
+        {activeStep === 'verify' && (<>
+        {!hasAnyResults && (
+          <section className="section">
+            <div className="card title-card">
+              <div className="title-card-text">
+                No results yet. Go to <button className="link-btn" onClick={() => setActiveStep('ranges')}>Ranges</button> and press Calculate.
+              </div>
+            </div>
+          </section>
+        )}
         {ranges.map((range, ri) => {
           if (range.results.length === 0) return null
 
@@ -824,8 +831,8 @@ function App() {
                 <div className={`results-header${cal ? ' results-header--cal' : ''}`}>
                   <span className="results-header-cell">#</span>
                   <span className="results-header-cell">Applied</span>
-                  {cal && <span className="results-header-cell">Indicated</span>}
-                  {cal && <span className="results-header-cell">Error</span>}
+                  {cal && <span className="results-header-cell">{test.standard.runs > 1 ? `${test.standard.runs} Runs` : 'Indicated'}</span>}
+                  {cal && <span className="results-header-cell">Error / Repeat</span>}
                   {!cal && <span className="results-header-cell">Delta</span>}
                 </div>
 
@@ -837,15 +844,17 @@ function App() {
                   const rangeSpan = e - s
                   const pct = rangeSpan !== 0 ? ((step.value - s) / rangeSpan) * 100 : 0
                   const secondaryValue = secondaryOf(step.value)
-                  const indicatedRaw = step.indicated ?? ''
-                  const indicatedNum = parseFloat(indicatedRaw)
-                  const errorPct = (Number.isFinite(indicatedNum) && step.value !== 0)
-                    ? ((indicatedNum - step.value) / step.value) * 100
+                  const runs = step.runs && step.runs.length
+                    ? step.runs
+                    : Array(test.standard.runs).fill(step.indicated ?? '')
+                  const mean = meanIndicated(runs)
+                  const errorPct = (mean != null && step.value !== 0)
+                    ? ((mean - step.value) / step.value) * 100
                     : null
-                  const errorClass = errorPct == null ? ''
-                    : Math.abs(errorPct) < 1   ? 'cal-error--ok'
-                    : Math.abs(errorPct) < 2   ? 'cal-error--warn'
-                    :                            'cal-error--bad'
+                  const repeatPct = repeatError(runs)
+                  const tol = tolerancesFor(test)
+                  const errClass = classifyError(errorPct, tol.errMax)
+                  const errorClass = errClass ? `cal-error--${errClass}` : ''
 
                   return (
                     <div key={step.number}
@@ -872,15 +881,24 @@ function App() {
                       </div>
                       {cal ? (
                         <>
-                          <input type="number" className="cal-indicated"
-                            placeholder="—"
-                            inputMode="decimal" step="any"
-                            aria-label={`Indicated value for step ${step.number}`}
-                            value={indicatedRaw}
-                            onChange={ev => handleIndicatedEdit(range.id, i, ev.target.value)} />
-                          <span className={`cal-error ${errorClass}`}>
-                            {errorPct == null ? '—' : `${errorPct >= 0 ? '+' : ''}${errorPct.toFixed(2)}%`}
-                          </span>
+                          <div className="cal-runs">
+                            {Array.from({ length: test.standard.runs }).map((_, ri2) => (
+                              <input key={ri2} type="number" className="cal-indicated"
+                                placeholder={`Run ${ri2 + 1}`}
+                                inputMode="decimal" step="any"
+                                aria-label={`Step ${step.number} run ${ri2 + 1}`}
+                                value={runs[ri2] ?? ''}
+                                onChange={ev => handleRunEdit(range.id, i, ri2, ev.target.value)} />
+                            ))}
+                          </div>
+                          <div className="cal-stats">
+                            <span className={`cal-error ${errorClass}`}>
+                              {errorPct == null ? '—' : `${errorPct >= 0 ? '+' : ''}${errorPct.toFixed(2)}%`}
+                            </span>
+                            {repeatPct != null && (
+                              <span className="cal-repeat">±{repeatPct.toFixed(2)}%</span>
+                            )}
+                          </div>
                         </>
                       ) : isLast ? (
                         <span className="result-delta result-delta--neutral">
@@ -905,6 +923,7 @@ function App() {
             </section>
           )
         })}
+        </>)}
 
         {/* About — collapsible */}
         <section className="section">
