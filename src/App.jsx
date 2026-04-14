@@ -11,8 +11,34 @@ import logoImg from '/logo.png'
 
 let nextRangeId = 1
 
+// Percentage presets for calibration workflows.
+// ISO 7500-1 (uniaxial testing machines), ISO 9513 (extensometers),
+// ISO 376 (force-proving instruments) — each calls for verification at
+// defined percentage points of the working range rather than even spacing.
+const PERCENT_PRESETS = {
+  'iso-7500-low':  { label: 'ISO 7500 — low range',        values: [0, 2, 5, 10, 20, 40, 60, 80, 100] },
+  'iso-7500':      { label: 'ISO 7500-1 (5-point)',        values: [20, 40, 60, 80, 100] },
+  'iso-7500-zero': { label: 'ISO 7500-1 + 0% preload',     values: [0, 20, 40, 60, 80, 100] },
+  'iso-9513':      { label: 'ISO 9513 (5-point)',          values: [20, 40, 60, 80, 100] },
+  'iso-376':       { label: 'ISO 376 (10-point)',          values: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100] },
+  'custom':        { label: 'Custom',                       values: null },
+}
+
+const DEFAULT_PRESET = 'iso-7500-low'
+const presetToList = (key) => (PERCENT_PRESETS[key]?.values ?? []).join(', ')
+
 function createRange() {
-  return { id: nextRangeId++, start: '', end: '', steps: '', results: [], error: '' }
+  return {
+    id: nextRangeId++,
+    start: '',
+    end: '',
+    steps: '',
+    mode: 'absolute',
+    preset: DEFAULT_PRESET,
+    percentList: presetToList(DEFAULT_PRESET),
+    results: [],
+    error: '',
+  }
 }
 
 function App() {
@@ -41,13 +67,51 @@ function App() {
     setRanges(prev => prev.map(range => {
       const startValue = parseFloat(range.start)
       const endValue = parseFloat(range.end)
-      const numSteps = parseInt(range.steps)
 
-      if (isNaN(startValue) || isNaN(endValue) || isNaN(numSteps)) {
+      if (isNaN(startValue) || isNaN(endValue)) {
         return { ...range, error: 'Please fill in all fields with valid numbers.', results: [] }
       }
       if (startValue === endValue) {
         return { ...range, error: 'Start and end values must be different.', results: [] }
+      }
+
+      if (range.mode === 'percentage') {
+        const parsed = (range.percentList || '')
+          .split(/[,\s]+/)
+          .map(s => s.trim())
+          .filter(s => s.length > 0)
+          .map(Number)
+        if (parsed.some(n => !Number.isFinite(n))) {
+          return { ...range, error: 'Percentage list must contain numbers only (e.g. 0, 20, 40, 60, 80, 100).', results: [] }
+        }
+        const uniqueSorted = Array.from(new Set(parsed)).sort((a, b) => a - b)
+        if (uniqueSorted.length < 2) {
+          return { ...range, error: 'Provide at least two distinct percentage points.', results: [] }
+        }
+
+        const span = endValue - startValue
+        // Preserve the user's written order so a descending Start→End range
+        // produces a descending sequence (100 → 0), matching absolute-mode feel.
+        const descending = span < 0
+        const ordered = descending ? uniqueSorted.slice().reverse() : uniqueSorted
+
+        const results = ordered.map((p, i) => {
+          const value = startValue + (p / 100) * span
+          const prev = i === 0 ? startValue : startValue + (ordered[i - 1] / 100) * span
+          return {
+            number: startValue === 0 ? i : i + 1,
+            value,
+            stepSize: i === 0 ? 0 : value - prev,
+            percent: p,
+          }
+        })
+
+        return { ...range, results, error: '' }
+      }
+
+      const numSteps = parseInt(range.steps)
+      if (isNaN(numSteps)) {
+        return { ...range, error: 'Please fill in all fields with valid numbers.', results: [] }
       }
       if (numSteps < 2) {
         return { ...range, error: 'Number of steps must be at least 2.', results: [] }
@@ -77,19 +141,30 @@ function App() {
     setRanges(prev => prev.map(range => {
       if (range.id !== rangeId) return range
       const r = [...range.results]
-      const endValue = parseFloat(range.end)
-      r[index].value = v
+      r[index] = { ...r[index], value: v }
 
+      if (range.mode === 'percentage') {
+        // ISO percentage points are fixed by the standard; only recompute
+        // the deltas adjacent to the edited row — don't redistribute the rest.
+        if (index > 0) {
+          r[index] = { ...r[index], stepSize: v - r[index - 1].value }
+        }
+        if (index < r.length - 1) {
+          r[index + 1] = { ...r[index + 1], stepSize: r[index + 1].value - v }
+        }
+        return { ...range, results: r }
+      }
+
+      const endValue = parseFloat(range.end)
       if (index < r.length - 1) {
         const remaining = r.length - index - 1
         const s = (endValue - v) / remaining
         for (let i = index + 1; i < r.length; i++) {
-          r[i].value = v + (i - index) * s
-          r[i].stepSize = s
+          r[i] = { ...r[i], value: v + (i - index) * s, stepSize: s }
         }
       }
-      if (index > 0) r[index - 1].stepSize = v - r[index - 1].value
-      if (index < r.length - 1) r[index].stepSize = r[index + 1].value - v
+      if (index > 0) r[index - 1] = { ...r[index - 1], stepSize: v - r[index - 1].value }
+      if (index < r.length - 1) r[index] = { ...r[index], stepSize: r[index + 1].value - v }
 
       return { ...range, results: r }
     }))
@@ -176,6 +251,20 @@ function App() {
               )}
             </div>
             <div className="card">
+              <div className="card-row mode-toggle" role="tablist" aria-label="Step input mode">
+                <button type="button" role="tab"
+                  aria-selected={range.mode === 'absolute'}
+                  className={`mode-btn${range.mode === 'absolute' ? ' mode-btn--active' : ''}`}
+                  onClick={() => updateRange(range.id, { mode: 'absolute' })}>
+                  Absolute
+                </button>
+                <button type="button" role="tab"
+                  aria-selected={range.mode === 'percentage'}
+                  className={`mode-btn${range.mode === 'percentage' ? ' mode-btn--active' : ''}`}
+                  onClick={() => updateRange(range.id, { mode: 'percentage' })}>
+                  Percentage
+                </button>
+              </div>
               <div className={`card-row${focusedInput === `start-${range.id}` ? ' card-row--focused' : ''}`}>
                 <label className="card-row-label" htmlFor={`start-${range.id}`}>
                   <RulerIcon /> Start
@@ -196,19 +285,59 @@ function App() {
                   onFocus={() => setFocusedInput(`end-${range.id}`)}
                   onBlur={() => setFocusedInput(null)} />
               </div>
-              <div className={`card-row${focusedInput === `steps-${range.id}` ? ' card-row--focused' : ''}`}>
-                <label className="card-row-label" htmlFor={`steps-${range.id}`}>
-                  <HashIcon /> Steps
-                </label>
-                <input className="input" type="number" inputMode="numeric" id={`steps-${range.id}`}
-                  min="2" placeholder="Min. 2" value={range.steps}
-                  onChange={e => updateRange(range.id, { steps: e.target.value })}
-                  onFocus={() => setFocusedInput(`steps-${range.id}`)}
-                  onBlur={() => setFocusedInput(null)} />
-              </div>
+              {range.mode === 'absolute' ? (
+                <div className={`card-row${focusedInput === `steps-${range.id}` ? ' card-row--focused' : ''}`}>
+                  <label className="card-row-label" htmlFor={`steps-${range.id}`}>
+                    <HashIcon /> Steps
+                  </label>
+                  <input className="input" type="number" inputMode="numeric" id={`steps-${range.id}`}
+                    min="2" placeholder="Min. 2" value={range.steps}
+                    onChange={e => updateRange(range.id, { steps: e.target.value })}
+                    onFocus={() => setFocusedInput(`steps-${range.id}`)}
+                    onBlur={() => setFocusedInput(null)} />
+                </div>
+              ) : (
+                <>
+                  <div className={`card-row${focusedInput === `preset-${range.id}` ? ' card-row--focused' : ''}`}>
+                    <label className="card-row-label" htmlFor={`preset-${range.id}`}>
+                      <RulerIcon /> Preset
+                    </label>
+                    <select className="input input--select" id={`preset-${range.id}`}
+                      value={range.preset}
+                      onChange={e => {
+                        const key = e.target.value
+                        updateRange(range.id, {
+                          preset: key,
+                          ...(key !== 'custom' ? { percentList: presetToList(key) } : {}),
+                        })
+                      }}
+                      onFocus={() => setFocusedInput(`preset-${range.id}`)}
+                      onBlur={() => setFocusedInput(null)}>
+                      {Object.entries(PERCENT_PRESETS).map(([key, { label }]) => (
+                        <option key={key} value={key}>{label}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className={`card-row${focusedInput === `percent-${range.id}` ? ' card-row--focused' : ''}`}>
+                    <label className="card-row-label" htmlFor={`percent-${range.id}`}>
+                      <HashIcon /> Points %
+                    </label>
+                    <input className="input" type="text" inputMode="decimal" id={`percent-${range.id}`}
+                      placeholder="0, 2, 5, 10, 20, 40, 60, 80, 100"
+                      value={range.percentList}
+                      onChange={e => updateRange(range.id, { percentList: e.target.value, preset: 'custom' })}
+                      onFocus={() => setFocusedInput(`percent-${range.id}`)}
+                      onBlur={() => setFocusedInput(null)} />
+                  </div>
+                </>
+              )}
             </div>
             {ri === 0 && !hasAnyResults && (
-              <p className="section-footer">Enter start, end, and number of steps to generate a sequence.</p>
+              <p className="section-footer">
+                {range.mode === 'absolute'
+                  ? 'Enter start, end, and number of steps to generate a sequence.'
+                  : 'Enter full-scale start and end, then choose a calibration preset (ISO 7500 / 9513 / 376) or edit the percentage list.'}
+              </p>
             )}
             {range.error && (
               <div className="error" role="alert">
@@ -357,6 +486,11 @@ function App() {
                     Create multiple ranges with different parameters. Edit any
                     calculated value and subsequent steps recalculate automatically.
                     Export results as CSV.
+                  </p>
+                  <p>
+                    Switch a range to Percentage mode to generate calibration
+                    sequences from ISO 7500-1, ISO 9513, or ISO 376 preset points,
+                    or enter a custom percentage list.
                   </p>
                 </div>
                 <div className="about-separator" />
