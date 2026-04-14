@@ -8,7 +8,7 @@ import {
 } from './components/Icons'
 import { useSystemTheme } from './hooks/useSystemTheme'
 import {
-  UNIT_GROUPS, GROUP_ORDER, GRAVITY_PRESETS, STANDARD_GRAVITY,
+  UNIT_GROUPS, GROUP_ORDER, GRAVITY_PRESETS, GRAVITY_PRESET_GROUPS, STANDARD_GRAVITY,
   convert, canConvert, needsGravity, unitLabel, secondaryOptionsFor,
 } from './units'
 import logoImg from '/logo.png'
@@ -50,22 +50,11 @@ function createRange() {
   }
 }
 
-// Explains which gravity — if any — applies to the chosen unit pair.
-// kgf/gf/lbf/ozf are defined against standard g₀ by ISO/convention, so
-// local gravity doesn't change the math. Mass secondaries (kg, g, lb…)
-// on a force primary do depend on local g.
-const STANDARD_G_FORCE_UNITS = new Set(['kgf', 'gf', 'lbf', 'ozf'])
-
+// Shows the live gravity value beneath the picker when it actually affects
+// the result (pure-force ↔ kgf/gf/lbf/ozf, or force ↔ mass).
 function conversionHint(range) {
-  const p = range.unit, s = range.secondaryUnit
-  if (!p || !s) return null
-  if (needsGravity(p, s)) {
-    return `Uses local gravity g = ${Number(range.gravity).toFixed(4)} m/s² for deadweight conversion.`
-  }
-  if (STANDARD_G_FORCE_UNITS.has(s) || STANDARD_G_FORCE_UNITS.has(p)) {
-    return `${unitLabel(p)} ↔ ${unitLabel(s)} uses standard g₀ = 9.80665 m/s² (definition). For local-g deadweight, pick 'kg' as secondary.`
-  }
-  return null
+  if (!needsGravity(range.unit, range.secondaryUnit)) return null
+  return `${unitLabel(range.unit)} ↔ ${unitLabel(range.secondaryUnit)} uses local gravity g = ${Number(range.gravity).toFixed(4)} m/s².`
 }
 
 // Human-readable summary of the current unit/gravity config, shown on the
@@ -399,8 +388,12 @@ function App() {
                               ...(preset && preset.value != null ? { gravity: preset.value } : {}),
                             })
                           }}>
-                          {Object.entries(GRAVITY_PRESETS).map(([key, { label }]) => (
-                            <option key={key} value={key}>{label}</option>
+                          {GRAVITY_PRESET_GROUPS.map(group => (
+                            <optgroup key={group.label} label={group.label}>
+                              {group.keys.map(key => (
+                                <option key={key} value={key}>{GRAVITY_PRESETS[key].label}</option>
+                              ))}
+                            </optgroup>
                           ))}
                         </select>
                       </div>

@@ -5,26 +5,108 @@
 // Mass via F = m·g, using a per-range local gravity (default ISO 80000-3
 // standard gravity, 9.80665 m/s²).
 //
-// Linear units share a multiplicative factor to the group's base unit.
-// Temperature is non-linear and therefore stores explicit toBase/fromBase
-// functions — every unit uses the same functional shape so the converter
-// never has to branch on "is this temperature?".
+// Force units split into two kinds:
+//   - Pure-force (N, kN, mN, MN) — linear, independent of gravity.
+//   - Gravity-dependent (kgf, gf, lbf, ozf) — defined as "force of a
+//     reference mass under gravity", so conversions to/from pure force
+//     scale with the local gravity the user supplies. This matches what
+//     calibration labs actually do when quoting deadweight-produced force
+//     at their location, rather than the strict ISO definition that
+//     bakes in standard g₀.
+//
+// Temperature uses explicit toBase/fromBase because it isn't linear;
+// every unit uses the same functional shape so the converter never has to
+// branch on "is this temperature?".
 
 export const STANDARD_GRAVITY = 9.80665 // ISO 80000-3 (m/s²)
 
+// Gravity presets organised by region for <optgroup> rendering.
+// Values are typical local g in m/s² for each city (published surveys or
+// IGF model estimates). Users can always switch to Custom.
 export const GRAVITY_PRESETS = {
-  standard:  { label: 'Standard g₀ (9.80665)', value: 9.80665 },
-  stockholm: { label: 'Stockholm ≈59°N',        value: 9.8182 },
-  london:    { label: 'London ≈51°N',           value: 9.8119 },
-  zurich:    { label: 'Zürich ≈47°N',           value: 9.8072 },
-  equator:   { label: 'Equator 0°',             value: 9.780  },
-  poles:     { label: 'Poles 90°',              value: 9.832  },
-  custom:    { label: 'Custom',                 value: null   },
+  standard:     { label: 'Standard g₀ (9.80665)', value: 9.80665 },
+  equator:      { label: 'Equator 0°',            value: 9.7803  },
+  poles:        { label: 'Poles 90°',             value: 9.8322  },
+
+  // Europe
+  reykjavik:    { label: 'Reykjavík',              value: 9.8226  },
+  oslo:         { label: 'Oslo',                   value: 9.8191  },
+  stockholm:    { label: 'Stockholm',              value: 9.8182  },
+  helsinki:     { label: 'Helsinki',               value: 9.8189  },
+  copenhagen:   { label: 'Copenhagen',             value: 9.8157  },
+  moscow:       { label: 'Moscow',                 value: 9.8155  },
+  amsterdam:    { label: 'Amsterdam',              value: 9.8133  },
+  berlin:       { label: 'Berlin',                 value: 9.8128  },
+  warsaw:       { label: 'Warsaw',                 value: 9.8121  },
+  london:       { label: 'London',                 value: 9.8119  },
+  vienna:       { label: 'Vienna',                 value: 9.8094  },
+  paris:        { label: 'Paris',                  value: 9.8094  },
+  zurich:       { label: 'Zürich',                 value: 9.8072  },
+  rome:         { label: 'Rome',                   value: 9.8034  },
+  madrid:       { label: 'Madrid',                 value: 9.7998  },
+
+  // Americas
+  toronto:      { label: 'Toronto',                value: 9.8049  },
+  chicago:      { label: 'Chicago',                value: 9.8031  },
+  new_york:     { label: 'New York',               value: 9.8024  },
+  washington:   { label: 'Washington DC',          value: 9.8010  },
+  san_francisco:{ label: 'San Francisco',          value: 9.7996  },
+  denver:       { label: 'Denver (high alt.)',     value: 9.7962  },
+  los_angeles:  { label: 'Los Angeles',            value: 9.7959  },
+  houston:      { label: 'Houston',                value: 9.7925  },
+  sao_paulo:    { label: 'São Paulo',              value: 9.7866  },
+  mexico_city:  { label: 'Mexico City (high alt.)',value: 9.7793  },
+
+  // Asia-Pacific
+  seoul:        { label: 'Seoul',                  value: 9.7996  },
+  beijing:      { label: 'Beijing',                value: 9.8015  },
+  tokyo:        { label: 'Tokyo',                  value: 9.7981  },
+  sydney:       { label: 'Sydney',                 value: 9.7963  },
+  shanghai:     { label: 'Shanghai',               value: 9.7940  },
+  mumbai:       { label: 'Mumbai',                 value: 9.7866  },
+  singapore:    { label: 'Singapore',              value: 9.7811  },
+
+  // Africa & Middle East
+  cape_town:    { label: 'Cape Town',              value: 9.7963  },
+  cairo:        { label: 'Cairo',                  value: 9.7931  },
+  dubai:        { label: 'Dubai',                   value: 9.7868  },
+
+  custom:       { label: 'Custom',                 value: null    },
 }
 
+// Rendering order: <optgroup>s group the presets above into regions.
+export const GRAVITY_PRESET_GROUPS = [
+  { label: 'Reference',
+    keys: ['standard', 'equator', 'poles'] },
+  { label: 'Europe',
+    keys: ['reykjavik', 'oslo', 'stockholm', 'helsinki', 'copenhagen', 'moscow',
+           'amsterdam', 'berlin', 'warsaw', 'london', 'vienna', 'paris',
+           'zurich', 'rome', 'madrid'] },
+  { label: 'Americas',
+    keys: ['toronto', 'chicago', 'new_york', 'washington', 'san_francisco',
+           'denver', 'los_angeles', 'houston', 'sao_paulo', 'mexico_city'] },
+  { label: 'Asia-Pacific',
+    keys: ['seoul', 'beijing', 'tokyo', 'sydney', 'shanghai', 'mumbai', 'singapore'] },
+  { label: 'Africa & Middle East',
+    keys: ['cape_town', 'cairo', 'dubai'] },
+  { label: 'Custom',
+    keys: ['custom'] },
+]
+
+// Linear unit: value_base = value × factor. Gravity-independent.
 const linear = (factor) => ({
-  toBase:   v => v * factor,
-  fromBase: v => v / factor,
+  gravityDep: false,
+  toBase:   v      => v * factor,
+  fromBase: v      => v / factor,
+})
+
+// Gravity-dependent force unit: the unit represents "force of massKg of
+// mass under gravity g". base N = v × massKg × g.
+const gravityForce = (massKg) => ({
+  gravityDep: true,
+  massKg,
+  toBase:   (v, g = STANDARD_GRAVITY) => v * massKg * g,
+  fromBase: (v, g = STANDARD_GRAVITY) => v / (massKg * g),
 })
 
 export const UNIT_GROUPS = {
@@ -41,10 +123,10 @@ export const UNIT_GROUPS = {
       mN:  { label: 'mN',  ...linear(1e-3) },
       kN:  { label: 'kN',  ...linear(1e3) },
       MN:  { label: 'MN',  ...linear(1e6) },
-      kgf: { label: 'kgf', ...linear(9.80665) },
-      gf:  { label: 'gf',  ...linear(0.00980665) },
-      lbf: { label: 'lbf', ...linear(4.4482216152605) },
-      ozf: { label: 'ozf', ...linear(0.278013850953781) },
+      kgf: { label: 'kgf', ...gravityForce(1) },
+      gf:  { label: 'gf',  ...gravityForce(1e-3) },
+      lbf: { label: 'lbf', ...gravityForce(0.45359237) },
+      ozf: { label: 'ozf', ...gravityForce(0.028349523125) },
     },
   },
   mass: {
@@ -145,20 +227,33 @@ export function unitLabel(unitId) {
   return u.label
 }
 
-// Force ↔ Mass is the only cross-group pair we support; it uses F = m·g.
+// True iff the conversion formula actually involves g.
+//   N ↔ kgf: YES (pure-force ↔ gravity-dep force)
+//   N ↔ kg:  YES (cross-group force↔mass, F=mg)
+//   kgf ↔ kg: NO (both scale linearly with g, so it cancels — and by
+//                  definition of kgf, 1 kgf numerically equals 1 kg)
+//   kgf ↔ lbf: NO (both scale with g, cancels)
+//   N ↔ mN: NO (both pure-force, linear factor)
 export function needsGravity(fromId, toId) {
   if (!fromId || !toId) return false
+  const from = findUnit(fromId), to = findUnit(toId)
+  if (!from || !to) return false
   const fg = findGroup(fromId), tg = findGroup(toId)
-  return (fg === 'force' && tg === 'mass') || (fg === 'mass' && tg === 'force')
+  const pureForce = (u, g) => g === 'force' && !u.gravityDep
+  const gravForce = (u, g) => g === 'force' && u.gravityDep
+  const isMass    = g => g === 'mass'
+  const fP = pureForce(from, fg), fG = gravForce(from, fg), fM = isMass(fg)
+  const tP = pureForce(to, tg),   tG = gravForce(to, tg),   tM = isMass(tg)
+  return (fP && (tG || tM)) || (tP && (fG || fM))
 }
 
 export function canConvert(fromId, toId) {
-  if (fromId === '' || toId === '' || fromId == null || toId == null) return false
+  if (!fromId || !toId) return false
   if (fromId === toId) return true
   const fg = findGroup(fromId), tg = findGroup(toId)
   if (!fg || !tg || fg === 'dimensionless' || tg === 'dimensionless') return false
   if (fg === tg) return true
-  return needsGravity(fromId, toId)
+  return (fg === 'force' && tg === 'mass') || (fg === 'mass' && tg === 'force')
 }
 
 export function convert(value, fromId, toId, gravity = STANDARD_GRAVITY) {
@@ -168,12 +263,13 @@ export function convert(value, fromId, toId, gravity = STANDARD_GRAVITY) {
   const to = findUnit(toId)
   const fg = findGroup(fromId)
   const tg = findGroup(toId)
-  let base = from.toBase(value) // N, kg, Pa, m, V, A, N·m, or K
+  // Pass gravity into toBase/fromBase — linear units simply ignore it.
+  let base = from.toBase(value, gravity)
   if (fg !== tg) {
     if (fg === 'force' && tg === 'mass') base = base / gravity
     else if (fg === 'mass' && tg === 'force') base = base * gravity
   }
-  return to.fromBase(base)
+  return to.fromBase(base, gravity)
 }
 
 // Secondary-unit options for a given primary: all units in the same group
