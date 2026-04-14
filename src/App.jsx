@@ -9,7 +9,7 @@ import {
 import { useSystemTheme } from './hooks/useSystemTheme'
 import {
   UNIT_GROUPS, GROUP_ORDER, GRAVITY_PRESETS, GRAVITY_PRESET_GROUPS, STANDARD_GRAVITY,
-  convert, canConvert, needsGravity, unitLabel, secondaryOptionsFor,
+  convert, canConvert, needsGravity, unitLabel, secondaryOptionsFor, hasGravityDependent,
 } from './units'
 import logoImg from '/logo.png'
 
@@ -44,6 +44,8 @@ function createRange() {
     secondaryUnit: '',
     gravity: STANDARD_GRAVITY,
     gravityPreset: 'standard',
+    kgfMode: 'local', // 'local' = 1 kgf = 1 kg × local g (deadweight practice)
+                      // 'standard' = 1 kgf = 9.80665 N fixed (strict ISO)
     optionsOpen: false,
     results: [],
     error: '',
@@ -51,10 +53,17 @@ function createRange() {
 }
 
 // Shows the live gravity value beneath the picker when it actually affects
-// the result (pure-force ↔ kgf/gf/lbf/ozf, or force ↔ mass).
+// the result. Also explains the kgf mode when a grav-force unit is involved
+// but gravity doesn't currently apply (e.g. standard mode for N ↔ kgf).
 function conversionHint(range) {
-  if (!needsGravity(range.unit, range.secondaryUnit)) return null
-  return `${unitLabel(range.unit)} ↔ ${unitLabel(range.secondaryUnit)} uses local gravity g = ${Number(range.gravity).toFixed(4)} m/s².`
+  const { unit, secondaryUnit, gravity, kgfMode } = range
+  if (needsGravity(unit, secondaryUnit, kgfMode)) {
+    return `${unitLabel(unit)} ↔ ${unitLabel(secondaryUnit)} uses local gravity g = ${Number(gravity).toFixed(4)} m/s².`
+  }
+  if (hasGravityDependent(unit, secondaryUnit) && kgfMode === 'standard') {
+    return `kgf / lbf fixed at standard g₀ = 9.80665 (strict ISO). Switch to Local g to apply your lab's gravity.`
+  }
+  return null
 }
 
 // Human-readable summary of the current unit/gravity config, shown on the
@@ -64,10 +73,14 @@ function unitsSummary(range) {
   const secondary = unitLabel(range.secondaryUnit)
   if (!primary) return 'None'
   if (!secondary) return primary
-  if (needsGravity(range.unit, range.secondaryUnit)) {
-    return `${primary} → ${secondary} · g=${Number(range.gravity).toFixed(4)}`
+  const pair = `${primary} → ${secondary}`
+  if (needsGravity(range.unit, range.secondaryUnit, range.kgfMode)) {
+    return `${pair} · g=${Number(range.gravity).toFixed(4)}`
   }
-  return `${primary} → ${secondary}`
+  if (hasGravityDependent(range.unit, range.secondaryUnit) && range.kgfMode === 'standard') {
+    return `${pair} · std g₀`
+  }
+  return pair
 }
 
 function App() {
@@ -219,7 +232,7 @@ function App() {
         if (!anySecondary) {
           rows.push(base)
         } else if (hasSecondary) {
-          const sv = convert(s.value, range.unit, range.secondaryUnit, range.gravity)
+          const sv = convert(s.value, range.unit, range.secondaryUnit, range.gravity, range.kgfMode)
           rows.push(`${base},${sv.toFixed(3)},${secondaryUnit}`)
         } else {
           rows.push(`${base},,`)
@@ -362,7 +375,26 @@ function App() {
                       </select>
                     </div>
                   </div>
-                  {needsGravity(range.unit, range.secondaryUnit) && (
+                  {hasGravityDependent(range.unit, range.secondaryUnit) && (
+                    <div className="card-row kgf-mode-row">
+                      <span className="card-row-label">kgf / lbf</span>
+                      <div className="kgf-mode-toggle" role="tablist" aria-label="kgf definition">
+                        <button type="button" role="tab"
+                          aria-selected={range.kgfMode === 'local'}
+                          className={`kgf-mode-btn${range.kgfMode === 'local' ? ' kgf-mode-btn--active' : ''}`}
+                          onClick={() => updateRange(range.id, { kgfMode: 'local' })}>
+                          Local g
+                        </button>
+                        <button type="button" role="tab"
+                          aria-selected={range.kgfMode === 'standard'}
+                          className={`kgf-mode-btn${range.kgfMode === 'standard' ? ' kgf-mode-btn--active' : ''}`}
+                          onClick={() => updateRange(range.id, { kgfMode: 'standard' })}>
+                          Standard g₀
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                  {needsGravity(range.unit, range.secondaryUnit, range.kgfMode) && (
                     <div className={`card-row${focusedInput === `gravity-${range.id}` ? ' card-row--focused' : ''}`}>
                       <label className="card-row-label" htmlFor={`gravity-${range.id}`}>
                         Gravity g
@@ -566,7 +598,7 @@ function App() {
           const secondaryLabel = unitLabel(range.secondaryUnit)
           const hasSecondary = canConvert(range.unit, range.secondaryUnit)
           const secondaryOf = (v) => hasSecondary
-            ? convert(v, range.unit, range.secondaryUnit, range.gravity)
+            ? convert(v, range.unit, range.secondaryUnit, range.gravity, range.kgfMode)
             : null
 
           return (

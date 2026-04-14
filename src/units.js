@@ -227,24 +227,44 @@ export function unitLabel(unitId) {
   return u.label
 }
 
-// True iff the conversion formula actually involves g.
-//   N ↔ kgf: YES (pure-force ↔ gravity-dep force)
-//   N ↔ kg:  YES (cross-group force↔mass, F=mg)
-//   kgf ↔ kg: NO (both scale linearly with g, so it cancels — and by
-//                  definition of kgf, 1 kgf numerically equals 1 kg)
-//   kgf ↔ lbf: NO (both scale with g, cancels)
-//   N ↔ mN: NO (both pure-force, linear factor)
-export function needsGravity(fromId, toId) {
+// True iff the conversion formula actually involves g under the given
+// kgfMode. Gravity-dependent force units (kgf / gf / lbf / ozf) behave
+// differently under each mode:
+//
+//   'local' mode (default) — kgf = 1 kg × local g. Matches deadweight
+//     calibration practice. Same scaling as kg, so:
+//       pure-force ↔ grav-force:     NEEDS g  (e.g. N ↔ kgf)
+//       grav-force ↔ mass:           NO       (g cancels, 1 kgf = 1 kg)
+//       grav-force ↔ grav-force:     NO       (ratio constant)
+//
+//   'standard' mode — kgf fixed at 9.80665 N per ISO definition:
+//       pure-force ↔ grav-force:     NO       (constant ratio)
+//       grav-force ↔ mass:           NEEDS g  (kgf is a fixed N, ÷ local g → kg)
+//       grav-force ↔ grav-force:     NO
+//
+// Cross-group pure-force ↔ mass always needs g (F = m·g).
+export function needsGravity(fromId, toId, kgfMode = 'local') {
   if (!fromId || !toId) return false
   const from = findUnit(fromId), to = findUnit(toId)
   if (!from || !to) return false
   const fg = findGroup(fromId), tg = findGroup(toId)
-  const pureForce = (u, g) => g === 'force' && !u.gravityDep
-  const gravForce = (u, g) => g === 'force' && u.gravityDep
-  const isMass    = g => g === 'mass'
-  const fP = pureForce(from, fg), fG = gravForce(from, fg), fM = isMass(fg)
-  const tP = pureForce(to, tg),   tG = gravForce(to, tg),   tM = isMass(tg)
-  return (fP && (tG || tM)) || (tP && (fG || fM))
+  const pure = (g, u) => g === 'force' && !u.gravityDep
+  const grav = (g, u) => g === 'force' && u.gravityDep
+  const mass = g => g === 'mass'
+  const fP = pure(fg, from), fG = grav(fg, from), fM = mass(fg)
+  const tP = pure(tg, to),   tG = grav(tg, to),   tM = mass(tg)
+
+  // Pure-force ↔ mass always needs gravity for F = m·g.
+  if ((fP && tM) || (tP && fM)) return true
+
+  if (kgfMode === 'standard') {
+    // kgf has a fixed N value, so kgf ↔ mass depends on local g.
+    if ((fG && tM) || (tG && fM)) return true
+    return false
+  }
+  // Local mode: pure ↔ grav depends on g; grav ↔ mass cancels.
+  if ((fP && tG) || (tP && fG)) return true
+  return false
 }
 
 export function canConvert(fromId, toId) {
@@ -256,20 +276,28 @@ export function canConvert(fromId, toId) {
   return (fg === 'force' && tg === 'mass') || (fg === 'mass' && tg === 'force')
 }
 
-export function convert(value, fromId, toId, gravity = STANDARD_GRAVITY) {
+export function convert(value, fromId, toId, gravity = STANDARD_GRAVITY, kgfMode = 'local') {
   if (!canConvert(fromId, toId)) return null
   if (fromId === toId) return value
   const from = findUnit(fromId)
   const to = findUnit(toId)
   const fg = findGroup(fromId)
   const tg = findGroup(toId)
-  // Pass gravity into toBase/fromBase — linear units simply ignore it.
-  let base = from.toBase(value, gravity)
+  // In 'standard' mode, gravity-dependent force units stay pinned to g₀
+  // regardless of the range's local gravity. The cross-group F = m·g step
+  // still uses the real local gravity either way.
+  const gForForceUnit = kgfMode === 'standard' ? STANDARD_GRAVITY : gravity
+  let base = from.toBase(value, gForForceUnit)
   if (fg !== tg) {
     if (fg === 'force' && tg === 'mass') base = base / gravity
     else if (fg === 'mass' && tg === 'force') base = base * gravity
   }
-  return to.fromBase(base, gravity)
+  return to.fromBase(base, gForForceUnit)
+}
+
+// Helpers for the UI: is either side a gravity-dependent force unit?
+export function hasGravityDependent(fromId, toId) {
+  return findUnit(fromId)?.gravityDep === true || findUnit(toId)?.gravityDep === true
 }
 
 // Secondary-unit options for a given primary: all units in the same group

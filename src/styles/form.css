@@ -179,6 +179,40 @@ input[type="number"] {
     font-size: 12px;
 }
 
+/* Compact segmented control for kgf / lbf definition mode */
+.kgf-mode-row {
+    min-height: 44px;
+}
+
+.kgf-mode-toggle {
+    display: flex;
+    gap: 4px;
+    padding: 3px;
+    background: var(--bg-page);
+    border-radius: 8px;
+}
+
+.kgf-mode-btn {
+    height: 28px;
+    padding: 0 10px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--text-secondary);
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    white-space: nowrap;
+}
+
+.kgf-mode-btn--active {
+    background: var(--accent);
+    color: #fff;
+}
+
 /* Helper note below the options disclosure rows */
 .options-note {
     padding: 6px 16px 10px;
