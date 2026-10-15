@@ -115,19 +115,19 @@ export function PreviewScreen({ test, ranges }) {
                     const rowCls = classifyError(errPct, tol.errMax)
                     return (
                       <tr key={i} className={`cert-row cert-row--${rowCls}`}>
-                        <td>{s.number}</td>
-                        <td className="num">{s.value.toFixed(3)}</td>
+                        <td data-label="Point">{s.number}</td>
+                        <td data-label="Target" className="num">{s.value.toFixed(3)}</td>
                         {Array.from({ length: runCount }).map((_, ri2) => (
-                          <td key={ri2} className="num">{fmt(runs[ri2])}</td>
+                          <td key={ri2} data-label={`Run ${ri2 + 1}`} className="num">{fmt(runs[ri2])}</td>
                         ))}
-                        <td className="num">{mean != null ? mean.toFixed(3) : '—'}</td>
-                        <td className="num">{resPct != null ? resPct.toFixed(3) : '—'}</td>
-                        <td className="num">{resCls || '—'}</td>
-                        <td className="num">{test.standard.referenceClass}</td>
-                        <td className="num">{repCls || '—'}</td>
-                        <td className={`num cert-cls cert-cls--${rowCls}`}>{sysCls || '—'}</td>
-                        <td className="num">{errPct != null ? errPct.toFixed(3) : '—'}</td>
-                        <td className="num">{repPct != null ? repPct.toFixed(3) : '—'}</td>
+                        <td data-label="Mean" className="num">{mean != null ? mean.toFixed(3) : '—'}</td>
+                        <td data-label="Resolution %" className="num">{resPct != null ? resPct.toFixed(3) : '—'}</td>
+                        <td data-label="Resolution class" className="num">{resCls || '—'}</td>
+                        <td data-label="Reference class" className="num">{test.standard.referenceClass}</td>
+                        <td data-label="Repeat class" className="num">{repCls || '—'}</td>
+                        <td data-label="System class" className={`num cert-cls cert-cls--${rowCls}`}>{sysCls || '—'}</td>
+                        <td data-label="Error %" className="num">{errPct != null ? errPct.toFixed(3) : '—'}</td>
+                        <td data-label="Repeat %" className="num">{repPct != null ? repPct.toFixed(3) : '—'}</td>
                       </tr>
                     )
                   })}

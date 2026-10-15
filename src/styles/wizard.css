@@ -10,22 +10,22 @@
     font-family: var(--font-mono);
 }
 
-/* Wizard nav — horizontal scrollable pill strip */
+/* Wizard steps wrap; every step stays reachable without horizontal scrolling. */
 .wizard-nav {
     display: flex;
     gap: 6px;
-    overflow-x: auto;
+    flex-wrap: wrap;
     padding: 8px 12px 14px;
-    margin: 0 -12px;
+    margin: 0;
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
-    scroll-snap-type: x proximity;
+
 }
 
 .wizard-nav::-webkit-scrollbar { display: none; }
 
 .wizard-pill {
-    flex: 0 0 auto;
+    flex: 1 1 120px;
     display: flex;
     align-items: center;
     gap: 6px;

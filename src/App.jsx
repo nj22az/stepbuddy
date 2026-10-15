@@ -1,11 +1,11 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, lazy, Suspense } from 'react'
 import './styles.css'
 import { generateSequence, editSequence, MAX_POINTS } from './sequence'
 import { PlannerIntro } from './components/PlannerIntro'
 import {
   SunIcon, MoonIcon,
   CalcIcon, ExportIcon, TrashIcon, ErrorIcon,
-  RulerIcon, FlagIcon, HashIcon, FinalFlagIcon,
+  RulerIcon, FlagIcon, HashIcon,
   PlusIcon, CloseIcon, ChevronIcon
 } from './components/Icons'
 import { useSystemTheme } from './hooks/useSystemTheme'
@@ -21,11 +21,11 @@ import {
   tolerancesFor, classifyError, repeatError, meanIndicated,
   classOf, resolutionPct, systemClass,
 } from './test'
-import { SiteScreen } from './screens/SiteScreen'
-import { EquipmentScreen } from './screens/EquipmentScreen'
-import { StandardScreen } from './screens/StandardScreen'
-import { NotesScreen } from './screens/NotesScreen'
-import { PreviewScreen } from './screens/PreviewScreen'
+const SiteScreen = lazy(() => import('./screens/SiteScreen').then(module => ({ default: module.SiteScreen })))
+const EquipmentScreen = lazy(() => import('./screens/EquipmentScreen').then(module => ({ default: module.EquipmentScreen })))
+const StandardScreen = lazy(() => import('./screens/StandardScreen').then(module => ({ default: module.StandardScreen })))
+const NotesScreen = lazy(() => import('./screens/NotesScreen').then(module => ({ default: module.NotesScreen })))
+const PreviewScreen = lazy(() => import('./screens/PreviewScreen').then(module => ({ default: module.PreviewScreen })))
 import { UnlockModal } from './components/UnlockModal'
 import { isUnlocked, setUnlocked, gateActive } from './auth'
 
@@ -119,6 +119,7 @@ function App() {
   const [showAbout, setShowAbout] = useState(false)
   const [workspaceMode, setWorkspaceMode] = useState('planner')
   const [notice, setNotice] = useState('')
+  const [visiblePoints, setVisiblePoints] = useState({})
 
   // Auto-save the document on any change. Lightweight enough — JSON
   // serialise of ~5 KB tops on a typical session, runs at React commit.
@@ -195,15 +196,24 @@ function App() {
   }
 
   const calculateAll = () => {
-    setRanges(prev => prev.map(range => {
+    const calculated = ranges.map(range => {
       try {
         if (needsGravity(range.unit, range.secondaryUnit, range.kgfMode) && !(Number(range.gravity) > 0)) throw new Error('Set a positive gravity value for this conversion.')
         return { ...range, results: generateSequence(range), error: '' }
       }
       catch (error) { return { ...range, results: [], error: error.message } }
-    }))
-    if (suiteEnabled) setActiveStep('verify')
-    setNotice('Test points generated. Display rounding does not change the CSV calculation values.')
+    })
+    setRanges(calculated)
+    setVisiblePoints({})
+    const failed = calculated.filter(r => r.error)
+    if (suiteEnabled && !failed.length) setActiveStep('verify')
+    setNotice(failed.length
+      ? `Check ${failed.length} range${failed.length === 1 ? '' : 's'} highlighted below. ${calculated.filter(r => !r.error).length} ranges generated successfully.`
+      : 'Your test points are ready. Review them below, then choose Copy points or Export CSV.')
+    if (failed.length) {
+      setTimeout(() => document.getElementById(`range-error-${failed[0].id}`)?.focus(), 80)
+      return
+    }
     setCalcSuccess(true)
     setTimeout(() => setCalcSuccess(false), 400)
     setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }), 80)
@@ -213,6 +223,7 @@ function App() {
     const range = { ...createRange(), ...example, id: nextRangeId++, label: example.title, results: [], error: '' }
     range.results = generateSequence(range)
     setRanges(prev => prev.length === 1 && prev[0].start === '' && prev[0].end === '' && !prev[0].results.length ? [range] : [...prev, range])
+    setVisiblePoints({})
     setWorkspaceMode('planner')
     setNotice(`${example.title} example added. Your existing ranges are retained.`)
     setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: 'auto', block: 'start' }), 80)
@@ -402,7 +413,7 @@ function App() {
 
         }
 
-        {/* Wizard nav — horizontal scrollable pills */}
+        {/* All steps wrap within the available width. */}
         {suiteEnabled && (
         <nav className="wizard-nav" aria-label="Calibration steps">
           {STEPS.map(step => {
@@ -421,12 +432,14 @@ function App() {
         </nav>
         )}
 
-        {/* Step content (suite-only screens) */}
+        {/* Advanced screens load only when opened. */}
+        <Suspense fallback={<p className="record-note" role="status">Loading working record…</p>}>
         {suiteEnabled && activeStep === 'site'      && <SiteScreen      test={test} patch={patchTest} />}
         {suiteEnabled && activeStep === 'equipment' && <EquipmentScreen test={test} patch={patchTest} />}
         {suiteEnabled && activeStep === 'standard'  && <StandardScreen  test={test} patch={patchTest} />}
         {suiteEnabled && activeStep === 'notes'     && <NotesScreen     test={test} patch={patchTest} />}
         {suiteEnabled && activeStep === 'preview'   && <PreviewScreen   test={test} ranges={ranges} />}
+        </Suspense>
 
         {(!suiteEnabled || activeStep === 'ranges') && (<>
         {/* Range Inputs */}
@@ -444,37 +457,9 @@ function App() {
               )}
             </div>
             <div className="card">
-              <div className="card-row"><label className="card-row-label" htmlFor={`range-name-${range.id}`}>Range name</label><input className="input" id={`range-name-${range.id}`} placeholder="e.g. Pump pressure" value={range.label || ''} onChange={e => updateRange(range.id, { label: e.target.value })} /></div>
-              <div className="card-row"><label className="card-row-label" htmlFor={`decimals-${range.id}`}>Display decimals</label><select className="input input--select" id={`decimals-${range.id}`} value={range.decimals ?? 3} onChange={e => updateRange(range.id, { decimals: Number(e.target.value) })}>{Array.from({ length: 10 }, (_, i) => <option key={i} value={i}>{i}</option>)}</select></div>
-              <div className="card-row mode-toggle" role="tablist" aria-label="Step input mode">
-                <button type="button" role="tab"
-                  aria-selected={range.mode === 'absolute'}
-                  className={`mode-btn${range.mode === 'absolute' ? ' mode-btn--active' : ''}`}
-                  onClick={() => updateRange(range.id, { mode: 'absolute' })}>
-                  Even spacing
-                </button>
-                <button type="button" role="tab"
-                  aria-selected={range.mode === 'percentage'}
-                  className={`mode-btn${range.mode === 'percentage' ? ' mode-btn--active' : ''}`}
-                  onClick={() => updateRange(range.id, { mode: 'percentage' })}>
-                  Percentage of span
-                </button>
-              </div>
-              <button type="button" className="card-row options-toggle"
-                onClick={() => updateRange(range.id, { optionsOpen: !range.optionsOpen })}
-                aria-expanded={range.optionsOpen}>
-                <span className="card-row-label">
-                  <ChevronIcon expanded={range.optionsOpen} /> Units &amp; gravity
-                </span>
-                <span className="options-summary">{unitsSummary(range)}</span>
-              </button>
-              {range.optionsOpen && (
-                <>
-                  <div className={`card-row${focusedInput === `unit-${range.id}` ? ' card-row--focused' : ''}`}>
-                    <label className="card-row-label" htmlFor={`unit-${range.id}`}>
-                      Unit
-                    </label>
-                    <div className="unit-picker">
+              <div className="card-row"><label className="card-row-label" htmlFor={`range-name-${range.id}`}>Range name (optional)</label><input className="input" id={`range-name-${range.id}`} placeholder="e.g. Pump pressure" value={range.label || ''} onChange={e => updateRange(range.id, { label: e.target.value })} /></div>
+
+              <div className="card-row"><label className="card-row-label" htmlFor={`unit-${range.id}`}>Measurement unit</label>
                       <select className="input input--select unit-select" id={`unit-${range.id}`}
                         value={range.unit}
                         onChange={e => {
@@ -496,8 +481,38 @@ function App() {
                           </optgroup>
                         ))}
                       </select>
-                      <span className="unit-arrow" aria-hidden="true">→</span>
-                      <select className="input input--select unit-select" aria-label="Secondary unit"
+              </div>
+              <div className="card-row mode-toggle" role="tablist" aria-label="Step input mode">
+                <button type="button" role="tab"
+                  aria-selected={range.mode === 'absolute'}
+                  className={`mode-btn${range.mode === 'absolute' ? ' mode-btn--active' : ''}`}
+                  onClick={() => updateRange(range.id, { mode: 'absolute' })}>
+                  Even spacing
+                </button>
+                <button type="button" role="tab"
+                  aria-selected={range.mode === 'percentage'}
+                  className={`mode-btn${range.mode === 'percentage' ? ' mode-btn--active' : ''}`}
+                  onClick={() => updateRange(range.id, { mode: 'percentage' })}>
+                  Percentage of span
+                </button>
+              </div>
+              <button type="button" className="card-row options-toggle"
+                onClick={() => updateRange(range.id, { optionsOpen: !range.optionsOpen })}
+                aria-expanded={range.optionsOpen}>
+                <span className="card-row-label">
+                  <ChevronIcon expanded={range.optionsOpen} /> Conversion &amp; display
+                </span>
+                <span className="options-summary">{unitsSummary(range)}</span>
+              </button>
+              {range.optionsOpen && (
+                <>
+              <div className="card-row"><label className="card-row-label" htmlFor={`decimals-${range.id}`}>Display decimals</label><select className="input input--select" id={`decimals-${range.id}`} value={range.decimals ?? 3} onChange={e => updateRange(range.id, { decimals: Number(e.target.value) })}>{Array.from({ length: 10 }, (_, i) => <option key={i} value={i}>{i}</option>)}</select></div>
+                  <div className={`card-row${focusedInput === `unit-${range.id}` ? ' card-row--focused' : ''}`}>
+                    <label className="card-row-label" htmlFor={`secondary-unit-${range.id}`}>
+                      Secondary unit
+                    </label>
+                    <div className="secondary-picker">
+                      <select className="input input--select unit-select" id={`secondary-unit-${range.id}`}
                         value={range.secondaryUnit}
                         disabled={!range.unit}
                         onChange={e => updateRange(range.id, { secondaryUnit: e.target.value })}>
@@ -725,7 +740,7 @@ function App() {
               </p>
             )}
             {range.error && (
-              <div className="error" role="alert">
+              <div className="error" role="alert" id={`range-error-${range.id}`} tabIndex={-1}>
                 <ErrorIcon /> {range.error}
               </div>
             )}
@@ -794,7 +809,7 @@ function App() {
           const cal = suiteEnabled && range.calibrationMode
           return (
             <section className="section" key={`results-${range.id}`}
-              ref={ri === 0 ? resultsRef : null}>
+              ref={range.id === ranges.find(r => r.results.length)?.id ? resultsRef : null}>
               <div className="section-header-row">
                 <h2 className="section-header">
                   {multiRange
@@ -855,11 +870,10 @@ function App() {
                   <span className="results-header-cell">Target value</span>
                   {cal && <span className="results-header-cell">{test.standard.runs > 1 ? `${test.standard.runs} Runs` : 'Indicated'}</span>}
                   {cal && <span className="results-header-cell">Error / Repeat</span>}
-                  {!cal && <span className="results-header-cell">Delta</span>}
+                  {!cal && <span className="results-header-cell">Change</span>}
                 </div>
 
-                {range.results.map((step, i) => {
-                  const isLast = i === range.results.length - 1
+                {range.results.slice(0, visiblePoints[range.id] || 50).map((step, i) => {
                   const positive = step.stepSize >= 0
                   const s = range.results[0].value
                   const e = range.results[range.results.length - 1].value
@@ -891,7 +905,7 @@ function App() {
                       <div className="result-progress"
                         style={{ width: `${Math.max(0, Math.min(100, pct))}%` }} />
                       <span className="result-step">{step.number}</span>
-                      <div className="result-value">
+                      <div className="result-value" data-label="Target value">
                         <div className="result-value-primary">
                           <input type="number" className="result-value-input"
                             key={`${step.value}-${range.decimals ?? 3}`}
@@ -911,7 +925,7 @@ function App() {
                       </div>
                       {cal ? (
                         <>
-                          <div className="cal-runs">
+                          <div className="cal-runs" data-label="Indicated readings">
                             {Array.from({ length: test.standard.runs }).map((_, ri2) => (
                               <input key={ri2} type="number" className="cal-indicated"
                                 placeholder={`Run ${ri2 + 1}`}
@@ -921,7 +935,7 @@ function App() {
                                 onChange={ev => handleRunEdit(range.id, i, ri2, ev.target.value)} />
                             ))}
                           </div>
-                          <div className="cal-stats">
+                          <div className="cal-stats" data-label="Error / Repeat">
                             <span className={`cal-error ${errorClass}`}>
                               {errorPct == null ? '—' : `${errorPct >= 0 ? '+' : ''}${errorPct.toFixed(2)}%`}
                             </span>
@@ -935,25 +949,26 @@ function App() {
                             )}
                           </div>
                         </>
-                      ) : isLast ? (
+                      ) : i === 0 ? (
                         <span className="result-delta result-delta--neutral">
                           <span className="result-final">
-                            <FinalFlagIcon /> End
+                            Start
                           </span>
                         </span>
                       ) : (
                         <span className={`result-delta ${positive ? 'result-delta--positive' : 'result-delta--negative'}`}>
-                          {positive ? '+' : ''}{step.stepSize.toFixed(range.decimals ?? 3)}
+                          <span className="result-change-label">Change </span>{positive ? '+' : ''}{step.stepSize.toFixed(range.decimals ?? 3)}
                         </span>
                       )}
                     </div>
                   )
                 })}
               </div>
+              {range.results.length > (visiblePoints[range.id] || 50) && <button type="button" className="btn show-points" onClick={() => setVisiblePoints(prev => ({ ...prev, [range.id]: (prev[range.id] || 50) + 50 }))}>Show next {Math.min(50, range.results.length - (visiblePoints[range.id] || 50))} points ({Math.min(visiblePoints[range.id] || 50, range.results.length)} of {range.results.length} shown)</button>}
               <p className="section-footer">
                 {cal
                   ? 'Working record: enter readings to compare them with the targets. Review method-specific checks separately.'
-                  : 'Edit a target and leave the field to apply it. Even spacing redistributes later points; percentage mode keeps other targets fixed. CSV exports full calculation precision.'}
+                  : 'Change shows the difference from the previous point. Edit a target and leave the field to apply it. Even spacing adjusts later points; percentage mode keeps other targets fixed. Copy and CSV include every point at full precision.'}
               </p>
             </section>
           )
