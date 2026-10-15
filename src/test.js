@@ -1,6 +1,6 @@
 // CalibrationTest document — the central data structure persisted to
-// localStorage. Mirrors the structure of CalproCR / Instron Calibration
-// Suite: site → equipment → standard → ranges → verification → notes.
+// localStorage. Groups site, equipment, references and readings for a working record.
+// Workflow: site → equipment → standard → ranges → verification → notes.
 // The ranges array stays compatible with the existing range shape used
 // throughout App.jsx so the migration is additive.
 
@@ -23,7 +23,7 @@ export const STANDARDS = {
 
 export const MODES = ['Tension', 'Compression', 'Tension-Compression']
 export const CONDITION = ['Good', 'Fair', 'Poor']
-export const ACCREDITATION_BODIES = ['—', 'NVLAP', 'A2LA', 'UKAS', 'COFRAC', 'DAkkS', 'ENAC', 'SWEDAC', 'DANAK', 'FINAS', 'NorAS']
+export const ACCREDITATION_BODIES = ['—']
 export const LETTERHEADS = ['EU', 'US', 'UK', 'Custom']
 export const LANGUAGES = ['English', 'Svenska', 'Deutsch', 'Français', 'Español', '日本語']
 
@@ -63,7 +63,7 @@ export function defaultTest() {
 }
 
 export function generateCertNo() {
-  // Format: E + YY + MMDD + 6-digit random — matches Instron's E25004… style
+  // Generic record identifier with a date and six random digits.
   const d = new Date()
   const yy = String(d.getFullYear()).slice(-2)
   const mm = String(d.getMonth() + 1).padStart(2, '0')

@@ -28,7 +28,6 @@ import { NotesScreen } from './screens/NotesScreen'
 import { PreviewScreen } from './screens/PreviewScreen'
 import { UnlockModal } from './components/UnlockModal'
 import { isUnlocked, setUnlocked, gateActive } from './auth'
-import logoImg from '/logo.png'
 
 let nextRangeId = 1
 
@@ -346,9 +345,9 @@ function App() {
       {showLogoModal && (
         <div className="logo-modal" onClick={() => setShowLogoModal(false)}>
           <div className="logo-modal-content">
-            <img src={logoImg} alt="Johansson Engineering" />
-            <div className="logo-modal-title">Johansson Engineering</div>
-            <div className="logo-modal-subtitle">Est. 1983</div>
+            <span className="app-symbol app-symbol--large" aria-hidden="true">SW</span>
+            <div className="logo-modal-title">StepWise</div>
+            <div className="logo-modal-subtitle">Test-point planning</div>
           </div>
         </div>
       )}
@@ -357,11 +356,11 @@ function App() {
       <header className="header">
         <button className="header-logo-btn" onClick={onLogoTap}
           aria-label="View logo">
-          <img src={logoImg} alt="Johansson Engineering" className="header-logo" />
+          <span className="app-symbol" aria-hidden="true">SW</span>
         </button>
         <div className="header-text">
           <div className="header-title">StepWise</div>
-          <div className="header-subtitle">Test-point planner · Johansson Engineering</div>
+          <div className="header-subtitle">Test-point planner</div>
           <div className="header-buttons">
             {suiteEnabled && gateActive() && (
               <button className="header-btn header-btn--lock" onClick={lock}
@@ -972,10 +971,10 @@ function App() {
             <div className="card">
               <div className="about-content">
                 <button className="about-logo" onClick={() => setShowLogoModal(true)}>
-                  <img src={logoImg} alt="Johansson Engineering stamp" />
+                  <span className="app-symbol" aria-hidden="true">SW</span>
                   <div className="about-logo-text">
-                    <div className="about-logo-title">Johansson Engineering</div>
-                    <div className="about-logo-subtitle">Est. 1983</div>
+                    <div className="about-logo-title">StepWise</div>
+                    <div className="about-logo-subtitle">Test-point planning</div>
                   </div>
                 </button>
                 <div className="about-text">
@@ -998,7 +997,7 @@ function App() {
                 <div className="about-meta">
                   <span className="about-meta-item">JDS-SFW-001</span>
                   <span className="about-meta-item">Rev A</span>
-                  <span className="about-meta-item">Nils Johansson</span>
+                  <span className="about-meta-item">Test-point planner</span>
                 </div>
               </div>
             </div>
@@ -1006,7 +1005,7 @@ function App() {
         </section>
 
         <footer className="footer">
-          <p>&copy; {new Date().getFullYear()} Johansson Engineering</p>
+          <p>&copy; {new Date().getFullYear()} StepWise</p>
         </footer>
       </div>
     </div>

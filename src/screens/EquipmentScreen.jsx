@@ -1,5 +1,5 @@
 // Step 2 — Equipment: Machine, Condition, Transducer, Temp standard.
-// Mirrors CalproCR Setup2 layout grouped into sub-cards.
+// Equipment details grouped into sub-cards.
 
 import { CONDITION } from '../test'
 
@@ -15,18 +15,18 @@ export function EquipmentScreen({ test, patch }) {
       <section className="section">
         <h2 className="section-header">Machine</h2>
         <div className="card">
-          <Field id="m-cat" label="Catalog no." value={m.catalogNo} onChange={setM('catalogNo')} placeholder="34TM5" />
-          <Field id="m-ser" label="Prod./Serial no." value={m.serialNo} onChange={setM('serialNo')} placeholder="34TM5M2353" />
+          <Field id="m-cat" label="Catalog no." value={m.catalogNo} onChange={setM('catalogNo')} placeholder="MODEL-A" />
+          <Field id="m-ser" label="Prod./Serial no." value={m.serialNo} onChange={setM('serialNo')} placeholder="MACHINE-001" />
           <Field id="m-sys" label="System ID" value={m.systemId} onChange={setM('systemId')} />
-          <Field id="m-make" label="Make" value={m.make} onChange={setM('make')} placeholder="Instron" />
+          <Field id="m-make" label="Make" value={m.make} onChange={setM('make')} placeholder="Manufacturer (optional)" />
           <Field id="m-asset" label="Customer asset no." value={m.customerAssetNo} onChange={setM('customerAssetNo')} />
-          <Field id="m-elec" label="Electronics" value={m.electronics} onChange={setM('electronics')} placeholder="3400 Instron" />
+          <Field id="m-elec" label="Electronics" value={m.electronics} onChange={setM('electronics')} placeholder="Controller type (optional)" />
           <Field id="m-chan" label="Channel" value={m.channel} onChange={setM('channel')} placeholder="1 (Load)" />
           <div className="card-row">
             <label className="card-row-label" htmlFor="m-sw">Software</label>
             <div className="capacity-picker">
               <input id="m-sw" className="input meta-input" type="text"
-                value={m.software} onChange={setM('software')} placeholder="Bluehill Universal" />
+                value={m.software} onChange={setM('software')} placeholder="Software name (optional)" />
               <input className="input capacity-unit-input" type="text" placeholder="ver."
                 aria-label="Software version" value={m.softwareVersion} onChange={setM('softwareVersion')} />
             </div>
@@ -42,7 +42,7 @@ export function EquipmentScreen({ test, patch }) {
               <option>Other</option>
             </select>
           </div>
-          <Field id="m-cal" label="Cal. no." value={m.calNo} onChange={setM('calNo')} placeholder="4.47" />
+          <Field id="m-cal" label="Cal. no." value={m.calNo} onChange={setM('calNo')} placeholder="RECORD-001" />
           <Field id="m-year" label="Year of mfg" value={m.year} onChange={setM('year')} placeholder="2021" type="number" />
           <div className="card-row">
             <label className="card-row-label">Hydraulics for force?</label>
@@ -70,9 +70,9 @@ export function EquipmentScreen({ test, patch }) {
       <section className="section">
         <h2 className="section-header">Transducer</h2>
         <div className="card">
-          <Field id="t-cat" label="Catalog no." value={t.catalogNo} onChange={setT('catalogNo')} placeholder="2530-10N" />
-          <Field id="t-ser" label="Prod./Serial no." value={t.serialNo} onChange={setT('serialNo')} placeholder="2530-10N/157566" />
-          <Field id="t-make" label="Make" value={t.make} onChange={setT('make')} placeholder="Instron" />
+          <Field id="t-cat" label="Catalog no." value={t.catalogNo} onChange={setT('catalogNo')} placeholder="SENSOR-MODEL-A" />
+          <Field id="t-ser" label="Prod./Serial no." value={t.serialNo} onChange={setT('serialNo')} placeholder="SENSOR-001" />
+          <Field id="t-make" label="Make" value={t.make} onChange={setT('make')} placeholder="Manufacturer (optional)" />
           <Field id="t-asset" label="Customer asset no." value={t.customerAssetNo} onChange={setT('customerAssetNo')} />
           <div className="card-row">
             <label className="card-row-label" htmlFor="t-cap">Capacity</label>
@@ -98,8 +98,8 @@ export function EquipmentScreen({ test, patch }) {
       <section className="section">
         <h2 className="section-header">Temperature standard</h2>
         <div className="card">
-          <Field id="ts-name" label="Standard" value={ts.name} onChange={setTs('name')} placeholder="Extech 445580 (°C)" />
-          <Field id="ts-ser" label="Serial no." value={ts.serialNo} onChange={setTs('serialNo')} placeholder="1109590" />
+          <Field id="ts-name" label="Standard" value={ts.name} onChange={setTs('name')} placeholder="Temperature reference" />
+          <Field id="ts-ser" label="Serial no." value={ts.serialNo} onChange={setTs('serialNo')} placeholder="REFERENCE-001" />
         </div>
       </section>
     </>

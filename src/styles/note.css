@@ -4,3 +4,5 @@ body{font-family:var(--font-sans);letter-spacing:normal;line-height:1.5;overflow
 @media print{.header,.workspace-switch,.planner-intro,.planner-notice,.record-note,.wizard-nav,.action-row,.btn-row,.footer,.section-toggle{display:none!important}.app,.app-content{max-width:none;padding:0}.card{break-inside:avoid}.result-value-input{border:0}.section{max-width:none}body{background:white;color:#08131a}}
 
 .header-text:has(.header-btn--lock){padding-right:100px}
+
+.app-symbol{display:grid;place-items:center;width:44px;height:44px;border-radius:10px;background:var(--text);color:var(--bg);font:600 16px/1 var(--font-sans);letter-spacing:-1px;flex-shrink:0}.app-symbol--large{width:96px;height:96px;font-size:32px;margin:0 auto 16px}

@@ -8,17 +8,17 @@ export function SiteScreen({ test, patch }) {
       <h2 className="section-header">Site</h2>
       <div className="card">
         <Row id="site-id" label="Site ID" value={s.siteId}
-          onChange={set('siteId')} placeholder="123015-M01" />
+          onChange={set('siteId')} placeholder="SITE-001" />
         <Row id="site-company" label="Company" value={s.company}
-          onChange={set('company')} placeholder="UL International Demko A/S" />
+          onChange={set('company')} placeholder="Organisation A" />
         <Row id="site-address" label="Address" value={s.address} multiline
-          onChange={set('address')} placeholder="Borupvang 5A, Ballerup DK-2750, Denmark" />
+          onChange={set('address')} placeholder="Site address (optional)" />
         <Row id="site-contact" label="Contact" value={s.contact}
-          onChange={set('contact')} placeholder="Ole Bager" />
+          onChange={set('contact')} placeholder="Technician A" />
         <Row id="site-email" label="Email" value={s.email}
-          onChange={set('email')} placeholder="ole.bager@example.com" type="email" />
+          onChange={set('email')} placeholder="technician@example.invalid" type="email" />
       </div>
-      <p className="section-footer">Customer site recorded on the calibration certificate.</p>
+      <p className="section-footer">Use an anonymous site identifier for demonstration records.</p>
     </section>
   )
 }

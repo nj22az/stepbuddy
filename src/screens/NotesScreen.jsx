@@ -23,7 +23,7 @@ export function NotesScreen({ test, patch }) {
           </div>
           <Field id="ref-cert" label="Ref. cert. no." value={n.refCertNo} onChange={set('refCertNo')} />
           <Field id="po-no"    label="P.O. no."       value={n.poNo}      onChange={set('poNo')} />
-          <Field id="svc-no"   label="Service order"  value={n.serviceOrderNo} onChange={set('serviceOrderNo')} placeholder="SV2602190057" />
+          <Field id="svc-no"   label="Service order"  value={n.serviceOrderNo} onChange={set('serviceOrderNo')} placeholder="ORDER-001" />
           <div className="card-row">
             <label className="card-row-label">New installation?</label>
             <div className="kgf-mode-toggle">

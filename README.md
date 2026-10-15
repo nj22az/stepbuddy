@@ -36,4 +36,4 @@ npm run build
 
 Vite publishes under `/stepbuddy/`. GitHub Actions runs tests and builds before updating the `gh-pages` branch. The planner remains the default workspace regardless of whether the advanced record is unlocked.
 
-Author: Nils Johansson. MIT licence.
+MIT licence.
