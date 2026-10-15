@@ -344,6 +344,7 @@ function App() {
 
   return (
     <div className="app">
+      <div className="office-masthead" role="navigation" aria-label="Office website"><a className="office-identity" href="https://nj22az.github.io/"><span className="office-monogram" aria-hidden="true">NJ</span><span><small>THE OFFICE OF</small><strong>Nils Johansson</strong></span></a><a className="office-home" href="https://nj22az.github.io/"><span aria-hidden="true">←</span> Back to main page</a></div>
       {/* Unlock modal */}
       {showUnlock && !unlocked && (
         <UnlockModal
@@ -391,7 +392,7 @@ function App() {
         <div className="workspace-switch" role="group" aria-label="Workspace">
           <button type="button" aria-pressed={!suiteEnabled} onClick={() => setWorkspaceMode('planner')}>Test-point planner</button>
           <button type="button" aria-pressed={suiteEnabled} onClick={() => { if (unlocked) setWorkspaceMode('record'); else triggerUnlockPrompt() }}>Advanced record</button>
-          <a href="https://nj22az.github.io/#projects">All projects ↗</a>
+          
         </div>
         {!suiteEnabled && <PlannerIntro onExample={loadExample} />}
         {suiteEnabled && <p className="record-note">Advanced working record · Review the selected method, calculations and completeness before using any result. The planner remains available in the other workspace.</p>}
@@ -1020,7 +1021,8 @@ function App() {
         </section>
 
         <footer className="footer">
-          <p>&copy; {new Date().getFullYear()} StepWise</p>
+          <p>StepWise · Office of Nils Johansson</p>
+          <a className="office-return" href="https://nj22az.github.io/">← Back to main page</a>
         </footer>
       </div>
     </div>
