@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import './styles.css'
+import { generateSequence, editSequence, MAX_POINTS } from './sequence'
+import { PlannerIntro } from './components/PlannerIntro'
 import {
   SunIcon, MoonIcon,
   CalcIcon, ExportIcon, TrashIcon, ErrorIcon,
@@ -30,16 +32,13 @@ import logoImg from '/logo.png'
 
 let nextRangeId = 1
 
-// Percentage presets for calibration workflows.
-// ISO 7500-1 (uniaxial testing machines), ISO 9513 (extensometers),
-// ISO 376 (force-proving instruments) — each calls for verification at
-// defined percentage points of the working range rather than even spacing.
+// Generic span patterns. Legacy ids preserve compatibility with saved ranges.
 const PERCENT_PRESETS = {
-  'iso-7500-low':  { label: 'ISO 7500 — low range',        values: [0, 2, 5, 10, 20, 40, 60, 80, 100] },
-  'iso-7500':      { label: 'ISO 7500-1 (5-point)',        values: [20, 40, 60, 80, 100] },
-  'iso-7500-zero': { label: 'ISO 7500-1 + 0% preload',     values: [0, 20, 40, 60, 80, 100] },
-  'iso-9513':      { label: 'ISO 9513 (5-point)',          values: [20, 40, 60, 80, 100] },
-  'iso-376':       { label: 'ISO 376 (10-point)',          values: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100] },
+  'iso-7500-low':  { label: 'Low-range pattern (0–100%)',        values: [0, 2, 5, 10, 20, 40, 60, 80, 100] },
+  'iso-7500':      { label: 'Five-point pattern (20–100%)',        values: [20, 40, 60, 80, 100] },
+  'iso-7500-zero': { label: 'Six-point pattern (0–100%)',     values: [0, 20, 40, 60, 80, 100] },
+  'iso-9513':      { label: 'Displacement pattern (20–100%)',          values: [20, 40, 60, 80, 100] },
+  'iso-376':       { label: 'Ten-point pattern (10–100%)',          values: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100] },
   'custom':        { label: 'Custom',                       values: null },
 }
 
@@ -49,6 +48,8 @@ const presetToList = (key) => (PERCENT_PRESETS[key]?.values ?? []).map(String)
 function createRange() {
   return {
     id: nextRangeId++,
+    label: '',
+    decimals: 3,
     start: '',
     end: '',
     steps: '',
@@ -60,7 +61,7 @@ function createRange() {
     gravity: STANDARD_GRAVITY,
     gravityCountry: 'Reference',
     gravityRegion: 'Standard g₀ (9.80665)',
-    kgfMode: 'local', // 'local' = 1 kgf = 1 kg × local g (deadweight practice)
+    kgfMode: 'standard', // 'local' = 1 kgf = 1 kg × local g (deadweight practice)
                       // 'standard' = 1 kgf = 9.80665 N fixed (strict ISO)
     calibrationMode: false, // results card shows Indicated + Error% columns when true
     resolution: '', // indicator resolution at this range, e.g. 0.000025 N — used for Resolution Class
@@ -107,17 +108,23 @@ function App() {
   const [test, setTest] = useState(loadTest)
   const [ranges, setRanges] = useState(() => {
     const loaded = loadTest()
-    return loaded.__ranges?.length ? loaded.__ranges : [createRange()]
+    if (loaded.__ranges?.length) {
+      nextRangeId = Math.max(nextRangeId, ...loaded.__ranges.map(r => (Number(r.id) || 0) + 1))
+      return loaded.__ranges
+    }
+    return [createRange()]
   })
   const [focusedInput, setFocusedInput] = useState(null)
   const [calcSuccess, setCalcSuccess] = useState(null)
   const [showLogoModal, setShowLogoModal] = useState(false)
   const [showAbout, setShowAbout] = useState(false)
+  const [workspaceMode, setWorkspaceMode] = useState('planner')
+  const [notice, setNotice] = useState('')
 
   // Auto-save the document on any change. Lightweight enough — JSON
   // serialise of ~5 KB tops on a typical session, runs at React commit.
   useEffect(() => {
-    saveTest({ ...test, __ranges: ranges })
+    if (!saveTest({ ...test, __ranges: ranges })) setNotice('Browser storage is unavailable. Copy or export your plan before closing.')
   }, [test, ranges])
 
   const patchTest = (updates) => setTest(prev => ({ ...prev, ...updates }))
@@ -132,6 +139,7 @@ function App() {
   // logo within 2 s, or visit with #unlock in the URL.
   const [unlocked, setUnlockedState] = useState(isUnlocked)
   const [showUnlock, setShowUnlock] = useState(false)
+  const suiteEnabled = unlocked && workspaceMode === 'record'
   const tapCount = useRef(0)
   const tapTimer = useRef(null)
   const triggerUnlockPrompt = () => {
@@ -170,11 +178,13 @@ function App() {
   const lock = () => {
     setUnlocked(false)
     setUnlockedState(false)
+    setWorkspaceMode('planner')
     patchTest({ activeStep: 'ranges' })
   }
 
   const updateRange = (id, updates) => {
-    setRanges(prev => prev.map(r => r.id === id ? { ...r, ...updates } : r))
+    const changesPlan = ['start', 'end', 'steps', 'mode', 'percentList', 'unit', 'gravity', 'kgfMode'].some(k => k in updates)
+    setRanges(prev => prev.map(r => r.id === id ? { ...r, ...updates, ...(changesPlan ? { results: [], error: '' } : {}) } : r))
   }
 
   const addRange = () => {
@@ -187,73 +197,32 @@ function App() {
 
   const calculateAll = () => {
     setRanges(prev => prev.map(range => {
-      const startValue = parseFloat(range.start)
-      const endValue = parseFloat(range.end)
-
-      if (isNaN(startValue) || isNaN(endValue)) {
-        return { ...range, error: 'Please fill in all fields with valid numbers.', results: [] }
+      try {
+        if (needsGravity(range.unit, range.secondaryUnit, range.kgfMode) && !(Number(range.gravity) > 0)) throw new Error('Set a positive gravity value for this conversion.')
+        return { ...range, results: generateSequence(range), error: '' }
       }
-      if (startValue === endValue) {
-        return { ...range, error: 'Start and end values must be different.', results: [] }
-      }
-
-      if (range.mode === 'percentage') {
-        const parsed = (range.percentList || [])
-          .flatMap(entry => String(entry).split(/[,\s]+/))
-          .map(s => s.trim())
-          .filter(s => s.length > 0)
-          .map(Number)
-        if (parsed.some(n => !Number.isFinite(n))) {
-          return { ...range, error: 'Percentage list must contain numbers only (e.g. 0, 20, 40, 60, 80, 100).', results: [] }
-        }
-        const uniqueSorted = Array.from(new Set(parsed)).sort((a, b) => a - b)
-        if (uniqueSorted.length < 2) {
-          return { ...range, error: 'Provide at least two distinct percentage points.', results: [] }
-        }
-
-        const span = endValue - startValue
-        // Preserve the user's written order so a descending Start→End range
-        // produces a descending sequence (100 → 0), matching absolute-mode feel.
-        const descending = span < 0
-        const ordered = descending ? uniqueSorted.slice().reverse() : uniqueSorted
-
-        const results = ordered.map((p, i) => {
-          const value = startValue + (p / 100) * span
-          const prev = i === 0 ? startValue : startValue + (ordered[i - 1] / 100) * span
-          return {
-            number: startValue === 0 ? i : i + 1,
-            value,
-            stepSize: i === 0 ? 0 : value - prev,
-            percent: p,
-          }
-        })
-
-        return { ...range, results, error: '' }
-      }
-
-      const numSteps = parseInt(range.steps)
-      if (isNaN(numSteps)) {
-        return { ...range, error: 'Please fill in all fields with valid numbers.', results: [] }
-      }
-      if (numSteps < 2) {
-        return { ...range, error: 'Number of steps must be at least 2.', results: [] }
-      }
-
-      const stepSize = (endValue - startValue) / (numSteps - 1)
-      const results = Array.from({ length: numSteps }, (_, i) => ({
-        number: startValue === 0 ? i : i + 1,
-        value: startValue + i * stepSize,
-        stepSize
-      }))
-
-      return { ...range, results, error: '' }
+      catch (error) { return { ...range, results: [], error: error.message } }
     }))
-
+    if (suiteEnabled) setActiveStep('verify')
+    setNotice('Test points generated. Display rounding does not change the CSV calculation values.')
     setCalcSuccess(true)
     setTimeout(() => setCalcSuccess(false), 400)
-    setTimeout(() => {
-      resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    }, 80)
+    setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }), 80)
+  }
+
+  const loadExample = (example) => {
+    const range = { ...createRange(), ...example, id: nextRangeId++, label: example.title, results: [], error: '' }
+    range.results = generateSequence(range)
+    setRanges(prev => prev.length === 1 && prev[0].start === '' && prev[0].end === '' && !prev[0].results.length ? [range] : [...prev, range])
+    setWorkspaceMode('planner')
+    setNotice(`${example.title} example added. Your existing ranges are retained.`)
+    setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: 'auto', block: 'start' }), 80)
+  }
+
+  const copyResults = async () => {
+    const lines = ['Range\tPoint\tTarget\tUnit', ...ranges.flatMap((r, ri) => r.results.map(p => `${r.label || `Range ${ri + 1}`}\t${p.number}\t${p.value}\t${unitLabel(r.unit)}`))]
+    try { await navigator.clipboard.writeText(lines.join('\n')); setNotice('Test points copied. Paste into a worksheet or work instruction.') }
+    catch { setNotice('Clipboard access is unavailable. Use Export CSV instead.') }
   }
 
   const handleRunEdit = (rangeId, index, runIdx, newValue) => {
@@ -269,38 +238,9 @@ function App() {
   }
 
   const handleStepEdit = (rangeId, index, newValue) => {
-    const v = parseFloat(newValue)
-    if (isNaN(v)) return
-
-    setRanges(prev => prev.map(range => {
-      if (range.id !== rangeId) return range
-      const r = [...range.results]
-      r[index] = { ...r[index], value: v }
-
-      if (range.mode === 'percentage') {
-        // ISO percentage points are fixed by the standard; only recompute
-        // the deltas adjacent to the edited row — don't redistribute the rest.
-        if (index > 0) {
-          r[index] = { ...r[index], stepSize: v - r[index - 1].value }
-        }
-        if (index < r.length - 1) {
-          r[index + 1] = { ...r[index + 1], stepSize: r[index + 1].value - v }
-        }
-        return { ...range, results: r }
-      }
-
-      const endValue = parseFloat(range.end)
-      if (index < r.length - 1) {
-        const remaining = r.length - index - 1
-        const s = (endValue - v) / remaining
-        for (let i = index + 1; i < r.length; i++) {
-          r[i] = { ...r[i], value: v + (i - index) * s, stepSize: s }
-        }
-      }
-      if (index > 0) r[index - 1] = { ...r[index - 1], stepSize: v - r[index - 1].value }
-      if (index < r.length - 1) r[index] = { ...r[index], stepSize: r[index + 1].value - v }
-
-      return { ...range, results: r }
+    if (String(newValue).trim() === '' || !Number.isFinite(Number(newValue))) return
+    setRanges(prev => prev.map(range => range.id !== rangeId ? range : {
+      ...range, results: editSequence(range.results, index, Number(newValue), range.end, range.mode)
     }))
   }
 
@@ -309,16 +249,17 @@ function App() {
     if (!rangesWithResults.length) return
 
     const anySecondary = rangesWithResults.some(r => canConvert(r.unit, r.secondaryUnit))
-    const anyCal = rangesWithResults.some(r => r.calibrationMode)
+    const anyCal = suiteEnabled && rangesWithResults.some(r => r.calibrationMode)
     const csvEsc = (s) => {
-      const v = String(s ?? '')
+      let v = String(s ?? '')
+      if (/^[=+@-]/.test(v) && !Number.isFinite(Number(v))) v = "'" + v
       return /[",\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v
     }
 
     const rows = []
     // Metadata header — only when unlocked (calibration suite); otherwise
     // the simple StepWise CSV stays a clean numbers-only export.
-    if (unlocked) {
+    if (suiteEnabled) {
       const metaPairs = []
       const flat = (obj, prefix) => Object.entries(obj || {}).forEach(([k, v]) => {
         if (typeof v === 'object' || typeof v === 'boolean' || v == null) return
@@ -344,12 +285,12 @@ function App() {
     rows.push(headerCols.join(','))
 
     rangesWithResults.forEach((range, ri) => {
-      const label = rangesWithResults.length > 1 ? `R${ri + 1}` : ''
+      const label = range.label || (rangesWithResults.length > 1 ? `Range ${ri + 1}` : '')
       const unit = unitLabel(range.unit)
       const secondaryUnit = unitLabel(range.secondaryUnit)
       const hasSecondary = canConvert(range.unit, range.secondaryUnit)
       range.results.forEach(s => {
-        const cols = [label, s.number, s.value.toFixed(3), unit, s.stepSize.toFixed(3)]
+        const cols = [label, s.number, String(s.value), unit, String(s.stepSize)]
         if (anyCal) {
           if (range.calibrationMode) {
             const ind = parseFloat(s.indicated)
@@ -363,7 +304,7 @@ function App() {
         if (anySecondary) {
           if (hasSecondary) {
             const sv = convert(s.value, range.unit, range.secondaryUnit, range.gravity, range.kgfMode)
-            cols.push(sv.toFixed(3), secondaryUnit)
+            cols.push(String(sv), secondaryUnit)
           } else {
             cols.push('', '')
           }
@@ -373,15 +314,19 @@ function App() {
     })
 
     const link = document.createElement('a')
-    link.href = URL.createObjectURL(new Blob([rows.join('\n')], { type: 'text/csv' }))
-    link.download = 'step_sequence.csv'
+    const url = URL.createObjectURL(new Blob(['\uFEFF' + rows.join('\r\n')], { type: 'text/csv;charset=utf-8' }))
+    link.href = url
+    link.download = 'stepwise-test-points.csv'
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
+    setTimeout(() => URL.revokeObjectURL(url), 1000)
   }
 
   const clearAll = () => {
+    if (ranges.some(r => r.results.length || r.start || r.end) && !window.confirm('Clear all ranges and their readings? Export your work first if you need a copy.')) return
     setRanges([createRange()])
+    setNotice('Ranges cleared.')
   }
 
   const hasAnyResults = ranges.some(r => r.results.length > 0)
@@ -393,7 +338,7 @@ function App() {
       {showUnlock && !unlocked && (
         <UnlockModal
           onClose={() => setShowUnlock(false)}
-          onUnlock={() => { setUnlocked(true); setUnlockedState(true); setShowUnlock(false) }}
+          onUnlock={() => { setUnlocked(true); setUnlockedState(true); setWorkspaceMode('record'); setShowUnlock(false) }}
         />
       )}
 
@@ -416,9 +361,9 @@ function App() {
         </button>
         <div className="header-text">
           <div className="header-title">StepWise</div>
-          <div className="header-subtitle">Johansson Engineering</div>
+          <div className="header-subtitle">Test-point planner · Johansson Engineering</div>
           <div className="header-buttons">
-            {unlocked && gateActive() && (
+            {suiteEnabled && gateActive() && (
               <button className="header-btn header-btn--lock" onClick={lock}
                 aria-label="Lock calibration suite" title="Lock calibration suite">
                 🔒
@@ -433,12 +378,21 @@ function App() {
       </header>
 
       <div className="app-content">
+        <div className="workspace-switch" role="group" aria-label="Workspace">
+          <button type="button" aria-pressed={!suiteEnabled} onClick={() => setWorkspaceMode('planner')}>Test-point planner</button>
+          <button type="button" aria-pressed={suiteEnabled} onClick={() => { if (unlocked) setWorkspaceMode('record'); else triggerUnlockPrompt() }}>Advanced record</button>
+          <a href="https://nj22az.github.io/#projects">All projects ↗</a>
+        </div>
+        {!suiteEnabled && <PlannerIntro onExample={loadExample} />}
+        {suiteEnabled && <p className="record-note">Advanced working record · Review the selected method, calculations and completeness before using any result. The planner remains available in the other workspace.</p>}
+        {notice && <p className="planner-notice" role="status">{notice}</p>}
+
         {/* App title bento */}
-        <section className="section">
+        {suiteEnabled && <section className="section">
           <div className="card title-card">
             <div className="title-card-text">
-              {unlocked ? 'Calibration Suite' : 'Step Sequence Calculator'}
-              {unlocked && (
+              {suiteEnabled ? 'Advanced working record' : 'Test-point planner'}
+              {suiteEnabled && (
                 <span className="title-card-sub">
                   {test.standard.id.toUpperCase()} · Class {test.standard.accuracyClass} · {test.standard.mode}
                 </span>
@@ -447,8 +401,10 @@ function App() {
           </div>
         </section>
 
+        }
+
         {/* Wizard nav — horizontal scrollable pills */}
-        {unlocked && (
+        {suiteEnabled && (
         <nav className="wizard-nav" aria-label="Calibration steps">
           {STEPS.map(step => {
             const status = stepStatus(test, ranges, step.id)
@@ -467,19 +423,19 @@ function App() {
         )}
 
         {/* Step content (suite-only screens) */}
-        {unlocked && activeStep === 'site'      && <SiteScreen      test={test} patch={patchTest} />}
-        {unlocked && activeStep === 'equipment' && <EquipmentScreen test={test} patch={patchTest} />}
-        {unlocked && activeStep === 'standard'  && <StandardScreen  test={test} patch={patchTest} />}
-        {unlocked && activeStep === 'notes'     && <NotesScreen     test={test} patch={patchTest} />}
-        {unlocked && activeStep === 'preview'   && <PreviewScreen   test={test} ranges={ranges} />}
+        {suiteEnabled && activeStep === 'site'      && <SiteScreen      test={test} patch={patchTest} />}
+        {suiteEnabled && activeStep === 'equipment' && <EquipmentScreen test={test} patch={patchTest} />}
+        {suiteEnabled && activeStep === 'standard'  && <StandardScreen  test={test} patch={patchTest} />}
+        {suiteEnabled && activeStep === 'notes'     && <NotesScreen     test={test} patch={patchTest} />}
+        {suiteEnabled && activeStep === 'preview'   && <PreviewScreen   test={test} ranges={ranges} />}
 
-        {(!unlocked || activeStep === 'ranges') && (<>
+        {(!suiteEnabled || activeStep === 'ranges') && (<>
         {/* Range Inputs */}
         {ranges.map((range, ri) => (
           <section className="section" key={range.id}>
             <div className="section-header-row">
               <h2 className="section-header">
-                {multiRange ? `Range ${ri + 1}` : 'Values'}
+                {range.label || (multiRange ? `Range ${ri + 1}` : 'Your measurement range')}
               </h2>
               {multiRange && (
                 <button className="range-remove-btn" onClick={() => removeRange(range.id)}
@@ -489,18 +445,20 @@ function App() {
               )}
             </div>
             <div className="card">
+              <div className="card-row"><label className="card-row-label" htmlFor={`range-name-${range.id}`}>Range name</label><input className="input" id={`range-name-${range.id}`} placeholder="e.g. Pump pressure" value={range.label || ''} onChange={e => updateRange(range.id, { label: e.target.value })} /></div>
+              <div className="card-row"><label className="card-row-label" htmlFor={`decimals-${range.id}`}>Display decimals</label><select className="input input--select" id={`decimals-${range.id}`} value={range.decimals ?? 3} onChange={e => updateRange(range.id, { decimals: Number(e.target.value) })}>{Array.from({ length: 10 }, (_, i) => <option key={i} value={i}>{i}</option>)}</select></div>
               <div className="card-row mode-toggle" role="tablist" aria-label="Step input mode">
                 <button type="button" role="tab"
                   aria-selected={range.mode === 'absolute'}
                   className={`mode-btn${range.mode === 'absolute' ? ' mode-btn--active' : ''}`}
                   onClick={() => updateRange(range.id, { mode: 'absolute' })}>
-                  Absolute
+                  Even spacing
                 </button>
                 <button type="button" role="tab"
                   aria-selected={range.mode === 'percentage'}
                   className={`mode-btn${range.mode === 'percentage' ? ' mode-btn--active' : ''}`}
                   onClick={() => updateRange(range.id, { mode: 'percentage' })}>
-                  Percentage
+                  Percentage of span
                 </button>
               </div>
               <button type="button" className="card-row options-toggle"
@@ -668,10 +626,10 @@ function App() {
               {range.mode === 'absolute' ? (
                 <div className={`card-row${focusedInput === `steps-${range.id}` ? ' card-row--focused' : ''}`}>
                   <label className="card-row-label" htmlFor={`steps-${range.id}`}>
-                    <HashIcon /> Steps
+                    <HashIcon /> Number of points
                   </label>
                   <input className="input" type="number" inputMode="numeric" id={`steps-${range.id}`}
-                    min="2" placeholder="Min. 2" value={range.steps}
+                    min="2" max={MAX_POINTS} step="1" placeholder="Includes both endpoints" value={range.steps}
                     onChange={e => updateRange(range.id, { steps: e.target.value })}
                     onFocus={() => setFocusedInput(`steps-${range.id}`)}
                     onBlur={() => setFocusedInput(null)} />
@@ -763,8 +721,8 @@ function App() {
             {ri === 0 && !hasAnyResults && (
               <p className="section-footer">
                 {range.mode === 'absolute'
-                  ? 'Enter start, end, and number of steps to generate a sequence.'
-                  : 'Enter full-scale start and end, then choose a calibration preset (ISO 7500 / 9513 / 376) or edit the percentage list.'}
+                  ? 'Points include both endpoints: five points make four intervals. Add units under Units & gravity.'
+                  : 'Percentages are measured along the span from Start (0%) to End (100%). Patterns are planning aids; choose points for your approved procedure.'}
               </p>
             )}
             {range.error && (
@@ -783,7 +741,7 @@ function App() {
             </button>
             <button className={`action-pill action-pill--primary${calcSuccess ? ' btn--success' : ''}`}
               onClick={calculateAll}>
-              <CalcIcon /> Calculate
+              <CalcIcon /> Generate test points
             </button>
           </div>
         </section>
@@ -793,8 +751,9 @@ function App() {
           <section className="section">
             <div className="btn-row">
               <button className="btn btn--green" onClick={exportToCSV}>
-                <ExportIcon /> Export
+                <ExportIcon /> Export CSV
               </button>
+              <button className="btn btn--outline" onClick={copyResults}>Copy points</button>
               <button className="btn btn--outline" onClick={clearAll}>
                 <TrashIcon /> Clear
               </button>
@@ -804,12 +763,12 @@ function App() {
         </>)}
 
         {/* Results — public when locked (simple StepWise), gated to Verify step when unlocked */}
-        {(!unlocked || activeStep === 'verify') && (<>
+        {(!suiteEnabled || activeStep === 'verify') && (<>
         {!hasAnyResults && (
           <section className="section">
             <div className="card title-card">
               <div className="title-card-text">
-                No results yet. Go to <button className="link-btn" onClick={() => setActiveStep('ranges')}>Ranges</button> and press Calculate.
+                No points generated yet. Configure a range, then choose Generate test points.
               </div>
             </div>
           </section>
@@ -833,17 +792,17 @@ function App() {
             ? convert(v, range.unit, range.secondaryUnit, range.gravity, range.kgfMode)
             : null
 
-          const cal = range.calibrationMode
+          const cal = suiteEnabled && range.calibrationMode
           return (
             <section className="section" key={`results-${range.id}`}
               ref={ri === 0 ? resultsRef : null}>
               <div className="section-header-row">
                 <h2 className="section-header">
                   {multiRange
-                    ? `Range ${ri + 1} — ${range.results.length} steps`
-                    : `Results — ${range.results.length} steps`}
+                    ? `${range.label || `Range ${ri + 1}`} — ${range.results.length} points`
+                    : `Test points — ${range.results.length} points`}
                 </h2>
-                {unlocked && (
+                {suiteEnabled && (
                   <button type="button"
                     className={`cal-toggle${cal ? ' cal-toggle--on' : ''}`}
                     onClick={() => updateRange(range.id, { calibrationMode: !cal })}
@@ -872,29 +831,29 @@ function App() {
                   <div className="results-summary-item">
                     <div className="results-summary-label">From → To</div>
                     <div className="results-summary-value">
-                      {summary.from.toFixed(1)} → {summary.to.toFixed(1)}{primaryLabel ? ` ${primaryLabel}` : ''}
+                      {summary.from.toFixed(range.decimals ?? 3)} → {summary.to.toFixed(range.decimals ?? 3)}{primaryLabel ? ` ${primaryLabel}` : ''}
                     </div>
                     {hasSecondary && (
                       <div className="results-summary-secondary">
-                        {secondaryOf(summary.from).toFixed(1)} → {secondaryOf(summary.to).toFixed(1)} {secondaryLabel}
+                        {secondaryOf(summary.from).toFixed(range.decimals ?? 3)} → {secondaryOf(summary.to).toFixed(range.decimals ?? 3)} {secondaryLabel}
                       </div>
                     )}
                   </div>
                   <div className="results-summary-item">
-                    <div className="results-summary-label">Step Size</div>
+                    <div className="results-summary-label">Average spacing</div>
                     <div className="results-summary-value">
-                      {summary.avg.toFixed(3)}{primaryLabel ? ` ${primaryLabel}` : ''}
+                      {summary.avg.toFixed(range.decimals ?? 3)}{primaryLabel ? ` ${primaryLabel}` : ''}
                     </div>
                   </div>
                   <div className="results-summary-item">
-                    <div className="results-summary-label">Steps</div>
+                    <div className="results-summary-label">Points</div>
                     <div className="results-summary-value">{summary.count}</div>
                   </div>
                 </div>
 
                 <div className={`results-header${cal ? ' results-header--cal' : ''}`}>
                   <span className="results-header-cell">#</span>
-                  <span className="results-header-cell">Applied</span>
+                  <span className="results-header-cell">Target value</span>
                   {cal && <span className="results-header-cell">{test.standard.runs > 1 ? `${test.standard.runs} Runs` : 'Indicated'}</span>}
                   {cal && <span className="results-header-cell">Error / Repeat</span>}
                   {!cal && <span className="results-header-cell">Delta</span>}
@@ -936,8 +895,10 @@ function App() {
                       <div className="result-value">
                         <div className="result-value-primary">
                           <input type="number" className="result-value-input"
-                            value={step.value.toFixed(3)}
-                            onChange={ev => handleStepEdit(range.id, i, ev.target.value)}
+                            key={`${step.value}-${range.decimals ?? 3}`}
+                            defaultValue={step.value.toFixed(range.decimals ?? 3)}
+                            aria-label={`Point ${step.number} target value`}
+                            onBlur={ev => { if (ev.target.value !== step.value.toFixed(range.decimals ?? 3)) handleStepEdit(range.id, i, ev.target.value) }}
                             step="any" />
                           {primaryLabel && (
                             <span className="result-value-unit">{primaryLabel}</span>
@@ -945,7 +906,7 @@ function App() {
                         </div>
                         {secondaryValue != null && (
                           <div className="result-value-secondary">
-                            {secondaryValue.toFixed(3)} {secondaryLabel}
+                            {secondaryValue.toFixed(range.decimals ?? 3)} {secondaryLabel}
                           </div>
                         )}
                       </div>
@@ -983,7 +944,7 @@ function App() {
                         </span>
                       ) : (
                         <span className={`result-delta ${positive ? 'result-delta--positive' : 'result-delta--negative'}`}>
-                          {positive ? '+' : ''}{step.stepSize.toFixed(3)}
+                          {positive ? '+' : ''}{step.stepSize.toFixed(range.decimals ?? 3)}
                         </span>
                       )}
                     </div>
@@ -992,8 +953,8 @@ function App() {
               </div>
               <p className="section-footer">
                 {cal
-                  ? 'Enter measured values; error % is computed against the applied target. Green < 1%, amber < 2%, red ≥ 2%.'
-                  : 'Tap any value to edit. Subsequent steps recalculate.'}
+                  ? 'Working record: enter readings to compare them with the targets. Review method-specific checks separately.'
+                  : 'Edit a target and leave the field to apply it. Even spacing redistributes later points; percentage mode keeps other targets fixed. CSV exports full calculation precision.'}
               </p>
             </section>
           )
@@ -1019,7 +980,7 @@ function App() {
                 </button>
                 <div className="about-text">
                   <p>
-                    StepWise is a precision step sequence calculator for generating
+                    StepWise is a test-point planner for generating
                     evenly spaced values between defined start and end points. Built
                     for engineers, technicians, and anyone who needs accurate
                     incremental sequences.
@@ -1030,9 +991,7 @@ function App() {
                     Export results as CSV.
                   </p>
                   <p>
-                    Switch a range to Percentage mode to generate calibration
-                    sequences from ISO 7500-1, ISO 9513, or ISO 376 preset points,
-                    or enter a custom percentage list.
+                    Use Percentage mode to plan specific fractions of a span, or enter a custom list. The advanced record is a separate working draft; it is not a complete calibration system.
                   </p>
                 </div>
                 <div className="about-separator" />

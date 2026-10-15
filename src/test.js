@@ -176,8 +176,8 @@ export function loadTest() {
 }
 
 export function saveTest(test) {
-  if (typeof localStorage === 'undefined') return
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(test)) } catch (e) { void e }
+  if (typeof localStorage === 'undefined') return false
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(test)); return true } catch { return false }
 }
 
 function mergeDeep(target, source) {

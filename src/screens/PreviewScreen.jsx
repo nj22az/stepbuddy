@@ -18,13 +18,14 @@ export function PreviewScreen({ test, ranges }) {
           Print / Save as PDF
         </button>
         <span className={`overall-badge overall-badge--${overall.status}`}>
-          {overall.status === 'pass' ? '✓ PASS' : overall.status === 'fail' ? '✗ FAIL' : '— Incomplete'}
+          {overall.status === 'pass' ? 'Within indication-error band' : overall.status === 'fail' ? 'Outside indication-error band' : '— Incomplete'}
         </span>
       </div>
 
       <article className="cert">
+        <p className="record-note">Draft working record. The indication-error screen is not a complete calibration or conformity decision. Review all required method-specific checks.</p>
         <header className="cert-header">
-          <div className="cert-title">Calibration Certificate</div>
+          <div className="cert-title">Working measurement record</div>
           <div className="cert-meta">
             <div><span>Cert. no.</span> <strong>{test.notes.certNo || '—'}</strong></div>
             <div><span>Date</span> <strong>{test.notes.startDate || today}</strong></div>
@@ -145,9 +146,9 @@ export function PreviewScreen({ test, ranges }) {
           <h3>Result</h3>
           <p className={`cert-overall cert-overall--${overall.status}`}>
             {overall.status === 'pass'
-              ? `PASS — all points within ±${tol.errMax}% (Class ${test.standard.accuracyClass}).`
+              ? `Indication-error screen — all entered points within ±${tol.errMax}% (Class ${test.standard.accuracyClass}).`
               : overall.status === 'fail'
-                ? `FAIL — ${overall.failures} point(s) exceeded ±${tol.errMax}%.`
+                ? `Indication-error screen — ${overall.failures} point(s) exceeded ±${tol.errMax}%.`
                 : 'Incomplete — Indicated values not yet entered for all points.'}
           </p>
           {test.notes.freeText && (
@@ -157,7 +158,7 @@ export function PreviewScreen({ test, ranges }) {
 
         <footer className="cert-footer">
           <div>
-            <div>Calibrated by</div>
+            <div>Recorded by</div>
             <div className="sig-line"></div>
             <small>Signature</small>
           </div>

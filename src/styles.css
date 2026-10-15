@@ -6,3 +6,5 @@
 @import './styles/buttons.css';
 @import './styles/results.css';
 @import './styles/wizard.css';
+
+@import "./styles/note.css";
